@@ -4,6 +4,9 @@ namespace Sahnem.Business.DTOs.Profile
 {
     public class VenueProfileResponseDto
     {
+        public int Id {get; set;}
+        public int AppUserId {get; set;}
+        public string? AvatarUrl {get; set;}
         public string VenueName {get; set;}
         public VenueType VenueType {get; set;}
         public string Bio {get; set;}
@@ -17,5 +20,6 @@ namespace Sahnem.Business.DTOs.Profile
         public string? InstagramUrl {get; set;}
         public string? YoutubeUrl {get; set;}
         public string? LinkedinUrl {get; set;}
+        public VerificationStatus VerificationStatus {get; set;}
     }
 }

@@ -1,7 +1,6 @@
 using System.Data;
 using FluentValidation;
 using Sahnem.Business.DTOs;
-using Sahnem.Business.Enums;
 using Sahnem.Core.Enums;
 
 namespace Sahnem.Business.Validators.Profile

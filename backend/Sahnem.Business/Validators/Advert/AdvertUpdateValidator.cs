@@ -65,6 +65,11 @@ namespace Sahnem.Business.Validators.Advert
             .InclusiveBetween(0,50)
             .WithMessage("Minimum Experience years must be between 0 and 50");
 
+            RuleFor(x=> x.TargetBranch)
+            .IsInEnum()
+            .When(x=> x.TargetBranch.HasValue)
+            .WithMessage("Invalid branch");
+
             RuleFor(x=> x.ApplicationDeadline)
             .Cascade(CascadeMode.Stop)
             .NotEmpty()

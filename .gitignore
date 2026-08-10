@@ -1,6 +1,8 @@
 # .NET
 backend/**/bin/
 backend/**/obj/
+backend/Sahnem.API/wwwroot/uploads/*
+!backend/Sahnem.API/wwwroot/uploads/.gitkeep
 
 # Node
 frontend/node_modules/

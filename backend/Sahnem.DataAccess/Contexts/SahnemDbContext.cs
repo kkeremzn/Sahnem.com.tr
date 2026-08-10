@@ -54,7 +54,15 @@ namespace Sahnem.DataAccess.Contexts
             .HasForeignKey(o=>o.MusicianId)
             .OnDelete(DeleteBehavior.Restrict);
 
+            // EF Core'un decimal alanlar için varsayılan hassasiyeti değerleri
+            // sessizce kırpabildiğine dair uyarısını gidermek için açık precision.
+            modelBuilder.Entity<Advert>()
+            .Property(a => a.Budget)
+            .HasPrecision(18, 2);
 
+            modelBuilder.Entity<Offer>()
+            .Property(o => o.ProposedPrice)
+            .HasPrecision(18, 2);
 
         }
     }

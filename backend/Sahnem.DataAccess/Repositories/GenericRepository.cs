@@ -40,7 +40,6 @@ namespace Sahnem.DataAccess.Repositories
 
         public async Task<IEnumerable<T>> GetAllAsync()
         {
-            await Task.Delay(1000); // Simulating async operation
             return await _dbSet.ToListAsync();
         }
 

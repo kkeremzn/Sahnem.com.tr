@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Sahnem.API.Middleware;
+using Sahnem.API.Services;
 using Sahnem.Business.AutoMapping;
 using Sahnem.Business.Interfaces;
 using Sahnem.Business.Security;
@@ -17,6 +19,23 @@ using Sahnem.DataAccess.Repositories;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+const string FrontendCorsPolicy = "FrontendCorsPolicy";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(FrontendCorsPolicy, policy =>
+    {
+        policy
+            .WithOrigins(
+                "http://localhost:5173",
+                "http://127.0.0.1:5173",
+                "http://localhost:4173" // vite preview
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -32,7 +51,9 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepositor
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<IAdvertService, AdvertService>();
-builder.Services.AddScoped<IPasswordService, PasswordService>(); 
+builder.Services.AddScoped<IOfferService, OfferService>();
+builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
+builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddAutoMapper(typeof(AppUserProfileMapping));
 
@@ -81,7 +102,11 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+
 app.UseHttpsRedirection();
+app.UseStaticFiles(); // wwwroot/uploads altındaki avatar/logo dosyalarını sunar
+app.UseCors(FrontendCorsPolicy);
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

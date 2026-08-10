@@ -19,7 +19,7 @@ namespace Sahnem.Core.Enums
         Producer = 14,
         Percussion = 15,
         Oud = 16,
-        Bağlama = 17,
+        Baglama = 17,
         Kanun = 18
     }
 }

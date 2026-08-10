@@ -154,9 +154,9 @@ namespace Sahnem.Business.Services
                         throw new Exception("Musician profile not found");
                     }
 
-                    return _mapper.Map<MusicianProfileResponseDto>(musician);
+                    return await BuildMusicianResponse(musician);
                 case UserType.Organizer:
-                    
+
                     var organizer = await _organizerProfileRepository.FirstOrDefaultAsync(x=> x.AppUserId == user.Id);
 
                     if(organizer == null)
@@ -164,9 +164,11 @@ namespace Sahnem.Business.Services
                         throw new Exception("Organizer profile not found");
                     }
 
-                    return _mapper.Map<OrganizerProfileResponseDto>(organizer);
+                    var organizerDto = _mapper.Map<OrganizerProfileResponseDto>(organizer);
+                    organizerDto.AvatarUrl = user.AvatarUrl;
+                    return organizerDto;
                 case UserType.Venue:
-                    
+
                     var venue = await _venueProfileRepository.FirstOrDefaultAsync(x=> x.AppUserId == user.Id);
 
                     if(venue == null)
@@ -174,12 +176,167 @@ namespace Sahnem.Business.Services
                         throw new Exception("Venue profile not found");
                     }
 
-                    return _mapper.Map<VenueProfileResponseDto>(venue);
+                    var venueDto = _mapper.Map<VenueProfileResponseDto>(venue);
+                    venueDto.AvatarUrl = user.AvatarUrl;
+                    return venueDto;
                 default:
                     throw new Exception("Invalid user role");
             }
         }
 
-        
+        public async Task<MusicianProfileResponseDto> GetMusicianById(int id)
+        {
+            var musician = await _musicianProfileRepository.GetByIdAsync(id);
+            if (musician == null)
+            {
+                throw new Exception("Musician profile not found");
+            }
+
+            return await BuildMusicianResponse(musician);
+        }
+
+        public async Task<IEnumerable<MusicianProfileResponseDto>> GetMusicians(MusicianFilterDto? filter = null)
+        {
+            var musicians = (await _musicianProfileRepository.GetAllAsync()).AsEnumerable();
+
+            if (filter != null)
+            {
+                if (!string.IsNullOrWhiteSpace(filter.Search))
+                {
+                    var search = filter.Search.Trim().ToLowerInvariant();
+                    musicians = musicians.Where(m =>
+                        m.Genres.ToLowerInvariant().Contains(search) ||
+                        m.Bio.ToLowerInvariant().Contains(search));
+                }
+                if (filter.Branch.HasValue)
+                {
+                    musicians = musicians.Where(m => m.Branch == filter.Branch.Value.ToString());
+                }
+                if (filter.City.HasValue)
+                {
+                    musicians = musicians.Where(m => m.City == filter.City.Value);
+                }
+                if (filter.TravelOnly == true)
+                {
+                    musicians = musicians.Where(m => m.IsAvailableToTravel == IsAvailableToTravel.Yes);
+                }
+            }
+
+            var list = musicians.ToList();
+            if (list.Count == 0)
+            {
+                return Enumerable.Empty<MusicianProfileResponseDto>();
+            }
+
+            var userIds = list.Select(m => m.AppUserId).Distinct().ToList();
+            var users = await _userRepository.WhereAsync(u => userIds.Contains(u.Id));
+
+            var dtos = _mapper.Map<List<MusicianProfileResponseDto>>(list);
+            foreach (var dto in dtos)
+            {
+                var user = users.FirstOrDefault(u => u.Id == dto.AppUserId);
+                dto.FirstName = user?.FirstName;
+                dto.LastName = user?.LastName;
+                dto.AvatarUrl = user?.AvatarUrl;
+            }
+            return dtos;
+        }
+
+        public async Task<object> GetEmployerByUserId(int userId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+
+            var organizer = await _organizerProfileRepository.FirstOrDefaultAsync(o => o.AppUserId == userId);
+            if (organizer != null)
+            {
+                var organizerDto = _mapper.Map<OrganizerProfileResponseDto>(organizer);
+                organizerDto.AvatarUrl = user?.AvatarUrl;
+                return new { kind = "Organizer", profile = organizerDto };
+            }
+
+            var venue = await _venueProfileRepository.FirstOrDefaultAsync(v => v.AppUserId == userId);
+            if (venue != null)
+            {
+                var venueDto = _mapper.Map<VenueProfileResponseDto>(venue);
+                venueDto.AvatarUrl = user?.AvatarUrl;
+                return new { kind = "Venue", profile = venueDto };
+            }
+
+            throw new Exception("Employer profile not found");
+        }
+
+        public async Task<MusicianProfileResponseDto> UpdateMusicianProfile(MusicianProfileCreateDto dto)
+        {
+            var validationResult = await _validatorMusicianProfileCreate.ValidateAsync(dto);
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
+
+            var userId = _cureentUserService.UserId;
+            var musician = await _musicianProfileRepository.FirstOrDefaultAsync(x => x.AppUserId == userId);
+            if (musician == null)
+            {
+                throw new Exception("Musician profile not found");
+            }
+
+            _mapper.Map(dto, musician);
+            await _unitOfWork.SaveChanges();
+            return await BuildMusicianResponse(musician);
+        }
+
+        public async Task<OrganizerProfileResponseDto> UpdateOrganizerProfile(OrganizerProfileCreateDto dto)
+        {
+            var validationResult = await _validatorOrganizerProfileCreate.ValidateAsync(dto);
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
+
+            var userId = _cureentUserService.UserId;
+            var organizer = await _organizerProfileRepository.FirstOrDefaultAsync(x => x.AppUserId == userId);
+            if (organizer == null)
+            {
+                throw new Exception("Organizer profile not found");
+            }
+
+            _mapper.Map(dto, organizer);
+            await _unitOfWork.SaveChanges();
+            var organizerDto = _mapper.Map<OrganizerProfileResponseDto>(organizer);
+            organizerDto.AvatarUrl = (await _userRepository.GetByIdAsync(userId))?.AvatarUrl;
+            return organizerDto;
+        }
+
+        public async Task<VenueProfileResponseDto> UpdateVenueProfile(VenueProfileCreateDto dto)
+        {
+            var validationResult = await _validatorVenueCreateProfile.ValidateAsync(dto);
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
+
+            var userId = _cureentUserService.UserId;
+            var venue = await _venueProfileRepository.FirstOrDefaultAsync(x => x.AppUserId == userId);
+            if (venue == null)
+            {
+                throw new Exception("Venue profile not found");
+            }
+
+            _mapper.Map(dto, venue);
+            await _unitOfWork.SaveChanges();
+            var venueDto = _mapper.Map<VenueProfileResponseDto>(venue);
+            venueDto.AvatarUrl = (await _userRepository.GetByIdAsync(userId))?.AvatarUrl;
+            return venueDto;
+        }
+
+        private async Task<MusicianProfileResponseDto> BuildMusicianResponse(MusicianProfile musician)
+        {
+            var dto = _mapper.Map<MusicianProfileResponseDto>(musician);
+            var user = await _userRepository.GetByIdAsync(musician.AppUserId);
+            dto.FirstName = user?.FirstName;
+            dto.LastName = user?.LastName;
+            dto.AvatarUrl = user?.AvatarUrl;
+            return dto;
+        }
     }
 }

@@ -1,4 +1,4 @@
-namespace Sahnem.Business.Enums
+namespace Sahnem.Core.Enums
 {
     public enum AdvertStatus
     {

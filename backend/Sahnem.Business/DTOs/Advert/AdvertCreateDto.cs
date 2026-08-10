@@ -14,7 +14,8 @@ namespace Sahnem.Business.DTOs.Advert
         public DateTime EventTime {get; set;}
         public decimal Budget {get; set;}
         public int? MinimumExperienceYears{get; set;}
+        public MusicBranch? TargetBranch {get; set;}
         public DateTime ApplicationDeadline { get; set; }
 
-    }    
+    }
 }

@@ -1,4 +1,3 @@
-using Sahnem.Business.Enums;
 using Sahnem.Core.Enums;
 
 namespace Sahnem.Core.Entities

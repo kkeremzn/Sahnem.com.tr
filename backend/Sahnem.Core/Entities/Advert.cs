@@ -1,4 +1,3 @@
-using Sahnem.Business.Enums;
 using Sahnem.Core.Enums;
 
 namespace Sahnem.Core.Entities
@@ -16,6 +15,7 @@ namespace Sahnem.Core.Entities
         public DateTime EventTime {get; set;}
         public decimal Budget {get; set;}
         public int? MinimumExperienceYears{get; set;}
+        public MusicBranch? TargetBranch {get; set;}
         public AdvertStatus Status {get; set;}
         public DateTime ApplicationDeadline { get; set; }
 

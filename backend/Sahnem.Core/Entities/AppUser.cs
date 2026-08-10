@@ -9,6 +9,7 @@ namespace Sahnem.Core.Entities
         public string Email {get; set;}
         public string PasswordHash {get; set;}
         public string PhoneNumber {get; set;}
+        public string? AvatarUrl {get; set;}
         public UserType Role {get; set;}
         public bool IsEmailConfirmed {get; set;} = false;
         public bool IsPhoneNumberConfirmed {get; set;} = false;

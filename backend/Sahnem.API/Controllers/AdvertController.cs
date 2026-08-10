@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sahnem.Business.DTOs.Advert;
 using Sahnem.Business.Interfaces;
@@ -17,9 +18,9 @@ namespace Sahnem.API.Controllers
         
 
         [HttpGet("getall")]
-        public async Task<IActionResult> GetAllAdverts()
+        public async Task<IActionResult> GetAllAdverts([FromQuery] AdvertFilterDto filter)
         {
-            var result = await _advertService.GetAllAdvert();
+            var result = await _advertService.GetAllAdvert(filter);
             return Ok(result);
         }
 
@@ -30,6 +31,7 @@ namespace Sahnem.API.Controllers
             return Ok(result);
         }
 
+        [Authorize]
         [HttpGet("getmyadverts")]
         public async Task<IActionResult> GetMyAdverts()
         {
@@ -37,6 +39,7 @@ namespace Sahnem.API.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Organizer,Venue")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateAdvert([FromBody] AdvertCreateDto advertCreateDto)
         {
@@ -44,6 +47,7 @@ namespace Sahnem.API.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Organizer,Venue")]
         [HttpPut("update")]
         public async Task<IActionResult> UpdateAdvert([FromQuery] int advertId,[FromBody] AdvertUpdateDto advertUpdateDto)
         {
@@ -51,6 +55,7 @@ namespace Sahnem.API.Controllers
             return Ok();
         }
 
+        [Authorize(Roles = "Organizer,Venue")]
         [HttpPut("cancel")]
         public async Task<IActionResult> CancelAdvert([FromQuery] int advertId)
         {
