@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sahnem – Keşfet</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/brand/favicon-192x192.png">
+  <link rel="apple-touch-icon" href="assets/brand/favicon-192x192.png">
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<div id="navbar-slot"></div>
+
+<div class="page">
+  <div class="explore-search">
+    <div class="explore-search-inner">
+      <div class="explore-search-bar">
+        <span id="search-icon" style="color:var(--subtle);"></span>
+        <input type="text" placeholder="Enstrüman, tarz veya isim ara...">
+      </div>
+      <select class="form-input form-select" style="width:160px;">
+        <option>Tüm Türkiye</option>
+        <option>İstanbul</option>
+        <option>Ankara</option>
+        <option>İzmir</option>
+        <option>Antalya</option>
+        <option>Kayseri</option>
+      </select>
+      <button type="button" class="btn btn-primary">Ara</button>
+    </div>
+    <div class="active-filters" style="padding: 8px 0 0;">
+      <div class="active-filter">Pop <span aria-hidden="true">×</span></div>
+      <div class="active-filter">İstanbul <span aria-hidden="true">×</span></div>
+      <div class="active-filter">Müsait <span aria-hidden="true">×</span></div>
+      <button type="button" class="btn btn-ghost btn-sm" style="padding:4px 10px;font-size:0.75rem;">Filtreleri Temizle</button>
+    </div>
+  </div>
+
+  <div class="explore-layout">
+    <aside class="filter-sidebar">
+      <div class="filter-panel">
+        <div class="filter-header">
+          <h3 style="font-family:var(--font-display);font-size:0.95rem;font-weight:700;">Filtreler</h3>
+          <button type="button" class="btn btn-ghost btn-sm" style="font-size:0.75rem;padding:4px 8px;">Sıfırla</button>
+        </div>
+
+        <div class="filter-section">
+          <div class="filter-section-title">Kategori</div>
+          <label class="filter-option"><input type="checkbox" checked> Gitarist <span class="filter-count">48</span></label>
+          <label class="filter-option"><input type="checkbox"> DJ <span class="filter-count">28</span></label>
+          <label class="filter-option"><input type="checkbox"> Solist <span class="filter-count">36</span></label>
+          <label class="filter-option"><input type="checkbox"> Klavyeci <span class="filter-count">22</span></label>
+          <label class="filter-option"><input type="checkbox"> Davulcu <span class="filter-count">18</span></label>
+          <label class="filter-option"><input type="checkbox"> Kemancı <span class="filter-count">14</span></label>
+          <label class="filter-option"><input type="checkbox"> Grup <span class="filter-count">42</span></label>
+          <label class="filter-option"><input type="checkbox"> Bando <span class="filter-count">12</span></label>
+        </div>
+
+        <div class="filter-section">
+          <div class="filter-section-title">Müzik Tarzı</div>
+          <label class="filter-option"><input type="checkbox" checked> Pop <span class="filter-count">86</span></label>
+          <label class="filter-option"><input type="checkbox"> Rock <span class="filter-count">64</span></label>
+          <label class="filter-option"><input type="checkbox"> Jazz <span class="filter-count">38</span></label>
+          <label class="filter-option"><input type="checkbox"> Klasik <span class="filter-count">24</span></label>
+          <label class="filter-option"><input type="checkbox"> Latin <span class="filter-count">16</span></label>
+          <label class="filter-option"><input type="checkbox"> Türk Halk <span class="filter-count">32</span></label>
+          <label class="filter-option"><input type="checkbox"> Fasıl <span class="filter-count">18</span></label>
+          <label class="filter-option"><input type="checkbox"> Electronic <span class="filter-count">28</span></label>
+        </div>
+
+        <div class="filter-section">
+          <div class="filter-section-title">Deneyim</div>
+          <label class="filter-option"><input type="checkbox"> 0-2 yıl</label>
+          <label class="filter-option"><input type="checkbox"> 2-5 yıl</label>
+          <label class="filter-option"><input type="checkbox" checked> 5-10 yıl</label>
+          <label class="filter-option"><input type="checkbox"> 10+ yıl</label>
+        </div>
+
+        <div class="filter-section">
+          <div class="filter-section-title">Gig Ücreti (₺)</div>
+          <input type="range" class="range-slider" min="0" max="10000" value="5000" id="priceRange" oninput="document.getElementById('priceVal').textContent='₺0 – ₺'+Number(this.value).toLocaleString('tr-TR')">
+          <div class="range-labels"><span>₺0</span><span id="priceVal">₺0 – ₺5.000</span><span>₺10.000</span></div>
+        </div>
+
+        <div class="filter-section">
+          <div class="filter-section-title">Müsaitlik</div>
+          <label class="filter-option"><input type="checkbox" checked> Şu An Müsait</label>
+          <label class="filter-option"><input type="checkbox"> Bu Hafta Müsait</label>
+          <label class="filter-option"><input type="checkbox"> Bu Ay Müsait</label>
+        </div>
+
+        <div class="filter-section">
+          <div class="filter-section-title">Değerlendirme</div>
+          <label class="filter-option"><input type="checkbox" checked> 4.5+ yıldız</label>
+          <label class="filter-option"><input type="checkbox"> 4.0+ yıldız</label>
+          <label class="filter-option"><input type="checkbox"> 3.5+ yıldız</label>
+        </div>
+
+        <div class="filter-section">
+          <div class="filter-section-title">Özellikler</div>
+          <label class="filter-option"><input type="checkbox"> Doğrulanmış Profil</label>
+          <label class="filter-option"><input type="checkbox"> Videolu Profil</label>
+          <label class="filter-option"><input type="checkbox"> Uluslararası</label>
+          <label class="filter-option"><input type="checkbox"> Kendi Ekipmanı</label>
+        </div>
+      </div>
+    </aside>
+
+    <main>
+      <div class="category-chips mb-20">
+        <button type="button" class="cat-chip active">Tümü</button>
+        <button type="button" class="cat-chip">Gitarist</button>
+        <button type="button" class="cat-chip">DJ</button>
+        <button type="button" class="cat-chip">Solist</button>
+        <button type="button" class="cat-chip">Davulcu</button>
+        <button type="button" class="cat-chip">Klavyeci</button>
+        <button type="button" class="cat-chip">Kemancı</button>
+        <button type="button" class="cat-chip">Perküsyon</button>
+        <button type="button" class="cat-chip">Grup</button>
+        <button type="button" class="cat-chip">Fasıl</button>
+        <button type="button" class="cat-chip">Orkestra</button>
+      </div>
+
+      <div class="results-header">
+        <span class="results-count"><strong style="color:var(--text);" id="results-count">6</strong> müzisyen bulundu</span>
+        <div class="flex items-center gap-12">
+          <div class="view-toggle">
+            <button type="button" class="view-btn active" id="gridBtn" onclick="setView('grid')" title="Izgara" aria-label="Izgara görünümü"></button>
+            <button type="button" class="view-btn" id="listBtn" onclick="setView('list')" title="Liste" aria-label="Liste görünümü"></button>
+          </div>
+          <select class="sort-select">
+            <option>En Yüksek Puan</option>
+            <option>En Düşük Fiyat</option>
+            <option>En Yüksek Fiyat</option>
+            <option>En Çok Değerlendirme</option>
+            <option>En Yeni</option>
+            <option>En Yakın</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="musicians-grid" id="musiciansGrid"></div>
+
+      <div class="pagination">
+        <button type="button" class="page-btn" aria-label="Önceki">←</button>
+        <button type="button" class="page-btn active">1</button>
+        <button type="button" class="page-btn">2</button>
+        <button type="button" class="page-btn">3</button>
+        <span style="color:var(--subtle);">...</span>
+        <button type="button" class="page-btn">8</button>
+        <button type="button" class="page-btn" aria-label="Sonraki">→</button>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div id="footer-slot"></div>
+
+<script src="js/components.js"></script>
+<script>
+  mountLayout({ active: 'explore', loggedIn: true, userType: 'musician' });
+
+  document.getElementById('search-icon').innerHTML = icon('search', 18);
+  document.getElementById('gridBtn').innerHTML = icon('grid', 16);
+  document.getElementById('listBtn').innerHTML = icon('list', 16);
+
+  const grid = document.getElementById('musiciansGrid');
+  grid.innerHTML = MUSICIANS.map(m => renderMusicianCard(m)).join('');
+  document.getElementById('results-count').textContent = MUSICIANS.length;
+
+  let currentView = 'grid';
+  function setView(v) {
+    currentView = v;
+    grid.classList.toggle('list-view', v === 'list');
+    document.getElementById('gridBtn').classList.toggle('active', v === 'grid');
+    document.getElementById('listBtn').classList.toggle('active', v === 'list');
+  }
+
+  document.querySelectorAll('.cat-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sahnem – Emre Aydın Profili</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/brand/favicon-192x192.png">
+  <link rel="apple-touch-icon" href="assets/brand/favicon-192x192.png">
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<div id="navbar-slot"></div>
+
+<div class="page">
+  <div class="profile-hero">
+    <div class="profile-cover">
+      <div class="cover-pattern"></div>
+    </div>
+
+    <div class="profile-header-inner">
+      <div class="profile-info-row">
+        <div class="profile-avatar-main">
+          EA
+          <div class="verified-badge-big" id="verified-badge"></div>
+        </div>
+        <div class="profile-meta">
+          <div class="flex items-center gap-12 flex-wrap">
+            <span class="profile-name">Emre Aydın</span>
+            <span class="badge badge-green">Müsait</span>
+            <span class="badge badge-gold">Pro Üye</span>
+          </div>
+          <div class="profile-title-sub">Gitarist & Solist</div>
+          <div class="profile-meta-row">
+            <span class="body-sm flex items-center gap-4" id="profile-location"></span>
+            <span class="body-sm flex items-center gap-6" id="profile-rating"></span>
+            <span class="body-sm">10+ yıl deneyim</span>
+          </div>
+          <div class="profile-stats-row">
+            <div class="profile-stat"><span>127</span><p>Değerlendirme</p></div>
+            <div class="profile-stat"><span>340+</span><p>Tamamlanan Gig</p></div>
+            <div class="profile-stat"><span>18</span><p>Video</p></div>
+            <div class="profile-stat"><span>98%</span><p>Yanıt Oranı</p></div>
+          </div>
+        </div>
+        <div class="profile-actions">
+          <button type="button" onclick="openOfferModal()" class="btn btn-primary btn-lg">Teklif Gönder</button>
+          <button type="button" class="btn btn-secondary" onclick="showToast('Favorilere eklendi', 'success')">Favorile</button>
+          <button type="button" class="btn btn-ghost btn-icon" title="Paylaş" onclick="showToast('Profil bağlantısı kopyalandı', 'success')">Paylaş</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-nav">
+      <div class="profile-nav-inner">
+        <div class="tabs">
+          <button type="button" class="tab-btn active" data-tab="about" onclick="switchProfileTab('about', this)">Hakkında</button>
+          <button type="button" class="tab-btn" data-tab="videos" onclick="switchProfileTab('videos', this)">Videolar (18)</button>
+          <button type="button" class="tab-btn" data-tab="photos" onclick="switchProfileTab('photos', this)">Fotoğraflar</button>
+          <button type="button" class="tab-btn" data-tab="experience" onclick="switchProfileTab('experience', this)">Deneyim</button>
+          <button type="button" class="tab-btn" data-tab="reviews" onclick="switchProfileTab('reviews', this)">Değerlendirmeler (127)</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="profile-content">
+    <div class="profile-grid">
+      <div>
+        <div data-profile-panel="about">
+          <div class="card mb-16">
+            <div class="section-header"><div class="section-title">Biyografi</div></div>
+            <p style="font-size:0.92rem;color:var(--text-dim);line-height:1.8;">
+              İstanbul doğumlu gitarist ve solist. 10 yılı aşkın sahne deneyimiyle pop, rock ve akustik tarzlarda uzmanlaştım. Hem solo performanslar hem de grup içinde pek çok büyük mekanda, düğünde ve kurumsal etkinlikte yer aldım.
+            </p>
+            <p style="font-size:0.92rem;color:var(--text-dim);line-height:1.8;margin-top:12px;">
+              Türkiye'nin önde gelen sanatçılarıyla ve uluslararası projelerle çalışma deneyimim var. Repertuarım geniş ve adaptasyona açık; istek üzerine özel repertuar hazırlıyorum.
+            </p>
+            <div class="tags mt-16">
+              <span class="tag active">Pop</span><span class="tag active">Rock</span><span class="tag active">Akustik</span>
+              <span class="tag active">Jazz</span><span class="tag active">Latin</span><span class="tag">Klasik</span>
+              <span class="tag">R&B</span><span class="tag">Folk</span>
+            </div>
+          </div>
+
+          <div class="card mb-16">
+            <div class="section-header"><div class="section-title">Enstrümanlar & Beceriler</div></div>
+            <div class="skill-row"><span class="skill-name">Elektro Gitar</span><div class="skill-bar"><div class="skill-fill" style="width:96%"></div></div><span class="skill-pct">Uzman</span></div>
+            <div class="skill-row"><span class="skill-name">Akustik Gitar</span><div class="skill-bar"><div class="skill-fill" style="width:98%"></div></div><span class="skill-pct">Uzman</span></div>
+            <div class="skill-row"><span class="skill-name">Bas Gitar</span><div class="skill-bar"><div class="skill-fill" style="width:70%"></div></div><span class="skill-pct">İleri</span></div>
+            <div class="skill-row"><span class="skill-name">Vokal</span><div class="skill-bar"><div class="skill-fill" style="width:85%"></div></div><span class="skill-pct">İleri</span></div>
+            <div class="skill-row"><span class="skill-name">Nota / Teori</span><div class="skill-bar"><div class="skill-fill" style="width:90%"></div></div><span class="skill-pct">Uzman</span></div>
+          </div>
+
+          <div class="card mb-16">
+            <div class="section-header">
+              <div class="section-title">Öne Çıkan Performanslar</div>
+              <button type="button" onclick="switchProfileTab('videos', document.querySelector('[data-tab=videos]'))" class="btn btn-ghost btn-sm">Tümünü Gör</button>
+            </div>
+            <div class="video-grid">
+              <div class="video-thumb">
+                <div class="video-bg"></div>
+                <div class="video-overlay"></div>
+                <div class="play-btn" id="play-1"></div>
+                <div class="video-info"><div class="video-title">Akustik Set — Zorlu PSM</div><div class="video-views">2.4K görüntülenme</div></div>
+              </div>
+              <div class="video-thumb">
+                <div class="video-bg" style="background:linear-gradient(135deg,#1a2040,#0d1020)"></div>
+                <div class="video-overlay"></div>
+                <div class="play-btn" id="play-2"></div>
+                <div class="video-info"><div class="video-title">Jazz Night — Nardis</div><div class="video-views">1.8K görüntülenme</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card mb-16">
+            <div class="section-header"><div class="section-title">Çalıştığı Sanatçılar & Projeler</div></div>
+            <div class="flex flex-wrap gap-8">
+              <span class="badge badge-gold">Sertab Erener</span>
+              <span class="badge badge-gold">Manuş Baba</span>
+              <span class="badge badge-accent">Teoman</span>
+              <span class="badge badge-accent">Ajda Pekkan</span>
+              <span class="badge badge-muted">Bosphorus Jazz Projesi</span>
+              <span class="badge badge-muted">Istanbul Rock Collective</span>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="section-header">
+              <div class="section-title">Son Değerlendirmeler</div>
+              <button type="button" onclick="switchProfileTab('reviews', document.querySelector('[data-tab=reviews]'))" class="btn btn-ghost btn-sm">Tümünü Gör</button>
+            </div>
+            <div class="review-item">
+              <div class="review-header">
+                <div class="avatar avatar-sm" style="background:#7B5CFA;">KA</div>
+                <div style="flex:1;"><div style="font-weight:600;font-size:0.88rem;">Kadir Arslan</div><div class="body-sm">Zorlu PSM — 2 hafta önce</div></div>
+                <div class="stars" style="font-size:0.9rem;">★★★★★</div>
+              </div>
+              <p class="review-text">Mükemmel performans! Sahneyi tamamen doldurdu, misafirlerimiz çok memnun kaldı. Kesinlikle tekrar çalışacağız.</p>
+            </div>
+            <div class="review-item">
+              <div class="review-header">
+                <div class="avatar avatar-sm" style="background:#4CAF7D;">SF</div>
+                <div style="flex:1;"><div style="font-weight:600;font-size:0.88rem;">Sibel Fırat</div><div class="body-sm">Düğün — 1 ay önce</div></div>
+                <div class="stars" style="font-size:0.9rem;">★★★★★</div>
+              </div>
+              <p class="review-text">Düğünümüze çok özel bir atmosfer kattı. Hem akustik hem elektro set yaptı, herkes hayran kaldı.</p>
+            </div>
+          </div>
+        </div>
+
+        <div data-profile-panel="videos" hidden>
+          <div class="card">
+            <div class="section-header mb-0">
+              <div class="section-title">Tüm Performans Videoları (18)</div>
+              <div class="flex gap-8 flex-wrap">
+                <button type="button" class="tag active">Tümü</button>
+                <button type="button" class="tag">Akustik</button>
+                <button type="button" class="tag">Elektro</button>
+                <button type="button" class="tag">Düğün</button>
+                <button type="button" class="tag">Konser</button>
+              </div>
+            </div>
+            <div class="video-grid mt-20" style="grid-template-columns:repeat(3,1fr);">
+              <div class="video-thumb"><div class="video-bg"></div><div class="video-overlay"></div><div class="play-btn play-icon"></div><div class="video-info"><div class="video-title">Zorlu PSM Akustik</div></div></div>
+              <div class="video-thumb"><div class="video-bg" style="background:linear-gradient(135deg,#1a2040,#0d1020)"></div><div class="video-overlay"></div><div class="play-btn play-icon"></div><div class="video-info"><div class="video-title">Nardis Jazz Night</div></div></div>
+              <div class="video-thumb"><div class="video-bg" style="background:linear-gradient(135deg,#201510,#100a05)"></div><div class="video-overlay"></div><div class="play-btn play-icon"></div><div class="video-info"><div class="video-title">Düğün Set 2024</div></div></div>
+              <div class="video-thumb"><div class="video-bg" style="background:linear-gradient(135deg,#102010,#051005)"></div><div class="video-overlay"></div><div class="play-btn play-icon"></div><div class="video-info"><div class="video-title">Rock Night Bar</div></div></div>
+              <div class="video-thumb"><div class="video-bg" style="background:linear-gradient(135deg,#201020,#100510)"></div><div class="video-overlay"></div><div class="play-btn play-icon"></div><div class="video-info"><div class="video-title">Kurumsal Etkinlik</div></div></div>
+              <div class="video-thumb"><div class="video-bg" style="background:linear-gradient(135deg,#201a10,#100d05)"></div><div class="video-overlay"></div><div class="play-btn play-icon"></div><div class="video-info"><div class="video-title">Festival Antalya</div></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div data-profile-panel="photos" hidden>
+          <div class="card">
+            <div class="section-header"><div class="section-title">Fotoğraf Galerisi</div></div>
+            <div class="photo-grid">
+              <div class="photo-item" style="background:linear-gradient(135deg,#2a1a0a,#1a0d05);"></div>
+              <div class="photo-item" style="background:linear-gradient(135deg,#0a1a2a,#050d1a);"></div>
+              <div class="photo-item" style="background:linear-gradient(135deg,#1a2a0a,#0d1a05);"></div>
+              <div class="photo-item" style="background:linear-gradient(135deg,#2a0a1a,#1a0510);"></div>
+              <div class="photo-item" style="background:linear-gradient(135deg,#0a2a2a,#051a1a);"></div>
+              <div class="photo-item" style="background:linear-gradient(135deg,#2a2a0a,#1a1a05);"></div>
+              <div class="photo-item" style="background:linear-gradient(135deg,#1a0a2a,#0d051a);"></div>
+              <div class="photo-item" style="background:linear-gradient(135deg,#0a2a1a,#051a0d);"></div>
+              <div class="photo-item" style="background:linear-gradient(135deg,#2a1a1a,#1a0d0d);"></div>
+            </div>
+          </div>
+        </div>
+
+        <div data-profile-panel="experience" hidden>
+          <div class="card">
+            <div class="section-header"><div class="section-title">Sahne Deneyimi</div></div>
+            <div class="timeline-item">
+              <div class="timeline-dot">01</div>
+              <div>
+                <div class="timeline-role">Gitarist & Müzik Direktörü</div>
+                <div class="timeline-place">Zorlu PSM, İstanbul</div>
+                <div class="timeline-date">2022 – Günümüz</div>
+                <div class="timeline-desc">Haftalık jazz ve akustik gecelerinde solo ve grup performansları. Müzik setlerinin hazırlanması ve sahnelenmesi.</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot">02</div>
+              <div>
+                <div class="timeline-role">Tur Gitaristi</div>
+                <div class="timeline-place">Sertab Erener — Türkiye Turu</div>
+                <div class="timeline-date">2020 – 2022</div>
+                <div class="timeline-desc">15 şehirde 40+ konser. Canlı ses setup ve sahne koordinasyonu.</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot">03</div>
+              <div>
+                <div class="timeline-role">Solist & Gitarist</div>
+                <div class="timeline-place">Çeşitli Mekanlar — Freelance</div>
+                <div class="timeline-date">2015 – 2020</div>
+                <div class="timeline-desc">Düğün, organizasyon ve mekan performansları. 200+ başarıyla tamamlanan gig.</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot">04</div>
+              <div>
+                <div class="timeline-role">Müzik Eğitimi</div>
+                <div class="timeline-place">İTÜ TMDK, Gitar Bölümü</div>
+                <div class="timeline-date">2011 – 2015</div>
+                <div class="timeline-desc">Klasik gitar tekniği, müzik teorisi ve armoni eğitimi.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div data-profile-panel="reviews" hidden>
+          <div class="card">
+            <div class="section-header">
+              <div class="section-title">Değerlendirmeler (127)</div>
+              <div class="flex items-center gap-8">
+                <span style="font-family:var(--font-display);font-size:1.6rem;font-weight:800;color:var(--gold);">4.9</span>
+                <div class="stars">★★★★★</div>
+              </div>
+            </div>
+            <div class="review-item">
+              <div class="review-header">
+                <div class="avatar avatar-md" style="background:#7B5CFA;">KA</div>
+                <div style="flex:1;"><div style="font-weight:600;">Kadir Arslan</div><div class="body-sm">Zorlu PSM — 2 hafta önce</div></div>
+                <div class="stars">★★★★★</div>
+              </div>
+              <p class="review-text">Mükemmel performans! Sahneyi tamamen doldurdu, misafirlerimiz çok memnun kaldı. Kesinlikle tekrar çalışacağız.</p>
+            </div>
+            <div class="review-item">
+              <div class="review-header">
+                <div class="avatar avatar-md" style="background:#4CAF7D;">SF</div>
+                <div style="flex:1;"><div style="font-weight:600;">Sibel Fırat</div><div class="body-sm">Düğün — 1 ay önce</div></div>
+                <div class="stars">★★★★★</div>
+              </div>
+              <p class="review-text">Düğünümüze çok özel bir atmosfer kattı. Hem akustik hem elektro set yaptı, herkes hayran kaldı. Fiyat/performans mükemmel.</p>
+            </div>
+            <div class="review-item">
+              <div class="review-header">
+                <div class="avatar avatar-md" style="background:#B14EFF;">MK</div>
+                <div style="flex:1;"><div style="font-weight:600;">Mehmet Kılıç</div><div class="body-sm">Kurumsal Etkinlik — 2 ay önce</div></div>
+                <div class="stars">★★★★☆</div>
+              </div>
+              <p class="review-text">Çok profesyonel ve dakik. Repertuarını etkinliğimize göre özelleştirdi. Bir dahaki etkinliğimizde de çalışmayı düşünüyoruz.</p>
+            </div>
+            <div class="review-item">
+              <div class="review-header">
+                <div class="avatar avatar-md" style="background:#E85555;">OD</div>
+                <div style="flex:1;"><div style="font-weight:600;">Ömer Demir</div><div class="body-sm">Bar Açılışı — 3 ay önce</div></div>
+                <div class="stars">★★★★★</div>
+              </div>
+              <p class="review-text">Bar açılışımız için harika bir tercih oldu. Hem canlı hem enerjik bir performans sergiledi, gece boyunca mekan dolu kaldı.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="offer-box mb-16">
+          <div class="label mb-8">Gig Ücreti</div>
+          <div class="price-big">₺2.500</div>
+          <div class="body-sm mb-16">Standart performans başına</div>
+          <button type="button" onclick="openOfferModal()" class="btn btn-primary btn-full btn-lg">Teklif Gönder</button>
+          <a href="messages.html" class="btn btn-ghost btn-full mt-8">Mesaj Gönder</a>
+          <div class="body-sm mt-12">Genellikle <strong style="color:var(--text);">2 saat içinde</strong> yanıt verir</div>
+        </div>
+
+        <div class="sidebar-card">
+          <h3>Müsaitlik</h3>
+          <div class="badge badge-green mb-12" style="font-size:0.82rem;padding:6px 12px;">Şu an müsait</div>
+          <div style="font-size:0.82rem;color:var(--text-dim);">
+            <div class="flex justify-between mb-6"><span>Haftaiçi</span><span style="color:var(--success);">Evet</span></div>
+            <div class="flex justify-between mb-6"><span>Hafta sonu</span><span style="color:var(--success);">Evet</span></div>
+            <div class="flex justify-between"><span>Uluslararası</span><span style="color:var(--success);">Evet</span></div>
+          </div>
+        </div>
+
+        <div class="sidebar-card">
+          <h3>Hızlı Bilgiler</h3>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div class="flex items-center gap-10 body-sm"><span class="contact-icon">L</span><span>İstanbul, Türkiye</span></div>
+            <div class="flex items-center gap-10 body-sm"><span class="contact-icon">M</span><span>Gitarist & Solist</span></div>
+            <div class="flex items-center gap-10 body-sm"><span class="contact-icon">E</span><span>10+ yıl deneyim</span></div>
+            <div class="flex items-center gap-10 body-sm"><span class="contact-icon">D</span><span>İTÜ TMDK Mezunu</span></div>
+            <div class="flex items-center gap-10 body-sm"><span class="contact-icon">K</span><span>Türkçe, İngilizce</span></div>
+            <div class="flex items-center gap-10 body-sm"><span class="contact-icon">U</span><span>Ulaşım sağlayabilirim</span></div>
+          </div>
+        </div>
+
+        <div class="sidebar-card">
+          <h3>Sosyal Medya</h3>
+          <div class="contact-list">
+            <a href="#"><div class="contact-icon">ig</div> @emreaydinmusic</a>
+            <a href="#"><div class="contact-icon">yt</div> Emre Aydın Music</a>
+            <a href="#"><div class="contact-icon">X</div> @emreaydin</a>
+            <a href="#"><div class="contact-icon">in</div> emre-aydin-guitar</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="footer-slot"></div>
+
+<div id="offerModal" style="display:none;" class="modal-backdrop" onclick="if(event.target===this)closeOfferModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Teklif Gönder</div>
+        <div class="body-sm mt-4">Emre Aydın'a teklif ilet</div>
+      </div>
+      <button type="button" onclick="closeOfferModal()" class="btn btn-ghost btn-icon btn-sm" aria-label="Kapat">×</button>
+    </div>
+    <div class="flex flex-col gap-14">
+      <div class="form-row form-row-2">
+        <div class="form-group">
+          <label class="form-label">Etkinlik Türü</label>
+          <select class="form-input form-select">
+            <option>Düğün</option><option>Bar / Mekan</option><option>Kurumsal</option><option>Festival</option><option>Özel Etkinlik</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tarih</label>
+          <input type="date" class="form-input">
+        </div>
+      </div>
+      <div class="form-row form-row-2">
+        <div class="form-group">
+          <label class="form-label">Süre (saat)</label>
+          <select class="form-input form-select">
+            <option>1 Saat</option><option>2 Saat</option><option>3 Saat</option><option>4+ Saat</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Bütçe (₺)</label>
+          <input type="number" class="form-input" placeholder="2500">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mekan / Adres</label>
+        <input type="text" class="form-input" placeholder="Etkinlik yeri">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mesaj</label>
+        <textarea class="form-input form-textarea" placeholder="Etkinliğiniz hakkında kısa bilgi verin..."></textarea>
+      </div>
+      <button type="button" class="btn btn-primary btn-full btn-lg" onclick="submitOffer()">Teklifi Gönder</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/components.js"></script>
+<script>
+  mountLayout({ active: 'explore', loggedIn: true, userType: 'musician' });
+
+  document.getElementById('verified-badge').innerHTML = icon('check', 12);
+  document.getElementById('profile-location').innerHTML = icon('location', 14) + ' İstanbul, Türkiye';
+  document.getElementById('profile-rating').innerHTML = renderStars(4.9, 14) + '<span class="body-sm">4.9 (127 değerlendirme)</span>';
+  document.getElementById('play-1').innerHTML = icon('play', 18);
+  document.getElementById('play-2').innerHTML = icon('play', 18);
+  document.querySelectorAll('.play-icon').forEach(el => { el.innerHTML = icon('play', 18); });
+
+  function openOfferModal() {
+    document.getElementById('offerModal').style.display = 'flex';
+  }
+  function closeOfferModal() {
+    document.getElementById('offerModal').style.display = 'none';
+  }
+  function submitOffer() {
+    closeOfferModal();
+    showToast('Teklifiniz gönderildi!', 'success');
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profili Düzenle — Sahnem</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/brand/favicon-192x192.png">
+  <link rel="apple-touch-icon" href="assets/brand/favicon-192x192.png">
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <div id="navbar-slot"></div>
+
+  <div class="page">
+    <div class="app-shell">
+      <div id="sidebar-slot"></div>
+      <main class="app-main">
+        <div class="page-header">
+          <h1>Profili Düzenle</h1>
+          <p>Müzisyen profilinizi güncelleyerek daha fazla teklif alın.</p>
+        </div>
+
+        <form class="card" id="edit-form" onsubmit="saveProfile(event)">
+          <div class="form-section">
+            <div class="form-section-title">Temel Bilgiler</div>
+            <div class="form-row form-row-2">
+              <div class="form-group">
+                <label class="form-label">Ad Soyad</label>
+                <input type="text" class="form-input" value="Emre Aydın" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Sahne Adı (isteğe bağlı)</label>
+                <input type="text" class="form-input" placeholder="Sahne adınız">
+              </div>
+            </div>
+            <div class="form-row form-row-2">
+              <div class="form-group">
+                <label class="form-label">Şehir</label>
+                <select class="form-input form-select">
+                  <option selected>İstanbul</option>
+                  <option>Ankara</option>
+                  <option>İzmir</option>
+                  <option>Antalya</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Telefon</label>
+                <input type="tel" class="form-input" value="+90 532 000 00 00">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Biyografi</label>
+              <textarea class="form-input form-textarea" rows="4">İstanbul doğumlu gitarist ve solist. 10 yılı aşkın sahne deneyimiyle pop, rock ve akustik tarzlarda uzmanlaştım.</textarea>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-title">Müzisyen Bilgileri</div>
+            <div class="form-row form-row-2">
+              <div class="form-group">
+                <label class="form-label">Uzmanlık</label>
+                <input type="text" class="form-input" value="Gitarist & Solist">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Deneyim</label>
+                <select class="form-input form-select">
+                  <option>0-2 yıl</option>
+                  <option>2-5 yıl</option>
+                  <option>5-10 yıl</option>
+                  <option selected>10+ yıl</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Müzik Tarzları</label>
+              <input type="text" class="form-input" value="Pop, Rock, Akustik, Jazz">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Enstrümanlar</label>
+              <input type="text" class="form-input" value="Elektro Gitar, Akustik Gitar, Vokal">
+            </div>
+            <label class="filter-option"><input type="checkbox" checked> Kendi ekipmanımı getiriyorum</label>
+            <label class="filter-option"><input type="checkbox" checked> Uluslararası etkinliklere açığım</label>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-title">Fiyat & Müsaitlik</div>
+            <div class="form-row form-row-2">
+              <div class="form-group">
+                <label class="form-label">Standart Gig Ücreti (₺)</label>
+                <input type="number" class="form-input" value="2500">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Minimum Süre</label>
+                <select class="form-input form-select">
+                  <option>1 saat</option>
+                  <option selected>2 saat</option>
+                  <option>3 saat</option>
+                  <option>4+ saat</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Müsaitlik Durumu</label>
+              <select class="form-input form-select">
+                <option selected>Müsait</option>
+                <option>Sınırlı müsait</option>
+                <option>Meşgul</option>
+              </select>
+            </div>
+            <label class="filter-option"><input type="checkbox" checked> Hafta içi</label>
+            <label class="filter-option"><input type="checkbox" checked> Hafta sonu</label>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-title">Sosyal Medya</div>
+            <div class="form-row form-row-2">
+              <div class="form-group">
+                <label class="form-label">Instagram</label>
+                <input type="text" class="form-input" value="@emreaydinmusic">
+              </div>
+              <div class="form-group">
+                <label class="form-label">YouTube</label>
+                <input type="text" class="form-input" value="Emre Aydın Music">
+              </div>
+            </div>
+            <div class="form-row form-row-2">
+              <div class="form-group">
+                <label class="form-label">Spotify / Apple Music</label>
+                <input type="url" class="form-input" placeholder="https://">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Web Sitesi</label>
+                <input type="url" class="form-input" placeholder="https://">
+              </div>
+            </div>
+          </div>
+
+          <div class="flex gap-12 flex-wrap">
+            <button type="submit" class="btn btn-primary btn-lg">Kaydet</button>
+            <a href="profile-musician.html" class="btn btn-ghost btn-lg">İptal</a>
+          </div>
+        </form>
+      </main>
+    </div>
+  </div>
+
+  <div id="footer-slot"></div>
+  <script src="js/components.js"></script>
+  <script>
+    mountAppPage({ sidebarActive: 'edit', userType: 'musician' });
+
+    function saveProfile(e) {
+      e.preventDefault();
+      showToast('Profiliniz başarıyla güncellendi.', 'success');
+      setTimeout(() => { location.href = 'profile-musician.html'; }, 1200);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sahnem – Üye Ol</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/brand/favicon-192x192.png">
+  <link rel="apple-touch-icon" href="assets/brand/favicon-192x192.png">
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div class="auth-page">
+  <div class="auth-left">
+    <div class="auth-left-bg"></div>
+    <a href="index.html" class="auth-logo">SAHNEM.</a>
+    <div class="auth-left-content">
+      <h2 class="auth-tagline">Kariyerini<br>bir üst seviyeye<br><span class="gold">taşı.</span></h2>
+      <p class="body-lg">Türkiye'nin büyüyen müzik profesyonelleri ağına katıl.</p>
+      <div class="auth-benefits">
+        <div class="auth-benefit">
+          <div class="benefit-icon" id="benefit-1"></div>
+          <span>Sektörle doğrudan bağlantı kur</span>
+        </div>
+        <div class="auth-benefit">
+          <div class="benefit-icon" id="benefit-2"></div>
+          <span>Performans videolarınla öne çık</span>
+        </div>
+        <div class="auth-benefit">
+          <div class="benefit-icon" id="benefit-3"></div>
+          <span>Teklifleri platform üzerinden yönet</span>
+        </div>
+        <div class="auth-benefit">
+          <div class="benefit-icon" id="benefit-4"></div>
+          <span>Referanslarla güven kazan</span>
+        </div>
+      </div>
+    </div>
+    <div class="flex gap-32" style="position:relative;z-index:1;padding-top:24px;border-top:1px solid var(--border);">
+      <div><span style="font-family:var(--font-display);font-size:1.4rem;font-weight:800;color:var(--gold);">500+</span><div class="body-sm">Müzisyen</div></div>
+      <div><span style="font-family:var(--font-display);font-size:1.4rem;font-weight:800;color:var(--gold);">120+</span><div class="body-sm">İşveren</div></div>
+      <div><span style="font-family:var(--font-display);font-size:1.4rem;font-weight:800;color:var(--gold);">850+</span><div class="body-sm">Anlaşma</div></div>
+    </div>
+  </div>
+
+  <div class="auth-right">
+    <div class="auth-form-box">
+      <div class="auth-form-header">
+        <h1>Hesap Oluştur</h1>
+        <p>Zaten üye misin? <a href="login.html" class="gold" style="font-weight:600;">Giriş Yap</a></p>
+      </div>
+
+      <div class="type-selector" id="typeSelector">
+        <div class="type-card selected" data-type="musician" onclick="selectType('musician')">
+          <div class="type-card-icon" id="type-musician-icon"></div>
+          <div class="type-card-name">Müzisyen</div>
+          <div class="type-card-desc">Müzisyen, DJ, Grup veya Bando</div>
+        </div>
+        <div class="type-card" data-type="employer" onclick="selectType('employer')">
+          <div class="type-card-icon" id="type-employer-icon"></div>
+          <div class="type-card-name">İşveren</div>
+          <div class="type-card-desc">Mekan, Firma veya Organizatör</div>
+        </div>
+      </div>
+
+      <form id="registerForm" onsubmit="handleRegister(event)">
+        <div class="form-section">
+          <div class="form-section-title">Kişisel Bilgiler</div>
+          <div class="form-row form-row-2 mb-16">
+            <div class="form-group">
+              <label class="form-label">Ad</label>
+              <input type="text" class="form-input" placeholder="Adınız" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Soyad</label>
+              <input type="text" class="form-input" placeholder="Soyadınız" required>
+            </div>
+          </div>
+          <div class="form-group mb-16">
+            <label class="form-label">E-posta</label>
+            <input type="email" class="form-input" placeholder="ornek@mail.com" required>
+          </div>
+          <div class="form-group mb-16">
+            <label class="form-label">Telefon</label>
+            <input type="tel" class="form-input" placeholder="+90 5XX XXX XX XX">
+          </div>
+          <div class="form-group mb-16">
+            <label class="form-label">Şehir</label>
+            <select class="form-input form-select" required>
+              <option value="">Şehir Seçin</option>
+              <option>İstanbul</option><option>Ankara</option><option>İzmir</option>
+              <option>Antalya</option><option>Bursa</option><option>Gaziantep</option>
+              <option>Kayseri</option><option>Konya</option><option>Adana</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-section" id="musicianFields">
+          <div class="form-section-title">Müzisyen Bilgileri</div>
+          <div class="form-group mb-16">
+            <label class="form-label">Kategori</label>
+            <select class="form-input form-select" required>
+              <option value="">Kategori Seçin</option>
+              <option>Gitarist</option><option>Klavyeci</option><option>Davulcu</option>
+              <option>Kemancı</option><option>Solist / Ses Sanatçısı</option><option>DJ</option>
+              <option>Perküsyoncu</option><option>Basgitarist</option><option>Grup</option>
+              <option>Bando</option><option>Orkestra</option><option>Fasıl Grubu</option>
+            </select>
+          </div>
+          <div class="form-group mb-16">
+            <label class="form-label">Deneyim Süresi</label>
+            <select class="form-input form-select">
+              <option>1 yıldan az</option><option>1-3 yıl</option>
+              <option>3-5 yıl</option><option>5-10 yıl</option><option>10+ yıl</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-section hidden" id="employerFields">
+          <div class="form-section-title">İşveren Bilgileri</div>
+          <div class="form-group mb-16">
+            <label class="form-label">Mekan / Firma Adı</label>
+            <input type="text" class="form-input" placeholder="Firma veya Mekan Adı">
+          </div>
+          <div class="form-group mb-16">
+            <label class="form-label">Tür</label>
+            <select class="form-input form-select">
+              <option>Restoran</option><option>Bar / Gece Kulübü</option>
+              <option>Otel</option><option>Organizasyon Şirketi</option>
+              <option>Düğün Organizatörü</option><option>Etkinlik Ajansı</option>
+              <option>Diğer</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Güvenlik</div>
+          <div class="form-group mb-16">
+            <label class="form-label">Şifre</label>
+            <div class="password-toggle">
+              <input type="password" class="form-input" id="passwordInput" placeholder="En az 8 karakter" oninput="checkStrength(this.value)" required>
+              <button type="button" class="password-toggle-btn" onclick="togglePwd()">Göster</button>
+            </div>
+            <div class="strength-bar mt-8"><div class="strength-fill" id="strengthBar"></div></div>
+            <div class="form-hint mt-4" id="strengthText">Güçlü bir şifre seçin</div>
+          </div>
+          <div class="form-group mb-16">
+            <label class="form-label">Şifre Tekrar</label>
+            <div class="password-toggle">
+              <input type="password" class="form-input" id="passwordConfirm" placeholder="Şifrenizi tekrar girin" required>
+              <button type="button" class="password-toggle-btn" onclick="togglePwd2()">Göster</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="terms-check mb-24">
+          <input type="checkbox" id="terms" required>
+          <label for="terms">
+            <a href="#">Kullanım Koşulları</a>'nı ve <a href="#">Gizlilik Politikası</a>'nı okudum, kabul ediyorum.
+          </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg btn-full">Hesap Oluştur</button>
+
+        <div class="divider-text mt-24 mb-24"><span>veya şununla kaydol</span></div>
+
+        <div class="flex gap-12">
+          <button type="button" class="btn btn-secondary btn-full">Google</button>
+          <button type="button" class="btn btn-secondary btn-full">Facebook</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="js/components.js"></script>
+<script>
+  document.getElementById('benefit-1').innerHTML = icon('briefcase', 16);
+  document.getElementById('benefit-2').innerHTML = icon('play', 16);
+  document.getElementById('benefit-3').innerHTML = icon('message', 16);
+  document.getElementById('benefit-4').innerHTML = icon('star', 16);
+  document.getElementById('type-musician-icon').innerHTML = icon('music', 22);
+  document.getElementById('type-employer-icon').innerHTML = icon('briefcase', 22);
+
+  let currentType = 'musician';
+
+  function selectType(type) {
+    currentType = type;
+    document.querySelectorAll('.type-card').forEach(c => c.classList.remove('selected'));
+    document.querySelector(`[data-type="${type}"]`).classList.add('selected');
+    document.getElementById('musicianFields').classList.toggle('hidden', type !== 'musician');
+    document.getElementById('employerFields').classList.toggle('hidden', type !== 'employer');
+  }
+
+  function checkStrength(val) {
+    const bar = document.getElementById('strengthBar');
+    const text = document.getElementById('strengthText');
+    let score = 0;
+    if (val.length >= 8) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+    const levels = [
+      { w: '25%', c: 'var(--danger)', t: 'Çok zayıf' },
+      { w: '50%', c: '#E89055', t: 'Zayıf' },
+      { w: '75%', c: '#B14EFF', t: 'Orta' },
+      { w: '100%', c: 'var(--success)', t: 'Güçlü' },
+    ];
+    const l = levels[score - 1] || { w: '0%', c: 'var(--danger)', t: 'Güçlü bir şifre seçin' };
+    bar.style.width = l.w;
+    bar.style.background = l.c;
+    text.textContent = l.t;
+  }
+
+  function togglePwd() {
+    const inp = document.getElementById('passwordInput');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+  }
+  function togglePwd2() {
+    const inp = document.getElementById('passwordConfirm');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+  }
+
+  function handleRegister(e) {
+    e.preventDefault();
+    showToast('Hesabınız oluşturuldu! Profil kurulumuna yönlendiriliyorsunuz...', 'success');
+    setTimeout(() => {
+      window.location.href = 'profile-setup.html?type=' + currentType;
+    }, 1500);
+  }
+
+  const p = new URLSearchParams(window.location.search);
+  if (p.get('type') === 'employer') selectType('employer');
+</script>
+</body>
+</html>

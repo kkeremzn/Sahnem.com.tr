@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kurum Profili Düzenle — Sahnem</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/brand/favicon-192x192.png">
+  <link rel="apple-touch-icon" href="assets/brand/favicon-192x192.png">
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <div id="navbar-slot"></div>
+
+  <div class="page">
+    <div class="app-shell">
+      <div id="sidebar-slot"></div>
+      <main class="app-main">
+        <div class="page-header">
+          <h1>Kurum Profilini Düzenle</h1>
+          <p>Hilton İstanbul kurum profilinizi güncelleyerek doğru müzisyenlere ulaşın.</p>
+        </div>
+
+        <form class="card" id="edit-form" onsubmit="saveProfile(event)">
+          <div class="form-section">
+            <div class="form-section-title">Temel Bilgiler</div>
+            <div class="form-row form-row-2">
+              <div class="form-group">
+                <label class="form-label">Kurum Adı</label>
+                <input type="text" class="form-input" value="Hilton İstanbul" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Sektör</label>
+                <select class="form-input form-select">
+                  <option selected>Otel & Konaklama</option>
+                  <option>Restoran & Bar</option>
+                  <option>Etkinlik Alanı</option>
+                  <option>Kurumsal</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row form-row-2">
+              <div class="form-group">
+                <label class="form-label">Şehir</label>
+                <select class="form-input form-select">
+                  <option selected>İstanbul</option>
+                  <option>Ankara</option>
+                  <option>İzmir</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Adres</label>
+                <input type="text" class="form-input" value="Cumhuriyet Cad. Harbiye, Şişli">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Kurum Hakkında</label>
+              <textarea class="form-input form-textarea" rows="4">Boğaz manzaralı lüks otelimizde düğün, gala ve kurumsal etkinlikler için profesyonel canlı müzik hizmeti sunuyoruz. Yılda 200'den fazla müzikli etkinliğe ev sahipliği yapıyoruz.</textarea>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-title">İletişim Bilgileri</div>
+            <div class="form-row form-row-2">
+              <div class="form-group">
+                <label class="form-label">Yetkili Kişi</label>
+                <input type="text" class="form-input" value="Ayşe Yılmaz">
+              </div>
+              <div class="form-group">
+                <label class="form-label">E-posta</label>
+                <input type="email" class="form-input" value="events@hilton.com">
+              </div>
+            </div>
+            <div class="form-row form-row-2">
+              <div class="form-group">
+                <label class="form-label">Telefon</label>
+                <input type="tel" class="form-input" value="+90 212 000 00 00">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Web Sitesi</label>
+                <input type="url" class="form-input" value="https://www.hilton.com">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-title">Etkinlik & Mekan Bilgileri</div>
+            <div class="form-group">
+              <label class="form-label">Etkinlik Türleri</label>
+              <input type="text" class="form-input" value="Düğün, Gala, Kurumsal, Kokteyl">
+            </div>
+            <div class="form-row form-row-2">
+              <div class="form-group">
+                <label class="form-label">Kapasite</label>
+                <input type="text" class="form-input" value="50 – 800 kişi">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Ortalama Etkinlik Bütçesi (₺)</label>
+                <input type="number" class="form-input" value="12000">
+              </div>
+            </div>
+            <label class="filter-option"><input type="checkbox" checked> Sahne ve ses sistemi mevcut</label>
+            <label class="filter-option"><input type="checkbox" checked> Konaklama imkanı sunuyoruz</label>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-title">Sosyal Medya</div>
+            <div class="form-row form-row-2">
+              <div class="form-group">
+                <label class="form-label">Instagram</label>
+                <input type="text" class="form-input" value="@hiltonistanbul">
+              </div>
+              <div class="form-group">
+                <label class="form-label">LinkedIn</label>
+                <input type="text" class="form-input" value="hilton-istanbul">
+              </div>
+            </div>
+          </div>
+
+          <div class="flex gap-12 flex-wrap">
+            <button type="submit" class="btn btn-primary btn-lg">Kaydet</button>
+            <a href="profile-employer.html" class="btn btn-ghost btn-lg">İptal</a>
+          </div>
+        </form>
+      </main>
+    </div>
+  </div>
+
+  <div id="footer-slot"></div>
+  <script src="js/components.js"></script>
+  <script>
+    mountAppPage({ sidebarActive: 'edit', userType: 'employer' });
+
+    function saveProfile(e) {
+      e.preventDefault();
+      showToast('Kurum profiliniz başarıyla güncellendi.', 'success');
+      setTimeout(() => { location.href = 'profile-employer.html'; }, 1200);
+    }
+  </script>
+</body>
+</html>

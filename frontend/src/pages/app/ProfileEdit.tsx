@@ -1,0 +1,236 @@
+import { useEffect, useState } from 'react';
+import { Loader2, Save } from 'lucide-react';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { Card } from '@/components/ui/Card';
+import { Field } from '@/components/ui/Field';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
+import { Textarea } from '@/components/ui/Textarea';
+import { Switch } from '@/components/ui/Switch';
+import { Button } from '@/components/ui/Button';
+import { FileDropzone } from '@/components/ui/FileDropzone';
+import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
+import * as authService from '@/services/authService';
+import * as profileService from '@/services/profileService';
+import {
+  CITIES, CITY_LABELS, MUSIC_BRANCHES, MUSIC_BRANCH_LABELS, ORGANIZER_TYPES, ORGANIZER_TYPE_LABELS,
+  VENUE_TYPES, VENUE_TYPE_LABELS, optionsFrom,
+  type City, type EmployerProfile, type IsAvailableToTravel, type MusicBranch, type MusicianProfile,
+  type OrganizerType, type VenueType, type WorkStatus,
+} from '@/types';
+import { cn } from '@/lib/cn';
+
+export function ProfileEdit() {
+  const { user, isMusician, refreshUser } = useAuth();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+
+  const [musician, setMusician] = useState<MusicianProfile | null>(null);
+  const [employer, setEmployer] = useState<EmployerProfile | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    setFirstName(user.firstName);
+    setLastName(user.lastName);
+    setPhoneNumber(user.phoneNumber);
+    const load = isMusician
+      ? profileService.getMusicianByUserId(user.id).then((p) => setMusician(p ?? null))
+      : profileService.getEmployerByUserId(user.id).then((p) => setEmployer(p ?? null));
+    load.finally(() => setLoading(false));
+  }, [user, isMusician]);
+
+  async function handleSave() {
+    if (!user) return;
+    setSaving(true);
+    try {
+      await authService.updateUser(user.id, { firstName, lastName, phoneNumber });
+      if (isMusician && musician) {
+        const updated = await profileService.updateMusicianProfile(musician.id, musician);
+        setMusician(updated);
+      } else if (employer?.kind === 'Organizer') {
+        const updated = await profileService.updateOrganizerProfile(employer.id, employer);
+        setEmployer({ kind: 'Organizer', ...updated });
+      } else if (employer?.kind === 'Venue') {
+        const updated = await profileService.updateVenueProfile(employer.id, employer);
+        setEmployer({ kind: 'Venue', ...updated });
+      }
+      await refreshUser();
+      toast('Profilin güncellendi.', 'success');
+    } catch (e) {
+      toast(e instanceof Error ? e.message : 'Bir hata oluştu.', 'error');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (loading) {
+    return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-gold" size={26} /></div>;
+  }
+
+  return (
+    <div>
+      <PageHeader title="Profili Düzenle" description="Bilgilerini güncel tut, doğru fırsatlarla eşleş." />
+
+      <div className="space-y-6">
+        <Card>
+          <h3 className="mb-4 font-display text-base font-bold">Profil görseli</h3>
+          <FileDropzone
+            shape="circle"
+            value={isMusician ? musician?.avatarUrl : employer?.logoUrl}
+            onChange={(url) => {
+              if (isMusician && musician) setMusician({ ...musician, avatarUrl: url });
+              else if (employer) setEmployer({ ...employer, logoUrl: url } as EmployerProfile);
+            }}
+          />
+        </Card>
+
+        <Card>
+          <h3 className="mb-4 font-display text-base font-bold">Kişisel bilgiler</h3>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Ad"><Input value={firstName} onChange={(e) => setFirstName(e.target.value)} /></Field>
+            <Field label="Soyad"><Input value={lastName} onChange={(e) => setLastName(e.target.value)} /></Field>
+            <Field label="E-posta" hint="E-posta değiştirilemez"><Input value={user?.email} disabled /></Field>
+            <Field label="Telefon"><Input value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} /></Field>
+          </div>
+        </Card>
+
+        {isMusician && musician && (
+          <>
+            <Card>
+              <h3 className="mb-4 font-display text-base font-bold">Uzmanlık</h3>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field label="Branş">
+                  <Select value={musician.branch} onChange={(e) => setMusician({ ...musician, branch: e.target.value as MusicBranch })}>
+                    {optionsFrom(MUSIC_BRANCHES, MUSIC_BRANCH_LABELS).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  </Select>
+                </Field>
+                <Field label="Deneyim (yıl)">
+                  <Input type="number" min={0} value={musician.experienceYears} onChange={(e) => setMusician({ ...musician, experienceYears: Number(e.target.value) })} />
+                </Field>
+                <Field label="Türler" className="sm:col-span-2">
+                  <Input value={musician.genres} onChange={(e) => setMusician({ ...musician, genres: e.target.value })} />
+                </Field>
+                <Field label="Başlangıç fiyatı (₺)">
+                  <Input type="number" min={0} value={musician.priceFrom ?? ''} onChange={(e) => setMusician({ ...musician, priceFrom: Number(e.target.value) || undefined })} />
+                </Field>
+                <Field label="Çalışma şekli">
+                  <div className="flex gap-2">
+                    {(['Solo', 'Group'] as WorkStatus[]).map((ws) => (
+                      <button key={ws} type="button" onClick={() => setMusician({ ...musician, workStatus: ws })}
+                        className={cn('flex-1 rounded-md border px-3 py-2.5 text-sm font-medium', musician.workStatus === ws ? 'border-gold bg-gold/10 text-gold-soft' : 'border-border text-text-dim')}>
+                        {ws === 'Solo' ? 'Solo' : 'Grup'}
+                      </button>
+                    ))}
+                  </div>
+                </Field>
+              </div>
+            </Card>
+
+            <Card>
+              <h3 className="mb-4 font-display text-base font-bold">Konum & seyahat</h3>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field label="Şehir">
+                  <Select value={musician.city} onChange={(e) => setMusician({ ...musician, city: e.target.value as City })}>
+                    {optionsFrom(CITIES, CITY_LABELS).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  </Select>
+                </Field>
+                <Field label="İlçe">
+                  <Input value={musician.district ?? ''} onChange={(e) => setMusician({ ...musician, district: e.target.value })} />
+                </Field>
+              </div>
+              <div className="mt-4 space-y-1">
+                <Switch checked={musician.isAvailableToTravel === 'Yes'} onChange={(v) => setMusician({ ...musician, isAvailableToTravel: (v ? 'Yes' : 'No') as IsAvailableToTravel })} label="Şehir dışına seyahat edebilirim" />
+                <Switch checked={musician.hasOwnEquipment} onChange={(v) => setMusician({ ...musician, hasOwnEquipment: v })} label="Kendi ekipmanım var" />
+              </div>
+            </Card>
+
+            <Card>
+              <h3 className="mb-4 font-display text-base font-bold">Biyografi & sosyal</h3>
+              <Field label="Biyografi"><Textarea rows={5} value={musician.bio} onChange={(e) => setMusician({ ...musician, bio: e.target.value })} /></Field>
+              <div className="mt-4 grid gap-4 sm:grid-cols-3">
+                <Field label="Instagram"><Input value={musician.instagramUrl ?? ''} onChange={(e) => setMusician({ ...musician, instagramUrl: e.target.value })} /></Field>
+                <Field label="Youtube"><Input value={musician.youtubeUrl ?? ''} onChange={(e) => setMusician({ ...musician, youtubeUrl: e.target.value })} /></Field>
+                <Field label="LinkedIn"><Input value={musician.linkedinUrl ?? ''} onChange={(e) => setMusician({ ...musician, linkedinUrl: e.target.value })} /></Field>
+              </div>
+            </Card>
+          </>
+        )}
+
+        {employer && (
+          <>
+            <Card>
+              <h3 className="mb-4 font-display text-base font-bold">{employer.kind === 'Organizer' ? 'Organizasyon bilgisi' : 'Mekan bilgisi'}</h3>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field label="İsim" className="sm:col-span-2">
+                  <Input
+                    value={employer.kind === 'Organizer' ? employer.organizerName : employer.venueName}
+                    onChange={(e) => setEmployer(employer.kind === 'Organizer' ? { ...employer, organizerName: e.target.value } : { ...employer, venueName: e.target.value })}
+                  />
+                </Field>
+                {employer.kind === 'Organizer' ? (
+                  <Field label="Organizatör tipi">
+                    <Select value={employer.organizerType} onChange={(e) => setEmployer({ ...employer, organizerType: e.target.value as OrganizerType })}>
+                      {optionsFrom(ORGANIZER_TYPES, ORGANIZER_TYPE_LABELS).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                    </Select>
+                  </Field>
+                ) : (
+                  <>
+                    <Field label="Mekan tipi">
+                      <Select value={employer.venueType} onChange={(e) => setEmployer({ ...employer, venueType: e.target.value as VenueType })}>
+                        {optionsFrom(VENUE_TYPES, VENUE_TYPE_LABELS).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                      </Select>
+                    </Field>
+                    <Field label="Kapasite">
+                      <Input type="number" min={0} value={employer.capacity} onChange={(e) => setEmployer({ ...employer, capacity: Number(e.target.value) })} />
+                    </Field>
+                  </>
+                )}
+              </div>
+              {employer.kind === 'Venue' && (
+                <div className="mt-4">
+                  <Switch checked={employer.hasSoundSystem} onChange={(v) => setEmployer({ ...employer, hasSoundSystem: v })} label="Ses sistemi mevcut" />
+                </div>
+              )}
+            </Card>
+
+            <Card>
+              <h3 className="mb-4 font-display text-base font-bold">Konum</h3>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field label="Şehir">
+                  <Select value={employer.city} onChange={(e) => setEmployer({ ...employer, city: e.target.value as City })}>
+                    {optionsFrom(CITIES, CITY_LABELS).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  </Select>
+                </Field>
+                <Field label="İlçe">
+                  <Input value={employer.district ?? ''} onChange={(e) => setEmployer({ ...employer, district: e.target.value })} />
+                </Field>
+                <Field label="Adres" className="sm:col-span-2">
+                  <Input value={employer.address} onChange={(e) => setEmployer({ ...employer, address: e.target.value })} />
+                </Field>
+              </div>
+            </Card>
+
+            <Card>
+              <h3 className="mb-4 font-display text-base font-bold">Hakkında & bağlantılar</h3>
+              <Field label="Açıklama"><Textarea rows={5} value={employer.bio} onChange={(e) => setEmployer({ ...employer, bio: e.target.value })} /></Field>
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                <Field label="Website"><Input value={employer.websiteUrl ?? ''} onChange={(e) => setEmployer({ ...employer, websiteUrl: e.target.value })} /></Field>
+                <Field label="Instagram"><Input value={employer.instagramUrl ?? ''} onChange={(e) => setEmployer({ ...employer, instagramUrl: e.target.value })} /></Field>
+              </div>
+            </Card>
+          </>
+        )}
+
+        <div className="flex justify-end">
+          <Button icon={<Save size={16} />} onClick={handleSave} loading={saving}>Değişiklikleri Kaydet</Button>
+        </div>
+      </div>
+    </div>
+  );
+}

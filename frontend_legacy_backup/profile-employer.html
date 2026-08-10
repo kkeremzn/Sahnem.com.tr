@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hilton İstanbul — Sahnem</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/brand/favicon-192x192.png">
+  <link rel="apple-touch-icon" href="assets/brand/favicon-192x192.png">
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <div id="navbar-slot"></div>
+
+  <div class="page">
+    <div class="profile-hero">
+      <div class="profile-cover">
+        <div class="cover-pattern"></div>
+      </div>
+
+      <div class="profile-header-inner">
+        <div class="profile-info-row">
+          <div class="employer-logo-main">H</div>
+          <div class="profile-meta">
+            <div class="flex items-center gap-10 flex-wrap">
+              <h1 class="profile-name">Hilton İstanbul</h1>
+              <span class="badge badge-gold">Doğrulanmış Kurum</span>
+            </div>
+            <p class="profile-title-sub">Otel & Etkinlik Mekanı</p>
+            <div class="profile-meta-row">
+              <span class="body-sm flex items-center gap-4"><span data-icon="location" data-icon-size="14"></span> İstanbul, Şişli</span>
+              <span class="body-sm">Otel & Konaklama</span>
+              <span class="body-sm flex items-center gap-6"><span data-icon="star" data-icon-size="14" style="color:var(--gold);"></span> 4.8 (86 değerlendirme)</span>
+            </div>
+            <div class="profile-stats-row">
+              <div class="profile-stat"><span>240+</span><p>Yıllık Etkinlik</p></div>
+              <div class="profile-stat"><span>86</span><p>Değerlendirme</p></div>
+              <div class="profile-stat"><span>12</span><p>Aktif İlan</p></div>
+              <div class="profile-stat"><span>98%</span><p>Yanıt Oranı</p></div>
+            </div>
+          </div>
+          <div class="profile-actions">
+            <a href="post-offer.html" class="btn btn-primary btn-lg">İlan Yayınla</a>
+            <a href="messages.html" class="btn btn-secondary flex items-center gap-8"><span data-icon="message" data-icon-size="16"></span> Mesaj Gönder</a>
+            <button type="button" class="btn btn-ghost btn-icon" title="Favorilere ekle"><span data-icon="heart" data-icon-size="16"></span></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-nav">
+        <div class="profile-nav-inner">
+          <div class="tabs">
+            <button type="button" class="tab-btn active" data-tab="about" onclick="switchProfileTab('about', this)">Hakkında</button>
+            <button type="button" class="tab-btn" data-tab="events" onclick="switchProfileTab('events', this)">Geçmiş Etkinlikler</button>
+            <button type="button" class="tab-btn" data-tab="reviews" onclick="switchProfileTab('reviews', this)">Değerlendirmeler</button>
+            <button type="button" class="tab-btn" data-tab="contact" onclick="switchProfileTab('contact', this)">İletişim</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-content">
+      <div class="profile-grid">
+        <div>
+          <div data-profile-panel="about">
+            <div class="card mb-16">
+              <div class="section-header"><h2 class="section-title">Kurum Hakkında</h2></div>
+              <p class="body-sm" style="line-height:1.8;color:var(--text-dim);">
+                Hilton İstanbul, şehrin kalbinde Boğaz manzaralı konumuyla düğün, gala ve kurumsal etkinliklere ev sahipliği yapan prestijli bir oteldir. Profesyonel etkinlik ekibimiz, her ölçekte müzikli organizasyon için deneyimli müzisyenlerle çalışmaktadır.
+              </p>
+              <p class="body-sm mt-12" style="line-height:1.8;color:var(--text-dim);">
+                Balo salonlarımız, teras alanlarımız ve toplantı odalarımızda yılda 240'tan fazla canlı müzikli etkinlik düzenlenmektedir. Jazz trio'dan düğün orkestrasına kadar geniş bir yelpazede sanatçı arayışımız bulunmaktadır.
+              </p>
+              <div class="tags mt-16">
+                <span class="tag active">Düğün</span>
+                <span class="tag active">Gala</span>
+                <span class="tag active">Kurumsal</span>
+                <span class="tag">Kokteyl</span>
+                <span class="tag">Lobi Müziği</span>
+              </div>
+            </div>
+
+            <div class="card mb-16">
+              <div class="section-header"><h2 class="section-title">Mekan Özellikleri</h2></div>
+              <div class="grid grid-2" style="gap:12px;">
+                <div class="offer-meta-item"><p class="label">Kapasite</p><p class="value">50 – 800 kişi</p></div>
+                <div class="offer-meta-item"><p class="label">Salon Sayısı</p><p class="value">6 etkinlik alanı</p></div>
+                <div class="offer-meta-item"><p class="label">Ses Sistemi</p><p class="value">Profesyonel PA</p></div>
+                <div class="offer-meta-item"><p class="label">Sahne</p><p class="value">Sabit & mobil sahne</p></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="section-header">
+                <h2 class="section-title">Son Değerlendirmeler</h2>
+                <button type="button" class="btn btn-ghost btn-sm" onclick="switchProfileTab('reviews', document.querySelector('[data-tab=reviews]'))">Tümünü Gör</button>
+              </div>
+              <div class="review-item">
+                <div class="review-header">
+                  <div class="avatar avatar-sm avatar-gold">EA</div>
+                  <div style="flex:1;"><div style="font-weight:600;font-size:0.88rem;">Emre Aydın</div><div class="body-sm">Düğün performansı — 3 hafta önce</div></div>
+                  <div class="stars" style="font-size:0.9rem;">★★★★★</div>
+                </div>
+                <p class="review-text">Profesyonel ve organize bir ekip. Teknik altyapı mükemmeldi, etkinlik sorunsuz geçti. Tekrar çalışmak isterim.</p>
+              </div>
+            </div>
+          </div>
+
+          <div data-profile-panel="events" hidden>
+            <div class="card">
+              <div class="section-header"><h2 class="section-title">Geçmiş Etkinlikler</h2></div>
+              <div class="timeline">
+                <div class="timeline-item">
+                  <div class="timeline-dot"><span data-icon="music" data-icon-size="16"></span></div>
+                  <div class="timeline-body">
+                    <div class="timeline-role">Yaz Düğün Sezonu Açılışı</div>
+                    <div class="timeline-place">Bosphorus Balo Salonu</div>
+                    <div class="timeline-date">Haziran 2025</div>
+                    <div class="timeline-desc">12 hafta boyunca canlı trio performansları. Pop ve jazz repertuarı.</div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-dot"><span data-icon="briefcase" data-icon-size="16"></span></div>
+                  <div class="timeline-body">
+                    <div class="timeline-role">Kurumsal Yıl Sonu Galası</div>
+                    <div class="timeline-place">Grand Ballroom</div>
+                    <div class="timeline-date">Aralık 2024</div>
+                    <div class="timeline-desc">Fortune 500 şirketi için lounge jazz quartet ve DJ kombinasyonu.</div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-dot"><span data-icon="music" data-icon-size="16"></span></div>
+                  <div class="timeline-body">
+                    <div class="timeline-role">Lobi Canlı Müzik Programı</div>
+                    <div class="timeline-place">Ana Lobi</div>
+                    <div class="timeline-date">2024 – Günümüz</div>
+                    <div class="timeline-desc">Haftanın 6 günü akşam piyano ve akustik performansları.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div data-profile-panel="reviews" hidden>
+            <div class="card">
+              <div class="section-header">
+                <h2 class="section-title">Değerlendirmeler (86)</h2>
+                <div class="flex items-center gap-8">
+                  <span style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;color:var(--gold);">4.8</span>
+                  <div class="stars">★★★★★</div>
+                </div>
+              </div>
+              <div class="review-item">
+                <div class="review-header">
+                  <div class="avatar avatar-md avatar-gold">EA</div>
+                  <div style="flex:1;"><div style="font-weight:600;">Emre Aydın</div><div class="body-sm">Düğün — 3 hafta önce</div></div>
+                  <div class="stars">★★★★★</div>
+                </div>
+                <p class="review-text">Profesyonel ve organize bir ekip. Teknik altyapı mükemmeldi, etkinlik sorunsuz geçti.</p>
+              </div>
+              <div class="review-item">
+                <div class="review-header">
+                  <div class="avatar avatar-md" style="background:#7B5CFA;">ZK</div>
+                  <div style="flex:1;"><div style="font-weight:600;">Zeynep Kaya</div><div class="body-sm">Kurumsal gala — 2 ay önce</div></div>
+                  <div class="stars">★★★★★</div>
+                </div>
+                <p class="review-text">İletişim çok hızlıydı, sözleşme süreci şeffaf. Mekan müzisyenler için ideal koşullara sahip.</p>
+              </div>
+              <div class="review-item">
+                <div class="review-header">
+                  <div class="avatar avatar-md" style="background:#4CAF7D;">ND</div>
+                  <div style="flex:1;"><div style="font-weight:600;">Nalan Doğan</div><div class="body-sm">Lobi müziği — 4 ay önce</div></div>
+                  <div class="stars">★★★★☆</div>
+                </div>
+                <p class="review-text">Düzenli ve profesyonel bir iş ortağı. Ödeme zamanında yapıldı, tekrar çalışırım.</p>
+              </div>
+            </div>
+          </div>
+
+          <div data-profile-panel="contact" hidden>
+            <div class="card">
+              <div class="section-header"><h2 class="section-title">İletişim Bilgileri</h2></div>
+              <div class="flex flex-col gap-14">
+                <div class="form-group mb-0">
+                  <label class="form-label">Etkinlik Departmanı</label>
+                  <p class="body-sm">events@hilton.com</p>
+                </div>
+                <div class="form-group mb-0">
+                  <label class="form-label">Telefon</label>
+                  <p class="body-sm">+90 212 315 60 00</p>
+                </div>
+                <div class="form-group mb-0">
+                  <label class="form-label">Adres</label>
+                  <p class="body-sm">Cumhuriyet Cad. Harbiye, 34367 Şişli / İstanbul</p>
+                </div>
+                <a href="messages.html" class="btn btn-primary" style="width:fit-content;">Mesaj Gönder</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside>
+          <div class="offer-box mb-16">
+            <p class="label mb-8">Ortalama Etkinlik Bütçesi</p>
+            <div class="price-big">₺12.000</div>
+            <p class="body-sm mb-16">Müzik performansı başına</p>
+            <a href="jobs.html" class="btn btn-primary btn-full">Açık İlanları Gör</a>
+            <a href="post-offer.html" class="btn btn-ghost btn-full mt-8">Teklif Yayınla</a>
+          </div>
+
+          <div class="sidebar-card">
+            <h3>Hızlı Bilgiler</h3>
+            <div class="flex flex-col gap-10 body-sm">
+              <div class="flex items-center gap-10"><span data-icon="location" data-icon-size="14"></span> Şişli, İstanbul</div>
+              <div class="flex items-center gap-10"><span data-icon="briefcase" data-icon-size="14"></span> Otel & Etkinlik</div>
+              <div class="flex items-center gap-10"><span data-icon="check" data-icon-size="14" style="color:var(--success);"></span> Doğrulanmış kurum</div>
+              <div class="flex items-center gap-10"><span data-icon="music" data-icon-size="14"></span> 240+ yıllık etkinlik</div>
+            </div>
+          </div>
+
+          <div class="sidebar-card">
+            <h3>Aktif İlanlar</h3>
+            <div class="contact-list">
+              <a href="offer-detail.html?id=1">
+                <div class="contact-icon">1</div>
+                <span>Düğün organizasyonu — ₺12.000</span>
+              </a>
+              <a href="jobs.html">
+                <div class="contact-icon" data-icon="search" data-icon-size="12"></div>
+                <span>Tüm ilanları görüntüle</span>
+              </a>
+            </div>
+          </div>
+
+          <div class="sidebar-card">
+            <h3>Sosyal Medya</h3>
+            <div class="contact-list">
+              <a href="#"><div class="contact-icon">ig</div> @hiltonistanbul</a>
+              <a href="#"><div class="contact-icon">in</div> Hilton Istanbul</a>
+              <a href="#"><div class="contact-icon">web</div> hilton.com</a>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+  <div id="footer-slot"></div>
+  <script src="js/components.js"></script>
+  <script>
+    mountLayout({ loggedIn: true, userType: 'employer' });
+
+    document.querySelectorAll('[data-icon]').forEach(el => {
+      el.innerHTML = icon(el.dataset.icon, +(el.dataset.iconSize || 18));
+    });
+
+    document.querySelector('.btn-ghost.btn-icon')?.addEventListener('click', () => {
+      showToast('Kurum favorilere eklendi.', 'success');
+    });
+  </script>
+</body>
+</html>

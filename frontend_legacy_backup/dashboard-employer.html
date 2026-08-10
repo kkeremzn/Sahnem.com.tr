@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>İşveren Paneli — Sahnem</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/brand/favicon-192x192.png">
+  <link rel="apple-touch-icon" href="assets/brand/favicon-192x192.png">
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<div id="navbar-slot"></div>
+
+<div class="page">
+  <div class="app-shell">
+    <div id="sidebar-slot"></div>
+    <main class="app-main">
+      <div class="page-header">
+        <p class="label mb-8">İşveren Paneli</p>
+        <h1>Hoş geldin, <span class="gold">Hilton İstanbul</span></h1>
+        <p>Etkinliklerin için müzisyen aramalarını buradan yönet.</p>
+      </div>
+
+      <div class="grid-3 mb-32">
+        <div class="card stat-card">
+          <p class="label mb-8">Aktif Aramalar</p>
+          <div class="stat-value mb-8">3</div>
+          <p class="stat-label">Devam eden müzisyen aramaları</p>
+        </div>
+        <div class="card stat-card">
+          <p class="label mb-8">Gönderilen Teklifler</p>
+          <div class="stat-value mb-8">7</div>
+          <p class="stat-label">Müzisyenlere iletilen teklifler</p>
+        </div>
+        <div class="card stat-card">
+          <p class="label mb-8">Yanıt Bekleyen</p>
+          <div class="stat-value mb-8">4</div>
+          <p class="stat-label">Henüz yanıtlanmamış teklifler</p>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <h2 class="section-title">Önerilen Müzisyenler</h2>
+        <a href="explore.html" class="btn btn-secondary btn-sm">Keşfet Sayfasına Git</a>
+      </div>
+      <div class="musicians-grid mb-32" id="recent-musicians"></div>
+
+      <div class="card">
+        <div class="flex items-center justify-between flex-wrap gap-16">
+          <div>
+            <h2 class="section-title mb-8">Müzisyen Bul</h2>
+            <p class="body-sm">Etkinliğin için en uygun müzisyeni keşfet ve teklif gönder.</p>
+          </div>
+          <a href="explore.html" class="btn btn-primary">Müzisyen Ara</a>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div id="footer-slot"></div>
+
+<script src="js/components.js"></script>
+<script>
+  mountAppPage({ sidebarActive: 'dashboard', userType: 'employer', active: 'explore' });
+  document.getElementById('recent-musicians').innerHTML = MUSICIANS.slice(0, 4).map(m => renderMusicianCard(m)).join('');
+</script>
+</body>
+</html>

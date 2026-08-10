@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teklifler — Sahnem</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/brand/favicon-192x192.png">
+  <link rel="apple-touch-icon" href="assets/brand/favicon-192x192.png">
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <div id="navbar-slot"></div>
+
+  <div class="page">
+    <div class="app-shell">
+      <div id="sidebar-slot"></div>
+      <main class="app-main">
+        <div class="page-header">
+          <h1>Teklifler</h1>
+          <p>Gelen teklifleri yönetin, gönderdiğiniz başvuruları ve yayınladığınız ilanları takip edin.</p>
+        </div>
+
+        <div data-tabs>
+          <div class="tabs mb-24">
+            <button type="button" class="tab-btn active" data-tab="incoming">Gelen Teklifler</button>
+            <button type="button" class="tab-btn" data-tab="sent">Gönderilen</button>
+            <button type="button" class="tab-btn" data-tab="published">Yayınlanan İlanlar</button>
+          </div>
+
+          <div class="card" style="padding:0;overflow:hidden;" data-panel="incoming">
+            <div class="offer-list-item" onclick="location.href='offer-detail.html?id=1&type=incoming'">
+              <div>
+                <div class="flex items-center gap-10 mb-6">
+                  <span class="job-card-employer">Hilton İstanbul</span>
+                  <span class="badge badge-gold offer-status">Bekliyor</span>
+                </div>
+                <p class="body-sm">Düğün organizasyonu — Canlı müzik trio</p>
+                <p class="body-sm mt-4" style="color:var(--subtle);">15 Ağustos 2025 · İstanbul · ₺12.000</p>
+              </div>
+              <span data-icon="briefcase" data-icon-size="20" style="color:var(--subtle);"></span>
+            </div>
+            <div class="offer-list-item" onclick="location.href='offer-detail.html?id=3&type=incoming'">
+              <div>
+                <div class="flex items-center gap-10 mb-6">
+                  <span class="job-card-employer">Swissôtel The Bosphorus</span>
+                  <span class="badge badge-green offer-status">Kabul</span>
+                </div>
+                <p class="body-sm">Kurumsal gala gecesi — Jazz quartet</p>
+                <p class="body-sm mt-4" style="color:var(--subtle);">22 Eylül 2025 · İstanbul · ₺18.000</p>
+              </div>
+              <span data-icon="check" data-icon-size="20" style="color:var(--success);"></span>
+            </div>
+            <div class="offer-list-item" onclick="location.href='offer-detail.html?id=2&type=incoming'">
+              <div>
+                <div class="flex items-center gap-10 mb-6">
+                  <span class="job-card-employer">Rixos Premium Belek</span>
+                  <span class="badge badge-red offer-status">Red</span>
+                </div>
+                <p class="body-sm">Lobi müziği — Yaz sezonu</p>
+                <p class="body-sm mt-4" style="color:var(--subtle);">Haziran – Eylül 2025 · Antalya · ₺8.500/ay</p>
+              </div>
+              <span data-icon="briefcase" data-icon-size="20" style="color:var(--subtle);"></span>
+            </div>
+          </div>
+
+          <div class="card" style="padding:0;overflow:hidden;" data-panel="sent" hidden>
+            <div class="offer-list-item" onclick="location.href='offer-detail.html?id=4&type=sent'">
+              <div>
+                <div class="flex items-center gap-10 mb-6">
+                  <span class="job-card-employer">Zorlu PSM</span>
+                  <span class="badge badge-gold offer-status">Bekliyor</span>
+                </div>
+                <p class="body-sm">Jazz gecesi açılış performansı — Başvurunuz inceleniyor</p>
+                <p class="body-sm mt-4" style="color:var(--subtle);">5 Ekim 2025 · İstanbul · ₺15.000</p>
+              </div>
+              <span data-icon="briefcase" data-icon-size="20" style="color:var(--subtle);"></span>
+            </div>
+            <div class="offer-list-item" onclick="location.href='offer-detail.html?id=1&type=sent'">
+              <div>
+                <div class="flex items-center gap-10 mb-6">
+                  <span class="job-card-employer">Hilton İstanbul</span>
+                  <span class="badge badge-green offer-status">Kabul</span>
+                </div>
+                <p class="body-sm">Düğün organizasyonu — Teklifiniz kabul edildi</p>
+                <p class="body-sm mt-4" style="color:var(--subtle);">15 Ağustos 2025 · İstanbul · ₺12.000</p>
+              </div>
+              <span data-icon="check" data-icon-size="20" style="color:var(--success);"></span>
+            </div>
+          </div>
+
+          <div class="card" style="padding:0;overflow:hidden;" data-panel="published" hidden>
+            <div class="empty-inline" id="published-empty" hidden>
+              <h3>Yayınlanan ilan yok</h3>
+              <p class="body-sm">İşveren hesabıyla etkinlik ilanı yayınlayabilirsiniz.</p>
+              <a href="post-offer.html" class="btn btn-primary mt-16">İlan Yayınla</a>
+            </div>
+            <div id="published-list">
+              <div class="offer-list-item" onclick="location.href='offer-detail.html?id=1&type=published&role=employer'">
+                <div>
+                  <div class="flex items-center gap-10 mb-6">
+                    <span class="job-card-employer">Düğün Organizasyonu — Canlı Müzik</span>
+                    <span class="badge badge-green offer-status">Aktif</span>
+                  </div>
+                  <p class="body-sm">3 başvuru · Son güncelleme: 2 gün önce</p>
+                  <p class="body-sm mt-4" style="color:var(--subtle);">15 Ağustos 2025 · ₺12.000</p>
+                </div>
+                <span data-icon="briefcase" data-icon-size="20" style="color:var(--subtle);"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div id="footer-slot"></div>
+  <script src="js/components.js"></script>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const userType = params.get('type') === 'employer' ? 'employer' : 'musician';
+
+    mountAppPage({ sidebarActive: 'offers', userType, active: 'offers' });
+    initTabs('[data-tabs]');
+
+    document.querySelectorAll('[data-icon]').forEach(el => {
+      el.innerHTML = icon(el.dataset.icon, +(el.dataset.iconSize || 18));
+    });
+
+    if (userType === 'musician') {
+      document.getElementById('published-list').hidden = true;
+      document.getElementById('published-empty').hidden = false;
+    }
+  </script>
+</body>
+</html>

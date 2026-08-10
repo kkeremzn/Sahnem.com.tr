@@ -1,0 +1,15 @@
+# .NET
+backend/**/bin/
+backend/**/obj/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend_legacy_backup/node_modules/
+
+# OS
+.DS_Store
+
+# IDE
+.vs/
+.vscode/

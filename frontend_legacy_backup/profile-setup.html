@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profil Kurulumu — Sahnem</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/brand/favicon-192x192.png">
+  <link rel="apple-touch-icon" href="assets/brand/favicon-192x192.png">
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body class="no-footer">
+  <div id="navbar-slot"></div>
+
+  <div class="page">
+    <div class="container" style="max-width:640px;padding:40px 24px 64px;">
+      <div class="text-center mb-32">
+        <p class="label mb-8">Hoş Geldiniz</p>
+        <h1 class="display-sm">Profilinizi Oluşturun</h1>
+        <p class="body-sm mt-8">Birkaç adımda profilinizi tamamlayın ve teklif almaya başlayın.</p>
+      </div>
+
+      <div class="wizard-steps" id="wizard-steps">
+        <div class="wizard-step active" data-step="1">
+          <span class="wizard-step-num">1</span>
+          Temel Bilgiler
+        </div>
+        <div class="wizard-step" data-step="2">
+          <span class="wizard-step-num">2</span>
+          Uzmanlık
+        </div>
+        <div class="wizard-step" data-step="3">
+          <span class="wizard-step-num">3</span>
+          Portföy
+        </div>
+        <div class="wizard-step" data-step="4">
+          <span class="wizard-step-num">4</span>
+          Fiyat
+        </div>
+      </div>
+
+      <form class="card" id="wizard-form">
+        <div class="wizard-panel" data-wizard="1">
+          <div class="form-section" style="margin-bottom:0;">
+            <div class="form-section-title">Temel Bilgiler</div>
+            <div class="form-group">
+              <label class="form-label">Ad Soyad</label>
+              <input type="text" class="form-input" placeholder="Adınız ve soyadınız" required>
+            </div>
+            <div class="form-row form-row-2">
+              <div class="form-group">
+                <label class="form-label">Şehir</label>
+                <select class="form-input form-select" required>
+                  <option value="">Seçin</option>
+                  <option>İstanbul</option>
+                  <option>Ankara</option>
+                  <option>İzmir</option>
+                  <option>Antalya</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Telefon</label>
+                <input type="tel" class="form-input" placeholder="+90 5XX XXX XX XX">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Kısa Biyografi</label>
+              <textarea class="form-input form-textarea" rows="3" placeholder="Kendinizi kısaca tanıtın..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="wizard-panel" data-wizard="2" hidden>
+          <div class="form-section" style="margin-bottom:0;">
+            <div class="form-section-title">Uzmanlık Alanınız</div>
+            <div class="form-group">
+              <label class="form-label">Ana Uzmanlık</label>
+              <select class="form-input form-select" required>
+                <option value="">Seçin</option>
+                <option>Gitarist</option>
+                <option>DJ</option>
+                <option>Solist</option>
+                <option>Klavyeci</option>
+                <option>Davulcu</option>
+                <option>Kemancı</option>
+                <option>Grup</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Müzik Tarzları</label>
+              <input type="text" class="form-input" placeholder="Pop, Rock, Jazz...">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Deneyim Süresi</label>
+              <select class="form-input form-select">
+                <option>0-2 yıl</option>
+                <option>2-5 yıl</option>
+                <option>5-10 yıl</option>
+                <option>10+ yıl</option>
+              </select>
+            </div>
+            <label class="filter-option"><input type="checkbox"> Kendi ekipmanımı getiriyorum</label>
+          </div>
+        </div>
+
+        <div class="wizard-panel" data-wizard="3" hidden>
+          <div class="form-section" style="margin-bottom:0;">
+            <div class="form-section-title">Portföy</div>
+            <p class="body-sm mb-16" style="color:var(--text-dim);">Performans videolarınız ve fotoğraflarınız profilinizin görünürlüğünü artırır.</p>
+            <div class="form-group">
+              <label class="form-label">YouTube / Video Linki</label>
+              <input type="url" class="form-input" placeholder="https://youtube.com/...">
+            </div>
+            <div class="form-group">
+              <label class="form-label">İkinci Video Linki (isteğe bağlı)</label>
+              <input type="url" class="form-input" placeholder="https://">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Öne Çıkan Projeler</label>
+              <textarea class="form-input form-textarea" rows="3" placeholder="Çalıştığınız mekanlar, sanatçılar veya projeler..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="wizard-panel" data-wizard="4" hidden>
+          <div class="form-section" style="margin-bottom:0;">
+            <div class="form-section-title">Fiyatlandırma</div>
+            <div class="form-row form-row-2">
+              <div class="form-group">
+                <label class="form-label">Standart Gig Ücreti (₺)</label>
+                <input type="number" class="form-input" placeholder="2500" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Minimum Süre</label>
+                <select class="form-input form-select">
+                  <option>1 saat</option>
+                  <option selected>2 saat</option>
+                  <option>3 saat</option>
+                  <option>4+ saat</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Müsaitlik</label>
+              <select class="form-input form-select">
+                <option selected>Müsait</option>
+                <option>Sınırlı müsait</option>
+                <option>Meşgul</option>
+              </select>
+            </div>
+            <p class="body-sm" style="color:var(--subtle);">Fiyatınızı istediğiniz zaman profil ayarlarından güncelleyebilirsiniz.</p>
+          </div>
+        </div>
+
+        <div class="flex justify-between mt-24 gap-12">
+          <button type="button" class="btn btn-ghost" id="btn-back" hidden>Geri</button>
+          <div style="flex:1;"></div>
+          <button type="button" class="btn btn-primary" id="btn-next">İleri</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="footer-slot"></div>
+  <script src="js/components.js"></script>
+  <script>
+    mountLayout({ loggedIn: true, userType: 'musician', showFooter: false });
+
+    let step = 1;
+    const total = 4;
+    const params = new URLSearchParams(location.search);
+    const userType = params.get('type') === 'employer' ? 'employer' : 'musician';
+    const dash = userType === 'employer' ? 'dashboard-employer.html' : 'dashboard-musician.html';
+
+    const btnBack = document.getElementById('btn-back');
+    const btnNext = document.getElementById('btn-next');
+
+    function updateWizard() {
+      document.querySelectorAll('.wizard-panel').forEach(p => {
+        p.hidden = +p.dataset.wizard !== step;
+      });
+      document.querySelectorAll('.wizard-step').forEach(s => {
+        const n = +s.dataset.step;
+        s.classList.remove('active', 'done');
+        if (n === step) s.classList.add('active');
+        else if (n < step) s.classList.add('done');
+      });
+      btnBack.hidden = step === 1;
+      btnNext.textContent = step === total ? 'Tamamla' : 'İleri';
+    }
+
+    btnBack.addEventListener('click', () => {
+      if (step > 1) { step--; updateWizard(); }
+    });
+
+    btnNext.addEventListener('click', () => {
+      if (step < total) {
+        step++;
+        updateWizard();
+      } else {
+        showToast('Profiliniz oluşturuldu. Panele yönlendiriliyorsunuz...', 'success');
+        setTimeout(() => { location.href = dash; }, 1400);
+      }
+    });
+
+    updateWizard();
+  </script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>İş İlanları — Sahnem</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/brand/favicon-192x192.png">
+  <link rel="apple-touch-icon" href="assets/brand/favicon-192x192.png">
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <div id="navbar-slot"></div>
+
+  <div class="page">
+    <div class="explore-search">
+      <div class="explore-search-inner">
+        <div class="explore-search-bar">
+          <span data-icon="search" data-icon-size="18"></span>
+          <input type="search" id="job-search" placeholder="Etkinlik türü, mekan veya şehir ara..." aria-label="İlan ara">
+        </div>
+        <select class="form-input form-select" style="width:160px;" aria-label="Şehir">
+          <option>Tüm Türkiye</option>
+          <option selected>İstanbul</option>
+          <option>Ankara</option>
+          <option>İzmir</option>
+          <option>Antalya</option>
+        </select>
+        <button type="button" class="btn btn-primary" id="search-btn">Ara</button>
+      </div>
+    </div>
+
+    <div class="container" style="padding: 32px 24px 48px;">
+      <div class="flex items-center justify-between mb-24 flex-wrap gap-12">
+        <div>
+          <p class="label mb-8">Müzisyenler İçin</p>
+          <h1 class="display-sm">Açık İş İlanları</h1>
+          <p class="body-sm mt-8">Otel, mekan ve organizasyon firmalarının yayınladığı etkinlik fırsatlarını keşfedin.</p>
+        </div>
+        <span class="body-sm"><strong style="color:var(--text);">4</strong> aktif ilan</span>
+      </div>
+
+      <div class="category-chips mb-24">
+        <button type="button" class="cat-chip active">Tümü</button>
+        <button type="button" class="cat-chip">Düğün</button>
+        <button type="button" class="cat-chip">Lobi Müziği</button>
+        <button type="button" class="cat-chip">Kurumsal</button>
+        <button type="button" class="cat-chip">Jazz</button>
+        <button type="button" class="cat-chip">Canlı Müzik</button>
+      </div>
+
+      <div class="jobs-grid" id="jobs-grid">
+        <a href="offer-detail.html?id=1" class="job-card" data-search="hilton düğün istanbul">
+          <div class="job-card-header">
+            <div class="avatar avatar-md" style="background:linear-gradient(135deg,#1a2840,#0d1520);color:var(--gold);font-weight:700;">H</div>
+            <div>
+              <div class="job-card-employer">Hilton İstanbul</div>
+              <div class="job-card-title">Düğün Organizasyonu — Canlı Müzik</div>
+            </div>
+            <span class="badge badge-green">Açık</span>
+          </div>
+          <p class="body-sm mb-12">Boğaz manzaralı balo salonunda akşam yemeği ve dans müziği için deneyimli gitarist veya trio aranıyor. Repertuar: pop, jazz standartları.</p>
+          <div class="job-card-meta">
+            <span style="display:inline-flex;align-items:center;gap:6px;"><span data-icon="location" data-icon-size="14"></span> İstanbul, Beşiktaş</span>
+            <span style="display:inline-flex;align-items:center;gap:6px;"><span data-icon="briefcase" data-icon-size="14"></span> 15 Ağustos 2025</span>
+          </div>
+          <div class="job-card-footer">
+            <span class="body-sm">4 saat · Trio tercih</span>
+            <span class="job-card-budget">₺12.000</span>
+          </div>
+        </a>
+
+        <a href="offer-detail.html?id=2" class="job-card" data-search="rixos lobi müziği antalya">
+          <div class="job-card-header">
+            <div class="avatar avatar-md" style="background:linear-gradient(135deg,#2a1a40,#150d28);color:var(--gold);font-weight:700;">R</div>
+            <div>
+              <div class="job-card-employer">Rixos Premium Belek</div>
+              <div class="job-card-title">Lobi Müziği — Yaz Sezonu</div>
+            </div>
+            <span class="badge badge-green">Açık</span>
+          </div>
+          <p class="body-sm mb-12">Otel lobisinde akşam saatlerinde piyano veya akustik set performansı. Haftada 5 gün, 19:00–22:00 arası.</p>
+          <div class="job-card-meta">
+            <span style="display:inline-flex;align-items:center;gap:6px;"><span data-icon="location" data-icon-size="14"></span> Antalya, Belek</span>
+            <span style="display:inline-flex;align-items:center;gap:6px;"><span data-icon="briefcase" data-icon-size="14"></span> Haziran – Eylül 2025</span>
+          </div>
+          <div class="job-card-footer">
+            <span class="body-sm">Sezonluk · Akustik / Piyano</span>
+            <span class="job-card-budget">₺8.500 / ay</span>
+          </div>
+        </a>
+
+        <a href="offer-detail.html?id=3" class="job-card" data-search="swissôtel kurumsal etkinlik">
+          <div class="job-card-header">
+            <div class="avatar avatar-md" style="background:linear-gradient(135deg,#1a3020,#0d1810);color:var(--gold);font-weight:700;">S</div>
+            <div>
+              <div class="job-card-employer">Swissôtel The Bosphorus</div>
+              <div class="job-card-title">Kurumsal Gala Gecesi</div>
+            </div>
+            <span class="badge badge-gold">Yeni</span>
+          </div>
+          <p class="body-sm mb-12">Yıllık şirket galası için lounge jazz quartet. Kokteyl ve yemek servisi sırasında arka plan müziği, akşam kısa sahne performansı.</p>
+          <div class="job-card-meta">
+            <span style="display:inline-flex;align-items:center;gap:6px;"><span data-icon="location" data-icon-size="14"></span> İstanbul, Beşiktaş</span>
+            <span style="display:inline-flex;align-items:center;gap:6px;"><span data-icon="briefcase" data-icon-size="14"></span> 22 Eylül 2025</span>
+          </div>
+          <div class="job-card-footer">
+            <span class="body-sm">5 saat · Quartet</span>
+            <span class="job-card-budget">₺18.000</span>
+          </div>
+        </a>
+
+        <a href="offer-detail.html?id=4" class="job-card" data-search="zorlu psm jazz">
+          <div class="job-card-header">
+            <div class="avatar avatar-md" style="background:linear-gradient(135deg,#201a10,#100d08);color:var(--gold);font-weight:700;">Z</div>
+            <div>
+              <div class="job-card-employer">Zorlu PSM</div>
+              <div class="job-card-title">Jazz Gecesi — Açılış Performansı</div>
+            </div>
+            <span class="badge badge-green">Açık</span>
+          </div>
+          <p class="body-sm mb-12">Yeni sezon açılış etkinliği için modern jazz trio veya quartet. Sahne deneyimi ve profesyonel ekipman bilgisi tercih sebebi.</p>
+          <div class="job-card-meta">
+            <span style="display:inline-flex;align-items:center;gap:6px;"><span data-icon="location" data-icon-size="14"></span> İstanbul, Zincirlikuyu</span>
+            <span style="display:inline-flex;align-items:center;gap:6px;"><span data-icon="briefcase" data-icon-size="14"></span> 5 Ekim 2025</span>
+          </div>
+          <div class="job-card-footer">
+            <span class="body-sm">90 dk set · Jazz</span>
+            <span class="job-card-budget">₺15.000</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div id="footer-slot"></div>
+  <script src="js/components.js"></script>
+  <script>
+    mountLayout({ active: 'jobs', loggedIn: false });
+
+    document.querySelectorAll('[data-icon]').forEach(el => {
+      el.innerHTML = icon(el.dataset.icon, +(el.dataset.iconSize || 18));
+    });
+
+    document.getElementById('search-btn').addEventListener('click', filterJobs);
+    document.getElementById('job-search').addEventListener('input', filterJobs);
+
+    function filterJobs() {
+      const q = document.getElementById('job-search').value.toLowerCase().trim();
+      document.querySelectorAll('.job-card').forEach(card => {
+        const text = (card.dataset.search + ' ' + card.textContent).toLowerCase();
+        card.style.display = !q || text.includes(q) ? '' : 'none';
+      });
+    }
+
+    document.querySelectorAll('.cat-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>

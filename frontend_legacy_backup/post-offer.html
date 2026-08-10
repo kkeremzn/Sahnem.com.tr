@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sahnem – İlan Yayınla</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/brand/favicon-192x192.png">
+  <link rel="apple-touch-icon" href="assets/brand/favicon-192x192.png">
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<div id="navbar-slot"></div>
+
+<div class="page">
+  <div class="app-shell">
+    <div id="sidebar-slot"></div>
+    <main class="app-main">
+      <div class="page-header">
+        <h1>İlan Yayınla</h1>
+        <p>Etkinliğiniz için müzisyen arayın. İlanınız platformda görünecek.</p>
+      </div>
+
+      <form class="card" style="max-width:720px;" onsubmit="handleSubmit(event)">
+        <div class="form-group mb-16">
+          <label class="form-label">Etkinlik Başlığı</label>
+          <input type="text" class="form-input" placeholder="Örn: Cuma Gecesi Canlı Müzik" required>
+        </div>
+        <div class="form-row form-row-2 mb-16">
+          <div class="form-group">
+            <label class="form-label">Kategori</label>
+            <select class="form-input form-select" required>
+              <option value="">Seçin</option>
+              <option>Gitarist</option>
+              <option>DJ</option>
+              <option>Solist</option>
+              <option>Basgitarist</option>
+              <option>Fasıl Grubu</option>
+              <option>Bando</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tarih</label>
+            <input type="date" class="form-input" required>
+          </div>
+        </div>
+        <div class="form-row form-row-2 mb-16">
+          <div class="form-group">
+            <label class="form-label">Şehir</label>
+            <select class="form-input form-select" required>
+              <option>İstanbul</option>
+              <option>Ankara</option>
+              <option>İzmir</option>
+              <option>Antalya</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Bütçe (₺)</label>
+            <input type="number" class="form-input" placeholder="3000" required>
+          </div>
+        </div>
+        <div class="form-group mb-24">
+          <label class="form-label">Açıklama</label>
+          <textarea class="form-input form-textarea" placeholder="Etkinlik detayları, beklentiler..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg">İlanı Yayınla</button>
+      </form>
+    </main>
+  </div>
+</div>
+
+<div id="footer-slot"></div>
+
+<script src="js/components.js"></script>
+<script>
+  mountAppPage({ sidebarActive: 'post-offer', userType: 'employer', active: 'post-offer' });
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    showToast('İlanınız yayınlandı! Müzisyenler başvurabilir.', 'success');
+    setTimeout(() => { window.location.href = 'dashboard-employer.html'; }, 1500);
+  }
+</script>
+</body>
+</html>

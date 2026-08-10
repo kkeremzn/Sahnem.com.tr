@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ayarlar — Sahnem</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/brand/favicon-192x192.png">
+  <link rel="apple-touch-icon" href="assets/brand/favicon-192x192.png">
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <div id="navbar-slot"></div>
+
+  <div class="page">
+    <div class="app-shell">
+      <div id="sidebar-slot"></div>
+      <main class="app-main">
+        <div class="page-header">
+          <h1>Ayarlar</h1>
+          <p>Hesap bilgilerinizi, bildirim tercihlerinizi ve gizlilik ayarlarınızı yönetin.</p>
+        </div>
+
+        <div data-tabs>
+          <div class="tabs mb-24">
+            <button type="button" class="tab-btn active" data-tab="account">Hesap</button>
+            <button type="button" class="tab-btn" data-tab="notifications">Bildirimler</button>
+            <button type="button" class="tab-btn" data-tab="privacy">Gizlilik</button>
+          </div>
+
+          <div data-panel="account">
+            <form class="card" id="form-account" onsubmit="saveSettings(event, 'Hesap ayarları kaydedildi.')">
+              <div class="form-section">
+                <div class="form-section-title">Kişisel Bilgiler</div>
+                <div class="form-row form-row-2">
+                  <div class="form-group">
+                    <label class="form-label">Ad Soyad</label>
+                    <input type="text" class="form-input" value="Emre Aydın">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">E-posta</label>
+                    <input type="email" class="form-input" value="emre@sahnem.com">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Telefon</label>
+                  <input type="tel" class="form-input" value="+90 532 000 00 00">
+                </div>
+              </div>
+              <div class="form-section">
+                <div class="form-section-title">Şifre</div>
+                <div class="form-row form-row-2">
+                  <div class="form-group">
+                    <label class="form-label">Yeni Şifre</label>
+                    <input type="password" class="form-input" placeholder="••••••••">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Şifre Tekrar</label>
+                    <input type="password" class="form-input" placeholder="••••••••">
+                  </div>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary">Kaydet</button>
+            </form>
+          </div>
+
+          <div data-panel="notifications" hidden>
+            <form class="card" id="form-notifications" onsubmit="saveSettings(event, 'Bildirim tercihleri güncellendi.')">
+              <div class="form-section">
+                <div class="form-section-title">E-posta Bildirimleri</div>
+                <label class="filter-option"><input type="checkbox" checked> Yeni teklif bildirimleri</label>
+                <label class="filter-option"><input type="checkbox" checked> Mesaj bildirimleri</label>
+                <label class="filter-option"><input type="checkbox"> Haftalık özet</label>
+                <label class="filter-option"><input type="checkbox" checked> Platform duyuruları</label>
+              </div>
+              <div class="form-section">
+                <div class="form-section-title">Anlık Bildirimler</div>
+                <label class="filter-option"><input type="checkbox" checked> Tarayıcı bildirimleri</label>
+                <label class="filter-option"><input type="checkbox" checked> Teklif durumu değişiklikleri</label>
+                <label class="filter-option"><input type="checkbox"> Değerlendirme hatırlatmaları</label>
+              </div>
+              <button type="submit" class="btn btn-primary">Kaydet</button>
+            </form>
+          </div>
+
+          <div data-panel="privacy" hidden>
+            <form class="card" id="form-privacy" onsubmit="saveSettings(event, 'Gizlilik ayarları kaydedildi.')">
+              <div class="form-section">
+                <div class="form-section-title">Profil Görünürlüğü</div>
+                <div class="form-group">
+                  <label class="form-label">Profil durumu</label>
+                  <select class="form-input form-select">
+                    <option selected>Herkese açık</option>
+                    <option>Sadece üyeler</option>
+                    <option>Gizli</option>
+                  </select>
+                </div>
+                <label class="filter-option"><input type="checkbox" checked> Arama sonuçlarında göster</label>
+                <label class="filter-option"><input type="checkbox" checked> Çevrimiçi durumumu göster</label>
+                <label class="filter-option"><input type="checkbox"> Fiyat bilgimi gizle</label>
+              </div>
+              <div class="form-section">
+                <div class="form-section-title">Veri & Hesap</div>
+                <label class="filter-option"><input type="checkbox" checked> Analitik verileri paylaş</label>
+                <p class="body-sm mt-12" style="color:var(--subtle);">Hesabınızı silmek için <a href="help.html" style="color:var(--gold);">yardım merkezine</a> başvurun.</p>
+              </div>
+              <button type="submit" class="btn btn-primary">Kaydet</button>
+            </form>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div id="footer-slot"></div>
+  <script src="js/components.js"></script>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const userType = params.get('type') === 'employer' ? 'employer' : 'musician';
+    mountAppPage({ sidebarActive: 'settings', userType });
+    initTabs('[data-tabs]');
+
+    function saveSettings(e, msg) {
+      e.preventDefault();
+      showToast(msg, 'success');
+    }
+  </script>
+</body>
+</html>

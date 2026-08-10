@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teklif Detayı — Sahnem</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/brand/favicon-192x192.png">
+  <link rel="apple-touch-icon" href="assets/brand/favicon-192x192.png">
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <div id="navbar-slot"></div>
+
+  <div class="page">
+    <div class="container" style="padding: 32px 24px 48px; max-width: 1000px;">
+      <a href="offers.html" class="btn btn-ghost btn-sm mb-24" id="back-link">← Tekliflere Dön</a>
+
+      <div class="flex items-start justify-between flex-wrap gap-16 mb-32">
+        <div>
+          <div class="flex items-center gap-10 mb-8">
+            <span class="badge badge-gold" id="status-badge">Bekliyor</span>
+          </div>
+          <h1 class="display-md" id="offer-title">Düğün Organizasyonu — Canlı Müzik</h1>
+          <p class="body-lg mt-8" id="offer-employer">Hilton İstanbul</p>
+        </div>
+        <div class="avatar avatar-lg" id="employer-avatar" style="background:linear-gradient(135deg,#1a2840,#0d1520);color:var(--gold);font-weight:700;">H</div>
+      </div>
+
+      <div class="offer-detail-grid">
+        <div>
+          <div class="card mb-24">
+            <div class="section-header">
+              <h2 class="section-title">Etkinlik Bilgileri</h2>
+            </div>
+            <p class="body-sm" id="offer-desc" style="line-height:1.8;color:var(--text-dim);">
+              Boğaz manzaralı balo salonunda akşam yemeği ve dans müziği için deneyimli gitarist veya trio aranıyor. Repertuar: pop, jazz standartları ve istek parçalar. Ses sistemi mekan tarafından sağlanacaktır.
+            </p>
+            <div class="offer-detail-meta mt-24">
+              <div class="offer-meta-item">
+                <p class="label">Tarih</p>
+                <p class="value" id="offer-date">15 Ağustos 2025</p>
+              </div>
+              <div class="offer-meta-item">
+                <p class="label">Süre</p>
+                <p class="value" id="offer-duration">4 saat</p>
+              </div>
+              <div class="offer-meta-item">
+                <p class="label">Konum</p>
+                <p class="value" id="offer-location">İstanbul, Beşiktaş</p>
+              </div>
+              <div class="offer-meta-item">
+                <p class="label">Etkinlik Türü</p>
+                <p class="value" id="offer-type">Düğün</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="section-header">
+              <h2 class="section-title">Gereksinimler</h2>
+            </div>
+            <ul class="body-sm" id="offer-requirements" style="color:var(--text-dim);line-height:1.9;padding-left:20px;">
+              <li>Minimum 5 yıl sahne deneyimi</li>
+              <li>Pop ve jazz repertuarı</li>
+              <li>Profesyonel görünüm ve dakiklik</li>
+              <li>Kendi enstrümanı (mekan amplifikasyon sağlar)</li>
+            </ul>
+          </div>
+        </div>
+
+        <aside>
+          <div class="offer-box mb-16">
+            <p class="label mb-8">Bütçe</p>
+            <div class="price-big" id="offer-budget">₺12.000</div>
+            <p class="body-sm mb-20">Tek seferlik performans</p>
+
+            <div id="musician-actions">
+              <button type="button" class="btn btn-primary btn-full btn-lg mb-8" id="btn-accept">Kabul Et</button>
+              <button type="button" class="btn btn-secondary btn-full mb-8" id="btn-reject">Reddet</button>
+              <a href="messages.html" class="btn btn-ghost btn-full flex items-center justify-center gap-8" id="btn-message">
+                <span data-icon="message" data-icon-size="16"></span> Mesaj Gönder
+              </a>
+            </div>
+
+            <div id="employer-actions" hidden>
+              <a href="post-offer.html" class="btn btn-primary btn-full mb-8">İlanı Düzenle</a>
+              <button type="button" class="btn btn-secondary btn-full" id="btn-close">İlanı Kapat</button>
+              <a href="messages.html" class="btn btn-ghost btn-full mt-8 flex items-center justify-center gap-8">
+                <span data-icon="message" data-icon-size="16"></span> Başvurulara Mesaj
+              </a>
+            </div>
+          </div>
+
+          <div class="sidebar-card">
+            <h3>İletişim</h3>
+            <div class="contact-list">
+              <a href="profile-employer.html">
+                <div class="contact-icon">H</div>
+                <span id="contact-name">Hilton İstanbul</span>
+              </a>
+              <a href="messages.html">
+                <div class="contact-icon" data-icon="message" data-icon-size="14"></div>
+                Mesajlaşma geçmişi
+              </a>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+  <div id="footer-slot"></div>
+  <script src="js/components.js"></script>
+  <script>
+    const OFFERS = {
+      '1': {
+        title: 'Düğün Organizasyonu — Canlı Müzik',
+        employer: 'Hilton İstanbul', initial: 'H',
+        date: '15 Ağustos 2025', duration: '4 saat',
+        location: 'İstanbul, Beşiktaş', type: 'Düğün',
+        budget: '₺12.000', status: 'Bekliyor', statusClass: 'badge-gold',
+        desc: 'Boğaz manzaralı balo salonunda akşam yemeği ve dans müziği için deneyimli gitarist veya trio aranıyor. Repertuar: pop, jazz standartları ve istek parçalar.'
+      },
+      '2': {
+        title: 'Lobi Müziği — Yaz Sezonu',
+        employer: 'Rixos Premium Belek', initial: 'R',
+        date: 'Haziran – Eylül 2025', duration: '3 saat / gün',
+        location: 'Antalya, Belek', type: 'Lobi Müziği',
+        budget: '₺8.500 / ay', status: 'Red', statusClass: 'badge-red',
+        desc: 'Otel lobisinde akşam saatlerinde piyano veya akustik set performansı. Haftada 5 gün, 19:00–22:00 arası düzenli program.'
+      },
+      '3': {
+        title: 'Kurumsal Gala Gecesi',
+        employer: 'Swissôtel The Bosphorus', initial: 'S',
+        date: '22 Eylül 2025', duration: '5 saat',
+        location: 'İstanbul, Beşiktaş', type: 'Kurumsal',
+        budget: '₺18.000', status: 'Kabul', statusClass: 'badge-green',
+        desc: 'Yıllık şirket galası için lounge jazz quartet. Kokteyl ve yemek servisi sırasında arka plan müziği, akşam kısa sahne performansı.'
+      },
+      '4': {
+        title: 'Jazz Gecesi — Açılış Performansı',
+        employer: 'Zorlu PSM', initial: 'Z',
+        date: '5 Ekim 2025', duration: '90 dakika',
+        location: 'İstanbul, Zincirlikuyu', type: 'Jazz',
+        budget: '₺15.000', status: 'Bekliyor', statusClass: 'badge-gold',
+        desc: 'Yeni sezon açılış etkinliği için modern jazz trio veya quartet. Sahne deneyimi ve profesyonel ekipman bilgisi tercih sebebi.'
+      }
+    };
+
+    const params = new URLSearchParams(location.search);
+    const id = params.get('id') || '1';
+    const isEmployer = params.get('role') === 'employer' || params.get('type') === 'published';
+    const userType = isEmployer ? 'employer' : 'musician';
+    const offer = OFFERS[id] || OFFERS['1'];
+
+    mountLayout({ loggedIn: true, userType, active: 'offers' });
+
+    document.getElementById('offer-title').textContent = offer.title;
+    document.getElementById('offer-employer').textContent = offer.employer;
+    document.getElementById('offer-desc').textContent = offer.desc;
+    document.getElementById('offer-date').textContent = offer.date;
+    document.getElementById('offer-duration').textContent = offer.duration;
+    document.getElementById('offer-location').textContent = offer.location;
+    document.getElementById('offer-type').textContent = offer.type;
+    document.getElementById('offer-budget').textContent = offer.budget;
+    document.getElementById('contact-name').textContent = offer.employer;
+    document.getElementById('employer-avatar').textContent = offer.initial;
+
+    const badge = document.getElementById('status-badge');
+    badge.textContent = offer.status;
+    badge.className = 'badge ' + offer.statusClass + ' offer-status';
+
+    if (isEmployer) {
+      document.getElementById('musician-actions').hidden = true;
+      document.getElementById('employer-actions').hidden = false;
+      document.getElementById('back-link').href = 'offers.html?type=employer';
+    }
+
+    document.querySelectorAll('[data-icon]').forEach(el => {
+      el.innerHTML = icon(el.dataset.icon, +(el.dataset.iconSize || 18));
+    });
+
+    document.getElementById('btn-accept').addEventListener('click', () => {
+      showToast('Teklif kabul edildi. Organizatör bilgilendirildi.', 'success');
+      badge.textContent = 'Kabul';
+      badge.className = 'badge badge-green offer-status';
+    });
+
+    document.getElementById('btn-reject').addEventListener('click', () => {
+      showToast('Teklif reddedildi.', 'default');
+      badge.textContent = 'Red';
+      badge.className = 'badge badge-red offer-status';
+    });
+
+    document.getElementById('btn-close')?.addEventListener('click', () => {
+      showToast('İlan kapatıldı.', 'success');
+      setTimeout(() => { location.href = 'offers.html?type=employer'; }, 1200);
+    });
+  </script>
+</body>
+</html>

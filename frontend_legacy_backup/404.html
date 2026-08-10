@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sayfa Bulunamadı — Sahnem</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/brand/favicon-192x192.png">
+  <link rel="apple-touch-icon" href="assets/brand/favicon-192x192.png">
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <div id="navbar-slot"></div>
+
+  <div class="page">
+    <div class="error-page">
+      <div>
+        <div class="error-code">404</div>
+        <h1>Sayfa Bulunamadı</h1>
+        <p>Aradığınız sayfa taşınmış, silinmiş veya hiç var olmamış olabilir. Ana sayfaya dönerek keşfetmeye devam edebilirsiniz.</p>
+        <div class="flex gap-12 justify-center flex-wrap">
+          <a href="index.html" class="btn btn-primary btn-lg">Ana Sayfaya Dön</a>
+          <a href="explore.html" class="btn btn-secondary btn-lg">Müzisyen Keşfet</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="footer-slot"></div>
+  <script src="js/components.js"></script>
+  <script>
+    mountLayout({ active: '', loggedIn: false });
+  </script>
+</body>
+</html>

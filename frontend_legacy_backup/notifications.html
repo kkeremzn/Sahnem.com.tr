@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bildirimler — Sahnem</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/brand/favicon-192x192.png">
+  <link rel="apple-touch-icon" href="assets/brand/favicon-192x192.png">
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<div id="navbar-slot"></div>
+
+<div class="page">
+  <div class="app-shell">
+    <div id="sidebar-slot"></div>
+    <main class="app-main">
+      <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+        <div>
+          <h1>Bildirimler</h1>
+          <p>Hesabınızdaki son aktiviteler</p>
+        </div>
+        <button type="button" class="btn btn-ghost btn-sm" id="mark-all-read">Tümünü Okundu İşaretle</button>
+      </div>
+
+      <div class="card" style="padding:0;overflow:hidden;" id="notif-list">
+        <div class="notif-item unread" data-read="false" data-type="offer">
+          <div class="notif-dot mt-8"></div>
+          <div class="notif-icon" data-icon="briefcase"></div>
+          <div style="flex:1;">
+            <div class="notif-title">Yeni teklif aldınız</div>
+            <p class="notif-body">Hilton İstanbul size düğün organizasyonu için teklif gönderdi.</p>
+            <p class="notif-time">2 saat önce</p>
+          </div>
+        </div>
+        <div class="notif-item unread" data-read="false" data-type="message">
+          <div class="notif-dot mt-8"></div>
+          <div class="notif-icon" data-icon="message"></div>
+          <div style="flex:1;">
+            <div class="notif-title">Yeni mesaj</div>
+            <p class="notif-body">Rixos Hotels: "Cumartesi akşamı müsait misiniz?"</p>
+            <p class="notif-time">5 saat önce</p>
+          </div>
+        </div>
+        <div class="notif-item unread" data-read="false" data-type="review">
+          <div class="notif-dot mt-8"></div>
+          <div class="notif-icon" data-icon="star"></div>
+          <div style="flex:1;">
+            <div class="notif-title">Yeni değerlendirme</div>
+            <p class="notif-body">Swissôtel etkinliğiniz için 5 yıldız verdi.</p>
+            <p class="notif-time">Dün</p>
+          </div>
+        </div>
+        <div class="notif-item" data-read="true" data-type="success">
+          <div style="width:8px;flex-shrink:0;"></div>
+          <div class="notif-icon" data-icon="check"></div>
+          <div style="flex:1;">
+            <div class="notif-title">Teklif kabul edildi</div>
+            <p class="notif-body">Swissôtel kurumsal etkinlik teklifinizi onayladı.</p>
+            <p class="notif-time">2 gün önce</p>
+          </div>
+        </div>
+        <div class="notif-item" data-read="true" data-type="profile">
+          <div style="width:8px;flex-shrink:0;"></div>
+          <div class="notif-icon" data-icon="user"></div>
+          <div style="flex:1;">
+            <div class="notif-title">Profil görüntüleme</div>
+            <p class="notif-body">Profiliniz bu hafta 24 kez görüntülendi.</p>
+            <p class="notif-time">3 gün önce</p>
+          </div>
+        </div>
+        <div class="notif-item" data-read="true" data-type="bell">
+          <div style="width:8px;flex-shrink:0;"></div>
+          <div class="notif-icon" data-icon="bell"></div>
+          <div style="flex:1;">
+            <div class="notif-title">Yeni ilan eşleşmesi</div>
+            <p class="notif-body">Profilinize uygun 2 yeni iş ilanı yayınlandı.</p>
+            <p class="notif-time">4 gün önce</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div id="footer-slot"></div>
+
+<script src="js/components.js"></script>
+<script>
+  mountAppPage({ sidebarActive: 'notif', userType: 'musician', active: 'notif' });
+
+  document.querySelectorAll('[data-icon]').forEach(el => {
+    el.innerHTML = icon(el.dataset.icon, 18);
+  });
+
+  function markRead(item) {
+    if (item.dataset.read === 'false') {
+      item.classList.remove('unread');
+      item.dataset.read = 'true';
+      const dot = item.querySelector('.notif-dot');
+      if (dot) {
+        const spacer = document.createElement('div');
+        spacer.style.cssText = 'width:8px;flex-shrink:0;';
+        dot.replaceWith(spacer);
+      }
+    }
+  }
+
+  document.getElementById('mark-all-read').addEventListener('click', () => {
+    document.querySelectorAll('.notif-item.unread').forEach(markRead);
+    showToast('Tüm bildirimler okundu olarak işaretlendi', 'success');
+  });
+
+  document.querySelectorAll('.notif-item').forEach(item => {
+    item.addEventListener('click', () => markRead(item));
+  });
+</script>
+</body>
+</html>

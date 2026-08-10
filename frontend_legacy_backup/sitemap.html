@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sahnem — Sayfa Haritası</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/brand/favicon-192x192.png">
+  <link rel="apple-touch-icon" href="assets/brand/favicon-192x192.png">
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/app.css">
+  <style>
+    .sitemap-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    .sitemap-section h2 { font-family: var(--font-display); font-size: 1rem; font-weight: 700; color: var(--gold); margin-bottom: 12px; }
+    .sitemap-section a {
+      display: block; padding: 10px 14px; border-radius: var(--radius-sm);
+      background: var(--deep); border: 1px solid var(--border);
+      font-size: 0.88rem; color: var(--text-dim); margin-bottom: 6px;
+      transition: var(--transition);
+    }
+    .sitemap-section a:hover { border-color: var(--gold); color: var(--gold); }
+    .sitemap-section a span { color: var(--subtle); font-size: 0.75rem; display: block; margin-top: 2px; }
+  </style>
+</head>
+<body>
+<div id="navbar-slot"></div>
+<div class="page">
+  <div class="container" style="padding: 40px 24px 64px;">
+    <div class="page-header" style="border:none;margin-bottom:40px;padding:0;">
+      <p class="label mb-8">Geliştirme</p>
+      <h1>Sayfa Haritası</h1>
+      <p>Sahnem MVP prototipindeki tüm ekranlar.</p>
+    </div>
+    <div class="sitemap-grid">
+      <div class="sitemap-section card">
+        <h2>Kamuya Açık</h2>
+        <a href="index.html">Ana Sayfa<span>index.html</span></a>
+        <a href="explore.html">Keşfet<span>explore.html</span></a>
+        <a href="jobs.html">İş İlanları<span>jobs.html</span></a>
+        <a href="profile-musician.html">Müzisyen Profili<span>profile-musician.html</span></a>
+        <a href="profile-employer.html">İşveren Profili<span>profile-employer.html</span></a>
+        <a href="about.html">Hakkımızda<span>about.html</span></a>
+        <a href="help.html">Yardım<span>help.html</span></a>
+        <a href="404.html">404<span>404.html</span></a>
+      </div>
+      <div class="sitemap-section card">
+        <h2>Kimlik Doğrulama</h2>
+        <a href="login.html">Giriş<span>login.html</span></a>
+        <a href="register.html">Kayıt<span>register.html</span></a>
+        <a href="forgot-password.html">Şifremi Unuttum<span>forgot-password.html</span></a>
+        <a href="profile-setup.html">Profil Kurulumu<span>profile-setup.html</span></a>
+      </div>
+      <div class="sitemap-section card">
+        <h2>Müzisyen</h2>
+        <a href="dashboard-musician.html">Panel<span>dashboard-musician.html</span></a>
+        <a href="profile-edit-musician.html">Profili Düzenle<span>profile-edit-musician.html</span></a>
+        <a href="offers.html">Teklifler<span>offers.html</span></a>
+        <a href="offer-detail.html?id=1">Teklif Detayı<span>offer-detail.html</span></a>
+        <a href="favorites.html">Favoriler<span>favorites.html</span></a>
+        <a href="messages.html">Mesajlar<span>messages.html</span></a>
+        <a href="notifications.html">Bildirimler<span>notifications.html</span></a>
+        <a href="settings.html">Ayarlar<span>settings.html</span></a>
+      </div>
+      <div class="sitemap-section card">
+        <h2>İşveren</h2>
+        <a href="dashboard-employer.html">Panel<span>dashboard-employer.html</span></a>
+        <a href="profile-edit-employer.html">Profili Düzenle<span>profile-edit-employer.html</span></a>
+        <a href="post-offer.html">İlan Yayınla<span>post-offer.html</span></a>
+        <a href="offers.html?type=employer">Tekliflerim<span>offers.html?type=employer</span></a>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="footer-slot"></div>
+<script src="js/components.js"></script>
+<script>mountLayout({ active: '', loggedIn: false });</script>
+</body>
+</html>

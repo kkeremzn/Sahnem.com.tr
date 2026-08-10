@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sahnem – Müzik Profesyonelleri Ağı</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/brand/favicon-192x192.png">
+  <link rel="apple-touch-icon" href="assets/brand/favicon-192x192.png">
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<div id="navbar-slot"></div>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-inner">
+    <div>
+      <div class="hero-eyebrow">Türkiye'nin Müzik Ağı</div>
+      <h1 class="hero-title">
+        Sahneye Çık,<br>
+        <span class="line-gold">Fırsatları</span>
+        Yakala.
+      </h1>
+      <p class="hero-subtitle">Müzisyenler, mekanlar ve organizasyon firmalarını buluşturan profesyonel platform. İş ara, ekip bul, sahneyi doldur.</p>
+      <div class="hero-actions">
+        <a href="register.html" class="btn btn-primary btn-lg">Hemen Başla</a>
+        <a href="explore.html" class="btn btn-ghost btn-lg">Müzisyenleri Keşfet</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><span>500+</span><p>Müzisyen</p></div>
+        <div class="hero-stat"><span>120+</span><p>Mekan & Firma</p></div>
+        <div class="hero-stat"><span>850+</span><p>Tamamlanan Anlaşma</p></div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="hero-cards-stack" id="hero-cards"></div>
+    </div>
+  </div>
+</section>
+
+<section class="search-section">
+  <div class="search-hero-box">
+    <div class="flex items-center justify-between mb-20 flex-wrap gap-12">
+      <h2 style="font-family:var(--font-display);font-size:1.2rem;font-weight:700;">Müzisyen Ara</h2>
+      <div class="search-hero-tabs">
+        <button type="button" class="search-hero-tab active">Müzisyen</button>
+        <button type="button" class="search-hero-tab">Grup</button>
+        <button type="button" class="search-hero-tab">DJ</button>
+        <button type="button" class="search-hero-tab">Bando</button>
+      </div>
+    </div>
+    <div class="search-hero-row">
+      <div class="form-group">
+        <label class="form-label">Enstrüman / Kategori</label>
+        <select class="form-input form-select">
+          <option value="">Tüm Kategoriler</option>
+          <option>Gitarist</option>
+          <option>Klavyeci</option>
+          <option>Davulcu</option>
+          <option>Kemancı</option>
+          <option>Solist</option>
+          <option>DJ</option>
+          <option>Perküsyoncu</option>
+          <option>Basgitarist</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Müzik Tarzı</label>
+        <select class="form-input form-select">
+          <option value="">Tüm Tarzlar</option>
+          <option>Pop</option>
+          <option>Rock</option>
+          <option>Jazz</option>
+          <option>Klasik</option>
+          <option>Latin</option>
+          <option>Electronic</option>
+          <option>Türk Halk</option>
+          <option>Fasıl</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Şehir</label>
+        <select class="form-input form-select">
+          <option value="">Tüm Türkiye</option>
+          <option>İstanbul</option>
+          <option>Ankara</option>
+          <option>İzmir</option>
+          <option>Antalya</option>
+          <option>Bursa</option>
+          <option>Gaziantep</option>
+          <option>Kayseri</option>
+        </select>
+      </div>
+      <a href="explore.html" class="btn btn-primary btn-lg">Ara</a>
+    </div>
+  </div>
+</section>
+
+<section class="how-section" id="nasil-calisir">
+  <div class="container">
+    <div class="section-eyebrow"><span class="label">Nasıl Çalışır?</span></div>
+    <h2 class="display-lg" style="max-width:500px;">Üç adımda sahneye çık</h2>
+    <div class="how-grid">
+      <div class="how-step">
+        <div class="how-step-num">01</div>
+        <div class="how-step-icon" id="how-icon-1"></div>
+        <h3>Profilini Oluştur</h3>
+        <p>Video, fotoğraf ve CV'nle profesyonel profilini saniyeler içinde oluştur. Uzmanlığını ve tarzını sergile.</p>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">02</div>
+        <div class="how-step-icon" id="how-icon-2"></div>
+        <h3>Keşfedil veya Keşfet</h3>
+        <p>Mekanlar seni bulur ya da sen aktif iş ilanlarına başvur. Gelişmiş filtrelerle mükemmel eşleşmeyi yakala.</p>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">03</div>
+        <div class="how-step-icon" id="how-icon-3"></div>
+        <h3>Anlaş ve Sahneye Çık</h3>
+        <p>Platform üzerinden mesajlaş, teklifi görüşün ve anlaşmayı tamamla. Sahne senin!</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cats-section" id="kategoriler">
+  <div class="container">
+    <div class="flex items-center justify-between mb-32 flex-wrap gap-16">
+      <div>
+        <span class="label mb-8 block">Kategoriler</span>
+        <h2 class="display-lg">Tüm türler,<br>tek platform</h2>
+      </div>
+      <a href="explore.html" class="btn btn-secondary">Tümünü Gör</a>
+    </div>
+    <div class="cats-grid">
+      <a href="explore.html?cat=muzisyen" class="cat-card">
+        <div class="cat-icon" data-cat-icon="music"></div>
+        <div class="cat-name">Müzisyenler</div>
+        <div class="cat-count">210 profil</div>
+      </a>
+      <a href="explore.html?cat=dj" class="cat-card">
+        <div class="cat-icon" data-cat-icon="music"></div>
+        <div class="cat-name">DJ'ler</div>
+        <div class="cat-count">78 profil</div>
+      </a>
+      <a href="explore.html?cat=grup" class="cat-card">
+        <div class="cat-icon" data-cat-icon="music"></div>
+        <div class="cat-name">Gruplar</div>
+        <div class="cat-count">42 profil</div>
+      </a>
+      <a href="explore.html?cat=bando" class="cat-card">
+        <div class="cat-icon" data-cat-icon="music"></div>
+        <div class="cat-name">Bandolar</div>
+        <div class="cat-count">28 profil</div>
+      </a>
+      <a href="explore.html?cat=solist" class="cat-card">
+        <div class="cat-icon" data-cat-icon="music"></div>
+        <div class="cat-name">Solistler</div>
+        <div class="cat-count">65 profil</div>
+      </a>
+      <a href="explore.html?cat=fasil" class="cat-card">
+        <div class="cat-icon" data-cat-icon="music"></div>
+        <div class="cat-name">Fasıl Grupları</div>
+        <div class="cat-count">18 profil</div>
+      </a>
+      <a href="explore.html?cat=orkestra" class="cat-card">
+        <div class="cat-icon" data-cat-icon="music"></div>
+        <div class="cat-name">Orkestralar</div>
+        <div class="cat-count">12 profil</div>
+      </a>
+      <a href="explore.html?cat=perkusyon" class="cat-card">
+        <div class="cat-icon" data-cat-icon="music"></div>
+        <div class="cat-name">Perküsyon & Şov</div>
+        <div class="cat-count">35 profil</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="featured-section" id="featured">
+  <div class="container">
+    <div class="flex items-center justify-between mb-0 flex-wrap gap-16">
+      <div>
+        <span class="label mb-8 block">Öne Çıkanlar</span>
+        <h2 class="display-lg">Haftanın Müzisyenleri</h2>
+      </div>
+      <a href="explore.html" class="btn btn-secondary">Tümünü Gör</a>
+    </div>
+    <div class="featured-grid mt-32" id="featured-grid"></div>
+  </div>
+</section>
+
+<section class="testimonials-section">
+  <div class="container">
+    <div class="section-eyebrow"><span class="label">Başarı Hikayeleri</span></div>
+    <h2 class="display-lg mt-8" style="max-width:500px;">Sahnem'de buluşan profesyoneller</h2>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <p class="testimonial-text">Sahnem sayesinde gittiğim barın sahnesiyle kalıcı bir işbirliği kurdum. Artık her Cuma benim sahnem.</p>
+        <div class="flex items-center gap-12">
+          <div class="avatar avatar-sm" style="background:#B14EFF;">EA</div>
+          <div>
+            <div style="font-weight:600;font-size:0.88rem;">Emre Aydın</div>
+            <div class="body-sm">Gitarist · İstanbul</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <p class="testimonial-text">Mekanımız için her hafta müzisyen aramak çok zordu. Sahnem'de filtreleyip birkaç dakikada doğru kişiyi buluyorum.</p>
+        <div class="flex items-center gap-12">
+          <div class="avatar avatar-sm" style="background:#7B5CFA;">KA</div>
+          <div>
+            <div style="font-weight:600;font-size:0.88rem;">Kadir Arslan</div>
+            <div class="body-sm">Restoran Sahibi · Ankara</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <p class="testimonial-text">Düğünüm için harika bir fasıl grubu bulduk. Video performanslarını önceden izleyip anlaştık. Muhteşemdi!</p>
+        <div class="flex items-center gap-12">
+          <div class="avatar avatar-sm" style="background:#4CAF7D;">FS</div>
+          <div>
+            <div style="font-weight:600;font-size:0.88rem;">Fatma Şahin</div>
+            <div class="body-sm">Düğün Organizatörü</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="cta-glow"></div>
+  <div class="cta-inner container-sm">
+    <span class="label">Bugün Başla</span>
+    <h2 class="display-xl mt-12" style="max-width:600px;margin:12px auto 0;">Sahnen hazır mı?</h2>
+    <p class="body-lg mt-16">Türkiye'nin müzik profesyonelleri ağına katıl. Ücretsiz profil oluştur, iş bul veya ekip kur.</p>
+    <div class="cta-actions">
+      <a href="register.html?type=musician" class="btn btn-primary btn-lg">Müzisyen Olarak Katıl</a>
+      <a href="register.html?type=employer" class="btn btn-secondary btn-lg">İşveren Olarak Katıl</a>
+    </div>
+    <p class="body-sm mt-24">Tamamen ücretsiz · Kredi kartı gerekmez · Dakikalar içinde hazır</p>
+  </div>
+</section>
+
+<div id="footer-slot"></div>
+
+<script src="js/components.js"></script>
+<script>
+  mountLayout({ loggedIn: false });
+
+  document.getElementById('how-icon-1').innerHTML = icon('user', 22);
+  document.getElementById('how-icon-2').innerHTML = icon('search', 22);
+  document.getElementById('how-icon-3').innerHTML = icon('briefcase', 22);
+  document.querySelectorAll('[data-cat-icon]').forEach(el => {
+    el.innerHTML = icon('music', 20);
+  });
+
+  const heroCards = document.getElementById('hero-cards');
+  MUSICIANS.slice(0, 3).forEach((m, i) => {
+    const card = document.createElement('div');
+    card.className = 'hero-profile-card' + (i === 0 ? ' featured' : '');
+    card.innerHTML = `
+      <div class="card-row mb-16">
+        <div class="avatar avatar-lg avatar-gold" style="background:linear-gradient(135deg,${m.color || '#B14EFF'},${m.color2 || '#8B1FE0'});">${m.initials}</div>
+        <div style="flex:1;min-width:0;">
+          <div class="flex items-center gap-8">
+            <span style="font-family:var(--font-display);font-weight:700;">${m.name}</span>
+            ${m.verified ? `<span class="badge badge-gold" style="padding:2px 6px;">${icon('check', 10)}</span>` : ''}
+          </div>
+          <div class="body-sm">${m.title} · ${m.city}</div>
+          <div class="flex items-center gap-8 mt-4">${renderStars(m.rating, 12)}<span class="body-sm">${m.rating} (${m.reviews})</span></div>
+        </div>
+        <span class="badge ${m.available ? 'badge-green' : 'badge-muted'}">${m.available ? 'Müsait' : 'Meşgul'}</span>
+      </div>
+      ${i === 0 ? `<div class="tags mb-12">${m.genres.map(g => `<span class="tag">${g}</span>`).join('')}</div>
+      <div style="border-top:1px solid var(--border);padding-top:14px;display:flex;justify-content:space-between;align-items:center;">
+        <span class="body-sm">${m.experience} deneyim</span>
+        <span class="gold" style="font-weight:700;font-family:var(--font-display);">${m.price} / gig</span>
+      </div>` : ''}`;
+    heroCards.appendChild(card);
+  });
+
+  document.getElementById('featured-grid').innerHTML = MUSICIANS.map(m => renderMusicianCard(m)).join('');
+
+  document.querySelectorAll('.search-hero-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.search-hero-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

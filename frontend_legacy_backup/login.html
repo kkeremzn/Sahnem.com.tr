@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sahnem – Giriş Yap</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/brand/favicon-192x192.png">
+  <link rel="apple-touch-icon" href="assets/brand/favicon-192x192.png">
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div class="auth-page">
+  <div class="auth-left">
+    <div class="auth-left-bg"></div>
+    <a href="index.html" class="auth-logo">SAHNEM.</a>
+    <div class="auth-left-content">
+      <h2 class="auth-tagline">Tekrar<br>hoş geldin,<br><span class="gold">profesyonel.</span></h2>
+      <p class="body-lg">Müzik kariyerindeki son gelişmeleri görmek için giriş yap.</p>
+      <div class="activity-feed" id="activityFeed">
+        <div class="activity-item">
+          <div class="activity-avatar" style="background:linear-gradient(135deg,#B14EFF,#8B1FE0);">EA</div>
+          <div class="activity-text"><strong>Emre Aydın</strong> profiline yeni video ekledi</div>
+          <span class="activity-time">2 dk</span>
+        </div>
+        <div class="activity-item">
+          <div class="activity-avatar" style="background:linear-gradient(135deg,#7B5CFA,#4A36C8);">RL</div>
+          <div class="activity-text"><strong>Rotana Lounge</strong> gitarist arıyor</div>
+          <span class="activity-time">5 dk</span>
+        </div>
+        <div class="activity-item">
+          <div class="activity-avatar" style="background:linear-gradient(135deg,#4CAF7D,#2E7D52);">ZK</div>
+          <div class="activity-text"><strong>Zeynep Kaya</strong> yeni müsaitlik tarihi ekledi</div>
+          <span class="activity-time">12 dk</span>
+        </div>
+        <div class="activity-item">
+          <div class="activity-avatar" style="background:linear-gradient(135deg,#E85555,#B83A3A);">HI</div>
+          <div class="activity-text"><strong>Hilton İstanbul</strong> yeni teklif gönderdi</div>
+          <span class="activity-time">18 dk</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="auth-right">
+    <div class="auth-form-box">
+      <div class="auth-form-header">
+        <h1>Giriş Yap</h1>
+        <p>Hesabın yok mu? <a href="register.html" class="gold" style="font-weight:600;">Ücretsiz Kaydol</a></p>
+      </div>
+
+      <form onsubmit="handleLogin(event)">
+        <div class="form-group mb-16">
+          <label class="form-label">E-posta</label>
+          <input type="email" class="form-input" placeholder="ornek@mail.com" required>
+        </div>
+        <div class="form-group mb-8">
+          <label class="form-label">Şifre</label>
+          <div class="password-toggle">
+            <input type="password" class="form-input" id="pwdInput" placeholder="Şifreniz" required>
+            <button type="button" class="password-toggle-btn" onclick="togglePwd()">Göster</button>
+          </div>
+        </div>
+        <div class="flex items-center justify-between mb-24">
+          <label style="display:flex;align-items:center;gap:8px;font-size:0.83rem;color:var(--text-dim);cursor:pointer;">
+            <input type="checkbox" style="accent-color:var(--gold);"> Beni Hatırla
+          </label>
+          <a href="forgot-password.html" class="forgot-link">Şifremi Unuttum</a>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg btn-full">Giriş Yap</button>
+
+        <div class="divider-text mt-24 mb-24"><span>veya şununla giriş yap</span></div>
+
+        <div class="flex gap-12 mb-24">
+          <button type="button" class="btn btn-secondary btn-full">Google</button>
+          <button type="button" class="btn btn-secondary btn-full">Facebook</button>
+        </div>
+
+        <div class="card" style="padding:16px;">
+          <div class="label mb-12">Demo Hesaplar</div>
+          <div class="flex flex-col gap-8">
+            <button type="button" class="btn btn-ghost btn-sm" onclick="loginAs('musician')" style="justify-content:flex-start;gap:10px;">
+              <span class="benefit-icon" id="demo-musician-icon"></span>
+              <span>Müzisyen Demo — Emre Aydın</span>
+            </button>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="loginAs('employer')" style="justify-content:flex-start;gap:10px;">
+              <span class="benefit-icon" id="demo-employer-icon"></span>
+              <span>İşveren Demo — Hilton İstanbul</span>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="js/components.js"></script>
+<script>
+  document.getElementById('demo-musician-icon').innerHTML = icon('music', 16);
+  document.getElementById('demo-employer-icon').innerHTML = icon('briefcase', 16);
+
+  function togglePwd() {
+    const i = document.getElementById('pwdInput');
+    i.type = i.type === 'password' ? 'text' : 'password';
+  }
+  function handleLogin(e) {
+    e.preventDefault();
+    window.location.href = 'dashboard-musician.html';
+  }
+  function loginAs(type) {
+    window.location.href = type === 'musician' ? 'dashboard-musician.html' : 'dashboard-employer.html';
+  }
+</script>
+</body>
+</html>

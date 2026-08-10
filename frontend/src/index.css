@@ -1,0 +1,114 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-display: 'Syne', 'Inter', sans-serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+
+  --color-black: #080808;
+  --color-deep: #0f0f14;
+  --color-card: #16151d;
+  --color-card-hover: #1c1a24;
+  --color-border: #28262f;
+  --color-border-hover: #3a3745;
+  --color-muted: #423f4d;
+
+  --color-text: #efedf4;
+  --color-text-dim: #a6a2b3;
+  --color-text-faint: #6b6777;
+
+  --color-gold: #b14eff;
+  --color-gold-dim: #8b1fe0;
+  --color-gold-soft: #d9a6ff;
+  --color-accent: #5cc8db;
+  --color-accent-dim: #3fa3b6;
+  --color-danger: #e85555;
+  --color-success: #4caf7d;
+  --color-warning: #e0a83f;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-xl: 32px;
+
+  --shadow-glow: 0 8px 40px -8px rgba(177, 78, 255, 0.35);
+  --shadow-glow-sm: 0 4px 20px -4px rgba(177, 78, 255, 0.3);
+  --shadow-card: 0 2px 24px -8px rgba(0, 0, 0, 0.5);
+
+  --animate-fade-up: fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-marquee: marquee 28s linear infinite;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background: var(--color-black);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-gold);
+  color: white;
+}
+
+* {
+  scrollbar-color: var(--color-muted) transparent;
+  scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-muted);
+  border-radius: 999px;
+  border: 2px solid var(--color-black);
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.text-gradient {
+  background: linear-gradient(120deg, var(--color-gold-soft), var(--color-gold) 45%, var(--color-accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.bg-noise {
+  background-image: radial-gradient(circle at 20% 20%, rgba(177, 78, 255, 0.14), transparent 40%),
+    radial-gradient(circle at 80% 0%, rgba(92, 200, 219, 0.1), transparent 45%);
+}
+
+.focus-ring {
+  outline: none;
+}
+.focus-ring:focus-visible {
+  box-shadow: 0 0 0 3px rgba(177, 78, 255, 0.4);
+}

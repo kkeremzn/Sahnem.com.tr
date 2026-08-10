@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yardım Merkezi — Sahnem</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/brand/favicon-192x192.png">
+  <link rel="apple-touch-icon" href="assets/brand/favicon-192x192.png">
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <div id="navbar-slot"></div>
+
+  <div class="page">
+    <div class="container" style="max-width:800px;padding:48px 24px 64px;">
+      <div class="text-center mb-40">
+        <p class="label mb-8">Destek</p>
+        <h1 class="display-md">Yardım Merkezi</h1>
+        <p class="body-lg mt-8" style="color:var(--text-dim);">Sık sorulan sorular ve yasal belgeler.</p>
+      </div>
+
+      <div class="explore-search-bar mb-32" style="max-width:100%;">
+        <span data-icon="search" data-icon-size="18"></span>
+        <input type="search" placeholder="Soru veya konu ara..." aria-label="Yardım ara" id="faq-search">
+      </div>
+
+      <h2 class="section-title mb-20">Sık Sorulan Sorular</h2>
+      <div class="accordion mb-40" id="faq-accordion">
+        <div class="accordion-item open" data-faq>
+          <button type="button" class="accordion-trigger">
+            Sahnem nedir ve nasıl çalışır?
+            <span class="accordion-chevron">▼</span>
+          </button>
+          <div class="accordion-body">
+            <div class="accordion-body-inner">
+              Sahnem, müzisyenleri ve etkinlik organizatörlerini buluşturan bir platformdur. Müzisyenler profil oluşturur, işverenler ise ilan yayınlayarak veya doğrudan teklif göndererek sanatçı bulabilir. Tüm iletişim ve teklif süreçleri platform üzerinden yönetilir.
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item" data-faq>
+          <button type="button" class="accordion-trigger">
+            Üyelik ücretli mi?
+            <span class="accordion-chevron">▼</span>
+          </button>
+          <div class="accordion-body">
+            <div class="accordion-body-inner">
+              Temel üyelik ücretsizdir. Müzisyenler profil oluşturabilir ve gelen teklifleri yönetebilir. İşverenler ilan yayınlayabilir ve müzisyenlere teklif gönderebilir. İleride sunulacak premium özellikler için ayrı planlar duyurulacaktır.
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item" data-faq>
+          <button type="button" class="accordion-trigger">
+            Teklif nasıl gönderilir ve kabul edilir?
+            <span class="accordion-chevron">▼</span>
+          </button>
+          <div class="accordion-body">
+            <div class="accordion-body-inner">
+              İşverenler müzisyen profiline giderek veya ilan yayınlayarak teklif iletebilir. Müzisyenler gelen teklifleri Teklifler sayfasından görüntüler, kabul veya ret verebilir. Kabul edilen tekliflerde taraflar mesajlaşma üzerinden detayları netleştirir.
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item" data-faq>
+          <button type="button" class="accordion-trigger">
+            Ödeme platform üzerinden mi yapılıyor?
+            <span class="accordion-chevron">▼</span>
+          </button>
+          <div class="accordion-body">
+            <div class="accordion-body-inner">
+              Şu an ödemeler taraflar arasında doğrudan gerçekleştirilmektedir. Sahnem, teklif ve sözleşme sürecini kolaylaştırır; ödeme koşulları müzisyen ile işveren arasında belirlenir. Güvenli ödeme altyapısı yakında eklenecektir.
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item" data-faq>
+          <button type="button" class="accordion-trigger">
+            Profilimi nasıl doğrularım?
+            <span class="accordion-chevron">▼</span>
+          </button>
+          <div class="accordion-body">
+            <div class="accordion-body-inner">
+              Profil kurulumunu tamamladıktan sonra kimlik ve portföy bilgilerinizi ekleyin. Ekibimiz başvurunuzu inceler ve uygun profillere doğrulanmış rozet verir. Doğrulanmış profiller arama sonuçlarında öne çıkar.
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item" data-faq>
+          <button type="button" class="accordion-trigger">
+            Hesabımı nasıl silebilirim?
+            <span class="accordion-chevron">▼</span>
+          </button>
+          <div class="accordion-body">
+            <div class="accordion-body-inner">
+              Ayarlar sayfasından veya hello@sahnem.com adresine yazarak hesap silme talebinde bulunabilirsiniz. Talebiniz en geç 30 gün içinde işleme alınır ve kişisel verileriniz KVKK kapsamında silinir.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h2 class="section-title mb-20">Yasal Belgeler</h2>
+      <div class="grid grid-2" style="gap:16px;">
+        <a href="#kosullar" class="card card-hover" id="kosullar" style="padding:24px;">
+          <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:700;margin-bottom:8px;">Kullanım Koşulları</h3>
+          <p class="body-sm" style="color:var(--text-dim);">Platform kullanımına ilişkin hak ve yükümlülükler.</p>
+          <span class="body-sm gold mt-12" style="display:inline-block;">Belgeyi oku →</span>
+        </a>
+        <a href="#gizlilik" class="card card-hover" id="gizlilik" style="padding:24px;">
+          <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:700;margin-bottom:8px;">Gizlilik Politikası</h3>
+          <p class="body-sm" style="color:var(--text-dim);">Kişisel verilerin toplanması, işlenmesi ve korunması.</p>
+          <span class="body-sm gold mt-12" style="display:inline-block;">Belgeyi oku →</span>
+        </a>
+      </div>
+
+      <div class="card mt-32" style="padding:28px;text-align:center;">
+        <h3 style="font-family:var(--font-display);font-size:1.1rem;margin-bottom:8px;">Başka bir sorunuz mu var?</h3>
+        <p class="body-sm mb-16" style="color:var(--text-dim);">Destek ekibimiz size yardımcı olmaktan memnuniyet duyar.</p>
+        <a href="about.html#iletisim" class="btn btn-primary">Bize Ulaşın</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="footer-slot"></div>
+  <script src="js/components.js"></script>
+  <script>
+    mountLayout({ active: '', loggedIn: false });
+
+    document.querySelectorAll('[data-icon]').forEach(el => {
+      el.innerHTML = icon(el.dataset.icon, +(el.dataset.iconSize || 18));
+    });
+
+    document.querySelectorAll('.accordion-item').forEach(item => {
+      const trigger = item.querySelector('.accordion-trigger');
+      trigger.addEventListener('click', () => {
+        const isOpen = item.classList.contains('open');
+        document.querySelectorAll('.accordion-item').forEach(i => i.classList.remove('open'));
+        if (!isOpen) item.classList.add('open');
+      });
+    });
+
+    document.getElementById('faq-search').addEventListener('input', e => {
+      const q = e.target.value.toLowerCase().trim();
+      document.querySelectorAll('[data-faq]').forEach(item => {
+        const text = item.textContent.toLowerCase();
+        item.style.display = !q || text.includes(q) ? '' : 'none';
+      });
+    });
+
+    document.querySelectorAll('#kosullar, #gizlilik').forEach(link => {
+      link.addEventListener('click', e => {
+        if (link.getAttribute('href').startsWith('#')) {
+          e.preventDefault();
+          showToast('Yasal belge önizlemesi yakında eklenecek.', 'default');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

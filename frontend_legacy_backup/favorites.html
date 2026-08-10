@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Favoriler — Sahnem</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/brand/favicon-192x192.png">
+  <link rel="apple-touch-icon" href="assets/brand/favicon-192x192.png">
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <div id="navbar-slot"></div>
+
+  <div class="page">
+    <div class="app-shell">
+      <div id="sidebar-slot"></div>
+      <main class="app-main">
+        <div class="page-header">
+          <h1>Favoriler</h1>
+          <p>Kaydettiğiniz müzisyenleri buradan hızlıca ulaşın ve teklif gönderin.</p>
+        </div>
+
+        <div class="musicians-grid" id="favorites-grid"></div>
+
+        <div class="empty-inline" id="empty-state" hidden>
+          <h3>Henüz favori eklemediniz</h3>
+          <p class="body-sm">Keşfet sayfasından müzisyen profillerini favorilerinize ekleyebilirsiniz.</p>
+          <a href="explore.html" class="btn btn-primary mt-16">Müzisyen Keşfet</a>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div id="footer-slot"></div>
+  <script src="js/components.js"></script>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const userType = params.get('type') === 'employer' ? 'employer' : 'musician';
+
+    mountAppPage({ sidebarActive: 'favorites', userType });
+
+    const saved = [MUSICIANS[0], MUSICIANS[1], MUSICIANS[5]];
+    const grid = document.getElementById('favorites-grid');
+    grid.innerHTML = saved.map(m => renderMusicianCard(m)).join('');
+  </script>
+</body>
+</html>

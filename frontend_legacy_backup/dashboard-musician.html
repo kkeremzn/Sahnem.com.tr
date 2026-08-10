@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel — Sahnem</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/brand/favicon-192x192.png">
+  <link rel="apple-touch-icon" href="assets/brand/favicon-192x192.png">
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<div id="navbar-slot"></div>
+
+<div class="page">
+  <div class="app-shell">
+    <div id="sidebar-slot"></div>
+    <main class="app-main">
+      <div class="page-header">
+        <p class="label mb-8">Müzisyen Paneli</p>
+        <h1>Hoş geldin, <span class="gold">Emre Aydın</span></h1>
+        <p>Bugün sahneye hazır mısın? İşte özetin.</p>
+      </div>
+
+      <div class="grid-3 mb-32">
+        <div class="card stat-card">
+          <p class="label mb-8">Profil Tamamlama</p>
+          <div class="stat-value mb-12">%75</div>
+          <div class="progress mb-8">
+            <div class="progress-bar" style="width:75%;"></div>
+          </div>
+          <p class="stat-label">Portföy ve fiyat bilgilerini tamamla.</p>
+          <a href="profile-edit-musician.html" class="btn btn-secondary btn-sm mt-16">Profili Tamamla</a>
+        </div>
+        <a href="offers.html" class="card card-hover stat-card" style="display:block;">
+          <p class="label mb-8">Bekleyen Teklifler</p>
+          <div class="stat-value mb-8">2</div>
+          <p class="stat-label">Yanıt bekleyen tekliflerin var.</p>
+        </a>
+        <a href="messages.html" class="card card-hover stat-card" style="display:block;">
+          <p class="label mb-8">Yeni Mesajlar</p>
+          <div class="stat-value mb-8">3</div>
+          <p class="stat-label">Okunmamış mesajların bulunuyor.</p>
+        </a>
+      </div>
+
+      <div class="card mb-32" style="padding:0;overflow:hidden;">
+        <div class="section-header" style="padding:20px 20px 0;margin-bottom:0;">
+          <h2 class="section-title">Son Teklifler</h2>
+          <a href="offers.html" class="btn btn-ghost btn-sm">Tümünü Gör</a>
+        </div>
+        <div class="offer-list-item" onclick="location.href='offers.html'">
+          <div>
+            <div class="flex items-center gap-8 mb-4">
+              <span style="font-weight:600;">Hilton İstanbul</span>
+              <span class="badge badge-green offer-status">Yeni</span>
+            </div>
+            <p class="body-sm">Düğün organizasyonu — Akustik set, 3 saat · 15 Haziran</p>
+            <p class="body-sm mt-4 gold" style="font-weight:600;">₺7.500</p>
+          </div>
+          <span class="body-sm">2 saat önce</span>
+        </div>
+        <div class="offer-list-item" onclick="location.href='offers.html'">
+          <div>
+            <div class="flex items-center gap-8 mb-4">
+              <span style="font-weight:600;">Rixos Hotels</span>
+              <span class="badge badge-muted offer-status">Beklemede</span>
+            </div>
+            <p class="body-sm">Lobi canlı müziği — Cumartesi akşamı</p>
+            <p class="body-sm mt-4 gold" style="font-weight:600;">₺3.200</p>
+          </div>
+          <span class="body-sm">Dün</span>
+        </div>
+        <div class="offer-list-item" onclick="location.href='offers.html'">
+          <div>
+            <div class="flex items-center gap-8 mb-4">
+              <span style="font-weight:600;">Swissôtel</span>
+              <span class="badge badge-gold offer-status">Kabul</span>
+            </div>
+            <p class="body-sm">Kurumsal etkinlik — Jazz trio</p>
+            <p class="body-sm mt-4 gold" style="font-weight:600;">₺5.000</p>
+          </div>
+          <span class="body-sm">3 gün önce</span>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <h2 class="section-title">Hızlı Erişim</h2>
+      </div>
+      <div class="grid-3">
+        <a href="profile-musician.html" class="card card-hover">
+          <div class="flex items-center gap-12">
+            <div class="avatar avatar-md avatar-gold">E</div>
+            <div>
+              <div class="display-sm">Profilim</div>
+              <p class="body-sm mt-4">Portföyünü ve bilgilerini düzenle</p>
+            </div>
+          </div>
+        </a>
+        <a href="explore.html" class="card card-hover">
+          <div class="flex items-center gap-12">
+            <div class="avatar avatar-md" style="background:var(--accent-glow);color:var(--accent);" id="quick-explore-icon"></div>
+            <div>
+              <div class="display-sm">Keşfet</div>
+              <p class="body-sm mt-4">Diğer müzisyenleri incele</p>
+            </div>
+          </div>
+        </a>
+        <a href="messages.html" class="card card-hover">
+          <div class="flex items-center gap-12">
+            <div class="avatar avatar-md" style="background:var(--gold-glow);color:var(--gold);" id="quick-messages-icon"></div>
+            <div>
+              <div class="display-sm">Mesajlar</div>
+              <p class="body-sm mt-4">Organizatörlerle iletişim kur</p>
+            </div>
+          </div>
+        </a>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div id="footer-slot"></div>
+
+<script src="js/components.js"></script>
+<script>
+  mountAppPage({ sidebarActive: 'dashboard', userType: 'musician', active: 'offers' });
+  document.getElementById('quick-explore-icon').innerHTML = icon('search', 18);
+  document.getElementById('quick-messages-icon').innerHTML = icon('message', 18);
+</script>
+</body>
+</html>
