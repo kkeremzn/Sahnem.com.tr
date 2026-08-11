@@ -23,13 +23,13 @@ namespace Sahnem.Business.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ICurrentUserService _cureentUserService;
-        private readonly IJwtService _jwtService;
-        
+        private readonly ITokenService _tokenService;
+
 
 
         public ProfileService(IGenericRepository<MusicianProfile> musicianProfileRepository, IGenericRepository<OrganizerProfile> organizerProfileRepository, IGenericRepository<VenueProfile> venueProfileRepository, IGenericRepository<AppUser> userRepository, IUnitOfWork unitOfWork, IMapper mapper, IValidator<MusicianProfileCreateDto> validatorMusicianProfileCreate,IValidator<OrganizerProfileCreateDto> validatorOrganizerProfileCreate,
         IValidator<VenueProfileCreateDto> validatorVenueCreateProfile, ICurrentUserService currentUserService,
-        IJwtService jwtService)
+        ITokenService tokenService)
         {
             _mapper = mapper;
             _musicianProfileRepository = musicianProfileRepository;
@@ -41,7 +41,7 @@ namespace Sahnem.Business.Services
             _validatorOrganizerProfileCreate = validatorOrganizerProfileCreate;
             _validatorVenueCreateProfile = validatorVenueCreateProfile;
             _cureentUserService = currentUserService;
-            _jwtService = jwtService;
+            _tokenService = tokenService;
 
         }
 
@@ -73,7 +73,7 @@ namespace Sahnem.Business.Services
             user.IsProfileCompleted = true;
             await _musicianProfileRepository.AddAsync(musician);
             await _unitOfWork.SaveChanges();
-            return _jwtService.GenerateToken(user);
+            return await _tokenService.IssueTokensAsync(user);
 
 
 
@@ -107,7 +107,7 @@ namespace Sahnem.Business.Services
             user.IsProfileCompleted = true;
             await _organizerProfileRepository.AddAsync(organizer);
             await _unitOfWork.SaveChanges();
-            return _jwtService.GenerateToken(user);
+            return await _tokenService.IssueTokensAsync(user);
         
         }
 
@@ -136,7 +136,7 @@ namespace Sahnem.Business.Services
             user.IsProfileCompleted = true;
             await _venueProfileRepository.AddAsync(venue);
             await _unitOfWork.SaveChanges();
-            return _jwtService.GenerateToken(user);
+            return await _tokenService.IssueTokensAsync(user);
         }
 
         public async Task<object> GetMyProfile()
@@ -195,7 +195,7 @@ namespace Sahnem.Business.Services
             return await BuildMusicianResponse(musician);
         }
 
-        public async Task<IEnumerable<MusicianProfileResponseDto>> GetMusicians(MusicianFilterDto? filter = null)
+        public async Task<PagedResultDto<MusicianProfileResponseDto>> GetMusicians(MusicianFilterDto? filter = null)
         {
             var musicians = (await _musicianProfileRepository.GetAllAsync()).AsEnumerable();
 
@@ -222,16 +222,16 @@ namespace Sahnem.Business.Services
                 }
             }
 
-            var list = musicians.ToList();
-            if (list.Count == 0)
-            {
-                return Enumerable.Empty<MusicianProfileResponseDto>();
-            }
+            var page = filter?.Page is > 0 ? filter.Page : 1;
+            var pageSize = filter?.PageSize is > 0 and <= 100 ? filter.PageSize : 20;
 
-            var userIds = list.Select(m => m.AppUserId).Distinct().ToList();
+            var list = musicians.ToList();
+            var paged = list.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            var userIds = paged.Select(m => m.AppUserId).Distinct().ToList();
             var users = await _userRepository.WhereAsync(u => userIds.Contains(u.Id));
 
-            var dtos = _mapper.Map<List<MusicianProfileResponseDto>>(list);
+            var dtos = _mapper.Map<List<MusicianProfileResponseDto>>(paged);
             foreach (var dto in dtos)
             {
                 var user = users.FirstOrDefault(u => u.Id == dto.AppUserId);
@@ -239,7 +239,14 @@ namespace Sahnem.Business.Services
                 dto.LastName = user?.LastName;
                 dto.AvatarUrl = user?.AvatarUrl;
             }
-            return dtos;
+
+            return new PagedResultDto<MusicianProfileResponseDto>
+            {
+                Items = dtos,
+                Page = page,
+                PageSize = pageSize,
+                TotalCount = list.Count,
+            };
         }
 
         public async Task<object> GetEmployerByUserId(int userId)

@@ -40,6 +40,7 @@ namespace Sahnem.API.Controllers
         }
 
         [Authorize(Roles = "Organizer,Venue")]
+        [Authorize(Policy = "ProfileCompleted")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateAdvert([FromBody] AdvertCreateDto advertCreateDto)
         {

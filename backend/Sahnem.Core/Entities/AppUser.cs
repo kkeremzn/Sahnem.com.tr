@@ -15,12 +15,16 @@ namespace Sahnem.Core.Entities
         public bool IsPhoneNumberConfirmed {get; set;} = false;
         public bool IsProfileCompleted {get; set;} = false;
 
+        public string? EmailVerificationCode {get; set;}
+        public DateTime? EmailVerificationCodeExpiresAt {get; set;}
+
         public virtual MusicianProfile MusicianProfile {get; set;}
         public virtual OrganizerProfile OrganizerProfile {get; set;}
         public virtual VenueProfile VenueProfile {get; set;}
 
         public virtual ICollection<Offer> Offers {get; set;} = new List<Offer>();
-        public virtual ICollection<Advert> Adverts {get; set;} = new List<Advert>(); 
-        
+        public virtual ICollection<Advert> Adverts {get; set;} = new List<Advert>();
+        public virtual ICollection<RefreshToken> RefreshTokens {get; set;} = new List<RefreshToken>();
+
     }
 }

@@ -11,7 +11,7 @@ namespace Sahnem.Business.Interfaces
         Task<Object> GetMyProfile();
 
         Task<MusicianProfileResponseDto> GetMusicianById(int id);
-        Task<IEnumerable<MusicianProfileResponseDto>> GetMusicians(MusicianFilterDto? filter = null);
+        Task<PagedResultDto<MusicianProfileResponseDto>> GetMusicians(MusicianFilterDto? filter = null);
         Task<Object> GetEmployerByUserId(int userId);
 
         Task<MusicianProfileResponseDto> UpdateMusicianProfile(MusicianProfileCreateDto dto);

@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using Sahnem.API.Middleware;
 using Sahnem.API.Services;
 using Sahnem.Business.AutoMapping;
+using Sahnem.Business.Email;
 using Sahnem.Business.Interfaces;
 using Sahnem.Business.Security;
 using Sahnem.Business.Services;
@@ -52,6 +53,9 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<IAdvertService, AdvertService>();
 builder.Services.AddScoped<IOfferService, OfferService>();
+builder.Services.AddScoped<IFavoriteService, FavoriteService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
@@ -59,10 +63,14 @@ builder.Services.AddAutoMapper(typeof(AppUserProfileMapping));
 
 builder.Services.AddValidatorsFromAssemblyContaining<AppUserRegisterValidator>();
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 var jwtSettings = builder.Configuration
     .GetSection("Jwt")
     .Get<JwtSettings>();
+
+builder.Services.Configure<ResendSettings>(builder.Configuration.GetSection("Resend"));
+builder.Services.AddHttpClient<IEmailService, ResendEmailService>();
 
 
 builder.Services.AddAuthentication(options =>
@@ -90,6 +98,16 @@ builder.Services.AddAuthentication(options =>
     }
 
 );
+
+// IsProfileCompleted claim'ini kontrol eden, tekrar kullanılabilir policy.
+// AdvertController/OfferController'daki "profilini tamamlamadan ilan/teklif
+// oluşturamazsın" kuralı artık servis içindeki manuel throw'a ek olarak burada
+// da (controller seviyesinde, isteğe daha erken 403 döner) uygulanıyor.
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("ProfileCompleted", policy =>
+        policy.RequireClaim("IsProfileCompleted", "True"));
+});
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

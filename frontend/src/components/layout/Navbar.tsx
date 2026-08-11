@@ -42,22 +42,27 @@ export function Navbar() {
           <LogoMark size={26} withWordmark />
         </Link>
 
-        <nav className="hidden items-center gap-1 md:flex">
-          {PUBLIC_LINKS.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              className={({ isActive }) =>
-                cn(
-                  'rounded-full px-4 py-2 text-sm font-medium text-text-dim transition-colors hover:text-text',
-                  isActive && 'bg-card text-text',
-                )
-              }
-            >
-              {link.label}
-            </NavLink>
-          ))}
-        </nav>
+        {/* Oturum açıkken bu bağlantılar AppSidebar/AppMobileNav'da rol bazlı karşılığıyla
+            zaten var — burada tekrar göstermek yerine sadece çıkış yapmamış ziyaretçilere
+            gösteriliyor, böylece uygulama içi ve pazarlama navigasyonu birbirine karışmıyor. */}
+        {!user && (
+          <nav className="hidden items-center gap-1 md:flex">
+            {PUBLIC_LINKS.map((link) => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                className={({ isActive }) =>
+                  cn(
+                    'rounded-full px-4 py-2 text-sm font-medium text-text-dim transition-colors hover:text-text',
+                    isActive && 'bg-card text-text',
+                  )
+                }
+              >
+                {link.label}
+              </NavLink>
+            ))}
+          </nav>
+        )}
 
         <div className="flex items-center gap-2">
           {user ? (
@@ -119,13 +124,17 @@ export function Navbar() {
             </div>
           )}
 
-          <button
-            onClick={() => setMobileOpen((o) => !o)}
-            className="focus-ring flex h-10 w-10 items-center justify-center rounded-full text-text-dim hover:bg-card hover:text-text md:hidden"
-            aria-label="Menü"
-          >
-            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
+          {/* Oturum açıkken mobil hamburger menüsü gereksiz: rol bazlı navigasyon
+              AppMobileNav'da, hesap işlemleri de yukarıdaki avatar menüsünde zaten var. */}
+          {!user && (
+            <button
+              onClick={() => setMobileOpen((o) => !o)}
+              className="focus-ring flex h-10 w-10 items-center justify-center rounded-full text-text-dim hover:bg-card hover:text-text md:hidden"
+              aria-label="Menü"
+            >
+              {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+          )}
         </div>
       </div>
 

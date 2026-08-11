@@ -1,7 +1,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { Navbar } from './Navbar';
-import { Footer } from './Footer';
+import { AppFooter } from './AppFooter';
 import { AppSidebar } from './AppSidebar';
 import { AppMobileNav } from './AppMobileNav';
 import { ScrollToTop } from './ScrollToTop';
@@ -41,7 +41,7 @@ export function AppLayout() {
           </div>
         </Container>
       </main>
-      <Footer />
+      <AppFooter />
     </div>
   );
 }

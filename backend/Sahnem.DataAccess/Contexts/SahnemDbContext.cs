@@ -17,6 +17,11 @@ namespace Sahnem.DataAccess.Contexts
         public DbSet<VenueProfile> VenueProfiles { get; set; }
         public DbSet<Offer> Offers { get; set; }
         public DbSet<Advert> Adverts { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<Favorite> Favorites { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Conversation> Conversations { get; set; }
+        public DbSet<Message> Messages { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -63,6 +68,67 @@ namespace Sahnem.DataAccess.Contexts
             modelBuilder.Entity<Offer>()
             .Property(o => o.ProposedPrice)
             .HasPrecision(18, 2);
+
+            // Refresh token - kullanıcı ilişkisi
+            modelBuilder.Entity<RefreshToken>()
+            .HasOne(r => r.AppUser)
+            .WithMany(u => u.RefreshTokens)
+            .HasForeignKey(r => r.AppUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<RefreshToken>()
+            .HasIndex(r => r.Token)
+            .IsUnique();
+
+            // Favoriler: sahip (Organizer/Venue) ve favorilenen müzisyen, ikisi de AppUser
+            modelBuilder.Entity<Favorite>()
+            .HasOne(f => f.Owner)
+            .WithMany()
+            .HasForeignKey(f => f.OwnerUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Favorite>()
+            .HasOne(f => f.Musician)
+            .WithMany()
+            .HasForeignKey(f => f.MusicianUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Favorite>()
+            .HasIndex(f => new { f.OwnerUserId, f.MusicianUserId })
+            .IsUnique();
+
+            // Bildirimler
+            modelBuilder.Entity<Notification>()
+            .HasOne(n => n.User)
+            .WithMany()
+            .HasForeignKey(n => n.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            // Sohbetler: iki taraf da AppUser
+            modelBuilder.Entity<Conversation>()
+            .HasOne(c => c.UserA)
+            .WithMany()
+            .HasForeignKey(c => c.UserAId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Conversation>()
+            .HasOne(c => c.UserB)
+            .WithMany()
+            .HasForeignKey(c => c.UserBId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            // Mesajlar
+            modelBuilder.Entity<Message>()
+            .HasOne(m => m.Conversation)
+            .WithMany(c => c.Messages)
+            .HasForeignKey(m => m.ConversationId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Message>()
+            .HasOne(m => m.Sender)
+            .WithMany()
+            .HasForeignKey(m => m.SenderId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         }
     }

@@ -1,5 +1,6 @@
 using AutoMapper;
 using FluentValidation;
+using Sahnem.Business.DTOs;
 using Sahnem.Business.DTOs.Advert;
 using Sahnem.Business.Interfaces;
 using Sahnem.Business.Security;
@@ -120,7 +121,7 @@ namespace Sahnem.Business.Services
 
         }
 
-        public async Task<IEnumerable<AdvertResponseDto>> GetAllAdvert(AdvertFilterDto? filter = null)
+        public async Task<PagedResultDto<AdvertResponseDto>> GetAllAdvert(AdvertFilterDto? filter = null)
         {
             var adverts = await _advertRepository.GetAllAsync();
 
@@ -153,12 +154,19 @@ namespace Sahnem.Business.Services
                 }
             }
 
+            var page = filter?.Page is > 0 ? filter.Page : 1;
+            var pageSize = filter?.PageSize is > 0 and <= 100 ? filter.PageSize : 20;
+
             var filtered = query.OrderByDescending(a => a.CreatedDate).ToList();
-            if (filtered.Count == 0)
+            var paged = filtered.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            return new PagedResultDto<AdvertResponseDto>
             {
-                return Enumerable.Empty<AdvertResponseDto>();
-            }
-            return await BuildResponses(filtered);
+                Items = paged.Count == 0 ? Enumerable.Empty<AdvertResponseDto>() : await BuildResponses(paged),
+                Page = page,
+                PageSize = pageSize,
+                TotalCount = filtered.Count,
+            };
         }
 
         public async Task UpdateAdvert(int advertId, AdvertUpdateDto dto)

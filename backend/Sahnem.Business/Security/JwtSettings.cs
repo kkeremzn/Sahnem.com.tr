@@ -9,5 +9,7 @@ namespace Sahnem.Business.Security
         public string Audience { get; set; } = null!;
 
         public int ExpireMinutes { get; set; }
+
+        public int RefreshTokenExpireDays { get; set; } = 30;
     }
 }

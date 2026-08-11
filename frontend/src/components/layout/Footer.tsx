@@ -2,43 +2,50 @@ import { Link } from 'react-router-dom';
 import { Camera, Link2, PlayCircle } from 'lucide-react';
 import { LogoMark } from '@/components/brand/LogoMark';
 import { Container } from '@/components/ui/Container';
+import { useAuth } from '@/context/AuthContext';
 
-const COLUMNS = [
-  {
-    title: 'Ürün',
-    links: [
-      { label: 'Müzisyen Keşfet', to: '/explore' },
-      { label: 'İlanları İncele', to: '/jobs' },
-      { label: 'Nasıl Çalışır', to: '/about' },
-    ],
-  },
-  {
-    title: 'Hesap',
-    links: [
-      { label: 'Giriş Yap', to: '/login' },
-      { label: 'Kayıt Ol', to: '/register' },
-      { label: 'Panel', to: '/dashboard' },
-    ],
-  },
-  {
-    title: 'Şirket',
-    links: [
-      { label: 'Hakkımızda', to: '/about' },
-      { label: 'Yardım Merkezi', to: '/help' },
-      { label: 'Site Haritası', to: '/sitemap' },
-    ],
-  },
-  {
-    title: 'Yasal',
-    links: [
-      { label: 'Kullanım Koşulları', to: '/help' },
-      { label: 'Gizlilik Politikası', to: '/help' },
-      { label: 'KVKK', to: '/help' },
-    ],
-  },
+const PRODUCT_LINKS = [
+  { label: 'Müzisyen Keşfet', to: '/explore' },
+  { label: 'İlanları İncele', to: '/jobs' },
+  { label: 'Nasıl Çalışır', to: '/about' },
+];
+
+const COMPANY_LINKS = [
+  { label: 'Hakkımızda', to: '/about' },
+  { label: 'Yardım Merkezi', to: '/help' },
+  { label: 'Site Haritası', to: '/sitemap' },
+];
+
+const LEGAL_LINKS = [
+  { label: 'Kullanım Koşulları', to: '/help' },
+  { label: 'Gizlilik Politikası', to: '/help' },
+  { label: 'KVKK', to: '/help' },
 ];
 
 export function Footer() {
+  const { user } = useAuth();
+
+  // Oturum durumuna göre değişen tek sütun: çıkış yapmış ziyaretçiye Giriş/Kayıt,
+  // oturum açık kullanıcıya hesap kısayolları gösterilir — ikisi asla aynı anda
+  // görünmez (daha önce burada oturum açıkken bile "Giriş Yap/Kayıt Ol" gösteriliyordu).
+  const accountLinks = user
+    ? [
+        { label: 'Panel', to: '/dashboard' },
+        { label: 'Profilim', to: '/profile/edit' },
+        { label: 'Ayarlar', to: '/settings' },
+      ]
+    : [
+        { label: 'Giriş Yap', to: '/login' },
+        { label: 'Kayıt Ol', to: '/register' },
+      ];
+
+  const columns = [
+    { title: 'Ürün', links: PRODUCT_LINKS },
+    { title: 'Hesap', links: accountLinks },
+    { title: 'Şirket', links: COMPANY_LINKS },
+    { title: 'Yasal', links: LEGAL_LINKS },
+  ];
+
   return (
     <footer className="border-t border-border bg-deep">
       <Container className="grid grid-cols-2 gap-8 py-14 sm:grid-cols-3 lg:grid-cols-6">
@@ -61,7 +68,7 @@ export function Footer() {
             ))}
           </div>
         </div>
-        {COLUMNS.map((col) => (
+        {columns.map((col) => (
           <div key={col.title}>
             <h4 className="mb-3 text-sm font-semibold text-text">{col.title}</h4>
             <ul className="space-y-2.5">

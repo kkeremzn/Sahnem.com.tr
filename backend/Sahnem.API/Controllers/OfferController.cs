@@ -17,6 +17,7 @@ namespace Sahnem.API.Controllers
         }
 
         [Authorize(Roles = "Musician")]
+        [Authorize(Policy = "ProfileCompleted")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateOffer([FromBody] OfferCreateDto dto)
         {

@@ -8,10 +8,16 @@ namespace Sahnem.Business.Interfaces
         Task<AuthResponseDto> LoginUser(AppUserLoginDto userLoginDto);
         Task<AppUserResponseDto> GetUserById(int id);
         Task<AppUserResponseDto> GetMe();
-        Task<IEnumerable<AppUserResponseDto>> GetAllUsers();
-        Task<AppUserResponseDto> RegisterUser(AppUserRegisterDto userRegisterDto);
+        Task<PagedResultDto<AppUserResponseDto>> GetAllUsers(int page = 1, int pageSize = 20);
+        Task<AuthResponseDto> RegisterUser(AppUserRegisterDto userRegisterDto);
         Task UpdateUser(AppUserUpdateDto userUpdateDto);
         Task DeleteUser();
+
+        Task<AuthResponseDto> RefreshToken(string refreshToken);
+        Task Logout(string refreshToken);
+
+        Task VerifyEmail(string code);
+        Task ResendVerificationEmail();
 
     }
 }

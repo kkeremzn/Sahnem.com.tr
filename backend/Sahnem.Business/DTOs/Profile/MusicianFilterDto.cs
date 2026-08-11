@@ -9,5 +9,7 @@ namespace Sahnem.Business.DTOs.Profile
         public MusicBranch? Branch {get; set;}
         public City? City {get; set;}
         public bool? TravelOnly {get; set;}
+        public int Page {get; set;} = 1;
+        public int PageSize {get; set;} = 20;
     }
 }

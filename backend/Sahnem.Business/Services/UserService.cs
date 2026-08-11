@@ -2,6 +2,7 @@ using AutoMapper;
 using FluentValidation;
 using Sahnem.Business.DTOs;
 using Sahnem.Business.DTOs.User;
+using Sahnem.Business.Email;
 using Sahnem.Business.Interfaces;
 using Sahnem.Business.Security;
 using Sahnem.Business.Validators;
@@ -19,11 +20,22 @@ namespace Sahnem.Business.Services
         private readonly IValidator<AppUserLoginDto> _appUserLoginValidator;
         private readonly IValidator<AppUserUpdateDto> _appUserUpdateValidator;
         private readonly IPasswordService _passwordService;
-        private readonly IJwtService _jwtService;
+        private readonly ITokenService _tokenService;
+        private readonly IEmailService _emailService;
         private readonly ICurrentUserService _currentUserService;
-        
-        
-        public UserService(IUnitOfWork unitOfWork, IMapper mapper, IGenericRepository<AppUser> repository, IValidator<AppUserRegisterDto> appUserRegiserValidator, IValidator<AppUserLoginDto> appUserLoginValidator, IValidator<AppUserUpdateDto> appUserUpdateValidator, IPasswordService passwordService, IJwtService jwtService, ICurrentUserService currentUserService)
+
+
+        public UserService(
+            IUnitOfWork unitOfWork,
+            IMapper mapper,
+            IGenericRepository<AppUser> repository,
+            IValidator<AppUserRegisterDto> appUserRegiserValidator,
+            IValidator<AppUserLoginDto> appUserLoginValidator,
+            IValidator<AppUserUpdateDto> appUserUpdateValidator,
+            IPasswordService passwordService,
+            ITokenService tokenService,
+            IEmailService emailService,
+            ICurrentUserService currentUserService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -32,21 +44,32 @@ namespace Sahnem.Business.Services
             _appUserLoginValidator = appUserLoginValidator;
             _appUserUpdateValidator = appUserUpdateValidator;
             _passwordService = passwordService;
-            _jwtService = jwtService;
+            _tokenService = tokenService;
+            _emailService = emailService;
             _currentUserService = currentUserService;
         }
 
-        
 
-        public async Task<IEnumerable<AppUserResponseDto>> GetAllUsers()
+
+        public async Task<PagedResultDto<AppUserResponseDto>> GetAllUsers(int page = 1, int pageSize = 20)
         {
-            var users = await _repository.GetAllAsync();
-            if(!users.Any())
+            if (page < 1) page = 1;
+            if (pageSize < 1 || pageSize > 100) pageSize = 20;
+
+            var users = (await _repository.GetAllAsync()).ToList();
+            var paged = users
+                .OrderByDescending(u => u.CreatedDate)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            return new PagedResultDto<AppUserResponseDto>
             {
-                return Enumerable.Empty<AppUserResponseDto>();
-            }
-            var dtos = _mapper.Map<IEnumerable<AppUserResponseDto>>(users);
-            return dtos;
+                Items = _mapper.Map<IEnumerable<AppUserResponseDto>>(paged),
+                Page = page,
+                PageSize = pageSize,
+                TotalCount = users.Count,
+            };
         }
 
         public async Task<AppUserResponseDto> GetUserById(int id)
@@ -54,15 +77,15 @@ namespace Sahnem.Business.Services
             var user = await _repository.GetByIdAsync(id);
             if(user == null)
             {
-                throw new Exception("User Not Found");   
+                throw new Exception("User Not Found");
             }
             var dto = _mapper.Map<AppUserResponseDto>(user);
             return dto;
-            
+
 
         }
 
-        public async Task<AppUserResponseDto> RegisterUser(AppUserRegisterDto userRegisterDto)
+        public async Task<AuthResponseDto> RegisterUser(AppUserRegisterDto userRegisterDto)
         {
             var validationResult = await _appUserRegisterValidator.ValidateAsync(userRegisterDto);
             if (!validationResult.IsValid)
@@ -70,10 +93,10 @@ namespace Sahnem.Business.Services
                 throw new ValidationException(validationResult.Errors);
             }
 
-            
+
             var user = _mapper.Map<AppUser>(userRegisterDto);
             user.Email = user.Email.Trim().ToLower();
-            
+
             if (await EmailExists(user.Email))
             {
                 throw new Exception("User with this email already exists");
@@ -82,16 +105,24 @@ namespace Sahnem.Business.Services
             {
                 throw new Exception("User with this phone number already exists");
             }
-            
+
             user.PasswordHash = _passwordService.HashPassword(user, userRegisterDto.Password);
-            
+            SetNewVerificationCode(user);
+
             await _repository.AddAsync(user);
             await _unitOfWork.SaveChanges();
-            var response = _mapper.Map<AppUserResponseDto>(user);
-            return response;
+
+            await SendVerificationEmail(user);
+
+            // Kayıt anında da token üretiliyor: kullanıcı hesap oluşturur oluşturmaz
+            // giriş yapmış sayılır ve profil kurulum sihirbazına bu token ile devam
+            // eder. Profilini tamamladığında (CreateMusicianProfile vb.) Role ve
+            // IsProfileCompleted=true claim'lerini taşıyan İKİNCİ bir token üretilir —
+            // uygulamanın asıl ana ekranına o token ile girilir.
+            return await _tokenService.IssueTokensAsync(user);
         }
 
-        
+
 
         public async Task DeleteUser()
         {
@@ -113,7 +144,7 @@ namespace Sahnem.Business.Services
             {
                 throw new ValidationException(validationResult.Errors);
             }
-            
+
             var user = await _repository.FirstOrDefaultAsync(u=> u.Email == userLoginDto.Email.Trim().ToLower());
             if(user == null)
             {
@@ -124,10 +155,8 @@ namespace Sahnem.Business.Services
             {
                 throw new Exception("Invalid Email Or Password");
             }
-            
-            
-            
-            return _jwtService.GenerateToken(user);
+
+            return await _tokenService.IssueTokensAsync(user);
 
         }
 
@@ -138,7 +167,7 @@ namespace Sahnem.Business.Services
             return _mapper.Map<AppUserResponseDto>(me);
         }
 
-    
+
         public async Task UpdateUser(AppUserUpdateDto dto)
         {
             var validationResult = await _appUserUpdateValidator.ValidateAsync(dto);
@@ -148,7 +177,7 @@ namespace Sahnem.Business.Services
                 throw new ValidationException(validationResult.Errors);
             }
 
-            
+
             var user = await _repository.GetByIdAsync(_currentUserService.UserId);
 
             if(user == null)
@@ -159,22 +188,82 @@ namespace Sahnem.Business.Services
             _mapper.Map(dto, user);
             await _unitOfWork.SaveChanges();
         }
-        
 
+        public async Task<AuthResponseDto> RefreshToken(string refreshToken)
+        {
+            return await _tokenService.RefreshAsync(refreshToken);
+        }
 
+        public async Task Logout(string refreshToken)
+        {
+            await _tokenService.RevokeAsync(refreshToken);
+        }
 
+        public async Task VerifyEmail(string code)
+        {
+            var userId = _currentUserService.UserId;
+            var user = await _repository.GetByIdAsync(userId);
+            if (user == null)
+            {
+                throw new Exception("User not found");
+            }
+            if (user.IsEmailConfirmed)
+            {
+                throw new Exception("Email already verified");
+            }
+            if (string.IsNullOrEmpty(user.EmailVerificationCode)
+                || user.EmailVerificationCodeExpiresAt == null
+                || user.EmailVerificationCodeExpiresAt < DateTime.UtcNow)
+            {
+                throw new Exception("Verification code has expired, please request a new one");
+            }
+            if (user.EmailVerificationCode != code.Trim())
+            {
+                throw new Exception("Invalid verification code");
+            }
 
+            user.IsEmailConfirmed = true;
+            user.EmailVerificationCode = null;
+            user.EmailVerificationCodeExpiresAt = null;
+            await _unitOfWork.SaveChanges();
+        }
 
+        public async Task ResendVerificationEmail()
+        {
+            var userId = _currentUserService.UserId;
+            var user = await _repository.GetByIdAsync(userId);
+            if (user == null)
+            {
+                throw new Exception("User not found");
+            }
+            if (user.IsEmailConfirmed)
+            {
+                throw new Exception("Email already verified");
+            }
 
+            SetNewVerificationCode(user);
+            await _unitOfWork.SaveChanges();
+            await SendVerificationEmail(user);
+        }
 
+        private static void SetNewVerificationCode(AppUser user)
+        {
+            user.EmailVerificationCode = Random.Shared.Next(100000, 999999).ToString();
+            user.EmailVerificationCodeExpiresAt = DateTime.UtcNow.AddMinutes(15);
+        }
 
-
-
+        private Task SendVerificationEmail(AppUser user)
+        {
+            return _emailService.SendAsync(
+                user.Email,
+                "Sahnem hesabını doğrula",
+                EmailTemplates.VerificationCode(user.FirstName, user.EmailVerificationCode!));
+        }
 
         private Task<bool> EmailExists(string email)
         {
             var existing = _repository.AnyAsync(u => u.Email == email);
-            
+
             return existing;
         }
 
@@ -184,6 +273,6 @@ namespace Sahnem.Business.Services
             return existing;
         }
 
-    
+
     }
 }

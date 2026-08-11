@@ -18,9 +18,9 @@ namespace Sahnem.API.Controllers
         }
         [Authorize]
         [HttpGet("getall")]
-        public async Task<IActionResult> GetAllUsers()
+        public async Task<IActionResult> GetAllUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
         {
-            var result = await _userService.GetAllUsers();
+            var result = await _userService.GetAllUsers(page, pageSize);
             return Ok(result);
         }
 
@@ -31,7 +31,7 @@ namespace Sahnem.API.Controllers
             var user = await _userService.GetUserById(id);
             return Ok(user);
         }
-        
+
         [Authorize]
         [HttpGet("me")]
         public async Task<IActionResult> GetUserMe()
@@ -46,7 +46,7 @@ namespace Sahnem.API.Controllers
             var result = await _userService.RegisterUser(userRegisterDto);
             return Ok(result);
         }
-        
+
 
         [HttpPost("login")]
         public async Task<IActionResult> LoginUser([FromBody]AppUserLoginDto appUserLoginDto)
@@ -55,12 +55,42 @@ namespace Sahnem.API.Controllers
             return Ok(result);
         }
 
-        
+        [HttpPost("refresh")]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestDto dto)
+        {
+            var result = await _userService.RefreshToken(dto.RefreshToken);
+            return Ok(result);
+        }
+
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout([FromBody] RefreshTokenRequestDto dto)
+        {
+            await _userService.Logout(dto.RefreshToken);
+            return Ok();
+        }
+
+        [Authorize]
+        [HttpPost("verify-email")]
+        public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailRequestDto dto)
+        {
+            await _userService.VerifyEmail(dto.Code);
+            return Ok();
+        }
+
+        [Authorize]
+        [HttpPost("resend-verification-email")]
+        public async Task<IActionResult> ResendVerificationEmail()
+        {
+            await _userService.ResendVerificationEmail();
+            return Ok();
+        }
+
+
         [Authorize]
         [HttpDelete("delete")]
         public async Task<IActionResult> DeleteUser()
         {
-            
+
             await _userService.DeleteUser();
             return Ok();
         }

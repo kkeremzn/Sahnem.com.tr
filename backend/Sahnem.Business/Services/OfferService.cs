@@ -19,6 +19,7 @@ namespace Sahnem.Business.Services
         private readonly IMapper _mapper;
         private readonly IValidator<OfferCreateDto> _offerCreateDtoValidator;
         private readonly ICurrentUserService _currentUserService;
+        private readonly INotificationService _notificationService;
 
         public OfferService(
             IUnitOfWork unitOfWork,
@@ -28,7 +29,8 @@ namespace Sahnem.Business.Services
             IGenericRepository<AppUser> userRepository,
             IMapper mapper,
             IValidator<OfferCreateDto> offerCreateDtoValidator,
-            ICurrentUserService currentUserService)
+            ICurrentUserService currentUserService,
+            INotificationService notificationService)
         {
             _unitOfWork = unitOfWork;
             _offerRepository = offerRepository;
@@ -38,6 +40,7 @@ namespace Sahnem.Business.Services
             _mapper = mapper;
             _offerCreateDtoValidator = offerCreateDtoValidator;
             _currentUserService = currentUserService;
+            _notificationService = notificationService;
         }
 
         public async Task<OfferResponseDto> CreateOffer(OfferCreateDto dto)
@@ -82,6 +85,15 @@ namespace Sahnem.Business.Services
 
             await _offerRepository.AddAsync(offer);
             await _unitOfWork.SaveChanges();
+
+            var musicianUser = await _userRepository.GetByIdAsync(musicianId);
+            var musicianName = musicianUser == null ? "Bir müzisyen" : $"{musicianUser.FirstName} {musicianUser.LastName}";
+            await _notificationService.CreateNotification(
+                advert.CreatorId,
+                "offer",
+                "İlanınıza yeni teklif geldi",
+                $"{musicianName}, \"{advert.Title}\" ilanınıza teklif gönderdi.",
+                $"/my-adverts/{advert.Id}");
 
             return await BuildResponse(offer, advert);
         }
@@ -164,6 +176,16 @@ namespace Sahnem.Business.Services
             }
 
             await _unitOfWork.SaveChanges();
+
+            var accepted = status == OfferStatus.Accepted;
+            await _notificationService.CreateNotification(
+                offer.MusicianId,
+                "offer",
+                accepted ? "Teklifiniz kabul edildi" : "Teklifiniz reddedildi",
+                accepted
+                    ? $"\"{advert.Title}\" ilanına gönderdiğiniz teklif kabul edildi."
+                    : $"\"{advert.Title}\" ilanına gönderdiğiniz teklif reddedildi.",
+                $"/offers/{offer.Id}");
         }
 
         private async Task<OfferResponseDto> BuildResponse(Offer offer, Advert? advert)
