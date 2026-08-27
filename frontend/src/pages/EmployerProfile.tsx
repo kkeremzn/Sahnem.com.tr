@@ -69,7 +69,12 @@ export function EmployerProfile() {
             </div>
           </div>
           {user?.role === 'Musician' && (
-            <Button icon={<MessageCircle size={15} />} onClick={() => navigate('/messages')}>Mesaj Gönder</Button>
+            <Button
+              icon={<MessageCircle size={15} />}
+              onClick={() => navigate('/messages', { state: { recipient: { id: Number(id), name } } })}
+            >
+              Mesaj Gönder
+            </Button>
           )}
         </div>
 

@@ -43,8 +43,8 @@ export function MusicianProfile() {
   }
 
   function handleMessage() {
-    if (!user) return navigate('/login');
-    navigate('/messages');
+    if (!user || !musician) return navigate('/login');
+    navigate('/messages', { state: { recipient: { id: musician.appUserId, name: `${musician.firstName} ${musician.lastName}` } } });
   }
 
   if (musician === null) {

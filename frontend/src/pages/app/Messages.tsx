@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, MessageCircle, Send } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -9,26 +9,46 @@ import type { Conversation, Message } from '@/types';
 import { cn } from '@/lib/cn';
 import { formatDateTime, formatRelativeTime } from '@/lib/format';
 
+interface NewRecipient {
+  id: number;
+  name: string;
+}
+
 export function Messages() {
   const { user } = useAuth();
   const { conversationId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [conversations, setConversations] = useState<Conversation[] | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
+  // Bir profilden "Mesaj Gönder" ile buraya gelindiğinde henüz bir sohbet
+  // yok — recipientId ile ilk mesaj gönderilince backend sohbeti otomatik
+  // oluşturuyor (bkz. SendMessageDto).
+  const newRecipient = (location.state as { recipient?: NewRecipient } | null)?.recipient ?? null;
+
   const activeId = conversationId ? Number(conversationId) : undefined;
   const active = conversations?.find((c) => c.id === activeId);
+  const existingWithRecipient = newRecipient
+    ? conversations?.find((c) => c.participantId === newRecipient.id)
+    : undefined;
+  const startingNew = !activeId && !!newRecipient && !existingWithRecipient;
 
   useEffect(() => {
     if (!user) return;
     messageService.listConversations().then((list) => {
       setConversations(list);
-      if (!conversationId && list.length > 0) navigate(`/messages/${list[0].id}`, { replace: true });
+      if (!conversationId && !newRecipient && list.length > 0) navigate(`/messages/${list[0].id}`, { replace: true });
     });
   }, [user]);
+
+  // Zaten bir sohbet varsa yeni bir tane başlatmak yerine mevcuduna yönlendir.
+  useEffect(() => {
+    if (existingWithRecipient) navigate(`/messages/${existingWithRecipient.id}`, { replace: true });
+  }, [existingWithRecipient]);
 
   useEffect(() => {
     if (!activeId || !user) return;
@@ -43,15 +63,25 @@ export function Messages() {
   }, [messages]);
 
   async function handleSend() {
-    if (!draft.trim() || !activeId || !user) return;
+    if (!draft.trim() || !user) return;
+    if (!activeId && !newRecipient) return;
     setSending(true);
     try {
-      const msg = await messageService.sendMessage({ conversationId: activeId, body: draft.trim() });
-      setMessages((prev) => [...prev, msg]);
+      const msg = activeId
+        ? await messageService.sendMessage({ conversationId: activeId, body: draft.trim() })
+        : await messageService.sendMessage({ recipientUserId: newRecipient!.id, body: draft.trim() });
       setDraft('');
-      setConversations((prev) =>
-        prev?.map((c) => (c.id === activeId ? { ...c, lastMessage: msg.body, lastMessageAt: msg.sentAt } : c)) ?? prev,
-      );
+      if (activeId) {
+        setMessages((prev) => [...prev, msg]);
+        setConversations((prev) =>
+          prev?.map((c) => (c.id === activeId ? { ...c, lastMessage: msg.body, lastMessageAt: msg.sentAt } : c)) ?? prev,
+        );
+      } else {
+        // Yeni sohbet oluştu — listeyi tazeleyip o sohbete geç.
+        const list = await messageService.listConversations();
+        setConversations(list);
+        navigate(`/messages/${msg.conversationId}`, { replace: true });
+      }
     } finally {
       setSending(false);
     }
@@ -59,13 +89,13 @@ export function Messages() {
 
   if (conversations === null) return null;
 
-  if (conversations.length === 0) {
+  if (conversations.length === 0 && !startingNew) {
     return <EmptyState icon={<MessageCircle size={22} />} title="Henüz mesajın yok" description="Teklif alışverişi başladığında sohbetlerin burada görünecek." />;
   }
 
   return (
     <div className="grid h-[calc(100vh-220px)] min-h-[480px] grid-cols-1 overflow-hidden rounded-lg border border-border md:grid-cols-[300px_1fr]">
-      <div className={cn('flex-col overflow-y-auto border-border md:flex md:border-r', activeId ? 'hidden md:flex' : 'flex')}>
+      <div className={cn('flex-col overflow-y-auto border-border md:flex md:border-r', activeId || startingNew ? 'hidden md:flex' : 'flex')}>
         {conversations.map((c) => (
           <button
             key={c.id}
@@ -92,15 +122,15 @@ export function Messages() {
         ))}
       </div>
 
-      <div className={cn('flex-col bg-deep md:flex', activeId ? 'flex' : 'hidden')}>
-        {active && (
+      <div className={cn('flex-col bg-deep md:flex', activeId || startingNew ? 'flex' : 'hidden')}>
+        {(active || startingNew) && (
           <>
             <div className="flex items-center gap-3 border-b border-border bg-card px-4 py-3.5">
               <button onClick={() => navigate('/messages')} className="text-text-dim hover:text-text md:hidden">
                 <ArrowLeft size={18} />
               </button>
-              <Avatar name={active.participantName} size={36} />
-              <p className="text-sm font-semibold text-text">{active.participantName}</p>
+              <Avatar name={active?.participantName ?? newRecipient!.name} size={36} />
+              <p className="text-sm font-semibold text-text">{active?.participantName ?? newRecipient!.name}</p>
             </div>
 
             <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4">

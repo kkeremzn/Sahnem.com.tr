@@ -76,7 +76,13 @@ export function OfferDetail() {
               {offer.offerStatus === 'Accepted' && (
                 <>
                   <p className="mb-3 text-sm text-success">Teklifin kabul edildi!</p>
-                  <Button full icon={<MessageCircle size={15} />} onClick={() => navigate('/messages')}>Mesajlaş</Button>
+                  <Button
+                    full
+                    icon={<MessageCircle size={15} />}
+                    onClick={() => advert && navigate('/messages', { state: { recipient: { id: advert.creatorId, name: advert.creatorName } } })}
+                  >
+                    Mesajlaş
+                  </Button>
                 </>
               )}
               {offer.offerStatus === 'Rejected' && <p className="text-sm text-text-dim">Bu teklif reddedildi. Başka ilanlara göz atabilirsin.</p>}
