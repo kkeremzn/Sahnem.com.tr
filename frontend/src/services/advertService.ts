@@ -1,86 +1,89 @@
-import { delay } from '@/lib/async';
-import { nextId, readStore, writeStore } from '@/lib/storage';
-import { SEED_ADVERTS } from '@/mocks/seed';
-import type { Advert, AdvertCreateInput, AdvertStatus, City, MusicBranch } from '@/types';
+import { api } from '@/lib/apiClient';
+import type { Advert, AdvertCreateInput, AdvertStatus, AdvertUpdateInput, City, MusicBranch } from '@/types';
 
-function getAdverts(): Advert[] {
-  return readStore('adverts', SEED_ADVERTS);
+interface PagedResult<T> {
+  items: T[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
 }
-function setAdverts(list: Advert[]) {
-  writeStore('adverts', list);
+
+// Backend'in AdvertResponseDto.TargetBranch alanı frontend'de kısaca "branch" —
+// tüm bileşenlerde tutarlı olsun diye burada tek noktadan çeviriliyor.
+interface AdvertDto extends Omit<Advert, 'branch'> {
+  targetBranch?: MusicBranch;
+}
+
+function fromDto(dto: AdvertDto): Advert {
+  const { targetBranch, ...rest } = dto;
+  return { ...rest, branch: targetBranch };
+}
+
+function toCreateDto(input: AdvertCreateInput) {
+  const { branch, ...rest } = input;
+  return { ...rest, targetBranch: branch };
 }
 
 export interface AdvertFilters {
   search?: string;
   city?: City;
   branch?: MusicBranch;
-  minBudget?: number;
   status?: AdvertStatus;
+  minBudget?: number;
+  creatorId?: number;
+  page?: number;
+  pageSize?: number;
 }
 
-export async function listAdverts(filters: AdvertFilters = {}): Promise<Advert[]> {
-  await delay();
-  let list = getAdverts();
-  if (filters.status) list = list.filter((a) => a.status === filters.status);
-  else list = list.filter((a) => a.status === 'Open');
-  if (filters.search) {
-    const q = filters.search.toLowerCase();
-    list = list.filter((a) => a.title.toLowerCase().includes(q) || a.description.toLowerCase().includes(q));
-  }
-  if (filters.city) list = list.filter((a) => a.city === filters.city);
-  if (filters.branch) list = list.filter((a) => a.branch === filters.branch);
-  if (filters.minBudget) list = list.filter((a) => a.budget >= filters.minBudget!);
-  return [...list].sort((a, b) => new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime());
+async function fetchAdverts(filters: AdvertFilters): Promise<PagedResult<Advert>> {
+  const res = await api.get<PagedResult<AdvertDto>>('/advert/getall', {
+    search: filters.search,
+    city: filters.city,
+    branch: filters.branch,
+    status: filters.status,
+    minBudget: filters.minBudget,
+    creatorId: filters.creatorId,
+    page: filters.page ?? 1,
+    pageSize: filters.pageSize ?? 20,
+  });
+  return { ...res, items: res.items.map(fromDto) };
+}
+
+// Herkese açık ilan listesi (jobs sayfası) — durum belirtilmezse sadece açık
+// ilanlar gösterilir, bu yüzden varsayılan burada 'Open'.
+export async function listAdverts(filters: AdvertFilters = {}): Promise<PagedResult<Advert>> {
+  return fetchAdverts({ ...filters, status: filters.status ?? 'Open' });
 }
 
 export async function getAdvertById(id: number): Promise<Advert | undefined> {
-  await delay(200);
-  return getAdverts().find((a) => a.id === id);
+  try {
+    const dto = await api.get<AdvertDto>('/advert/getbyid', { advertId: id });
+    return fromDto(dto);
+  } catch {
+    return undefined;
+  }
+}
+
+export async function listMyAdverts(): Promise<Advert[]> {
+  const list = await api.get<AdvertDto[]>('/advert/getmyadverts');
+  return list.map(fromDto);
 }
 
 export async function listAdvertsByCreator(creatorId: number): Promise<Advert[]> {
-  await delay();
-  return getAdverts()
-    .filter((a) => a.creatorId === creatorId)
-    .sort((a, b) => new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime());
+  const res = await fetchAdverts({ creatorId, pageSize: 100 });
+  return res.items;
 }
 
-export async function createAdvert(
-  creatorId: number,
-  creatorName: string,
-  creatorKind: 'Organizer' | 'Venue',
-  input: AdvertCreateInput,
-): Promise<Advert> {
-  await delay();
-  const list = getAdverts();
-  const advert: Advert = {
-    id: nextId(list), creatorId, creatorName, creatorKind,
-    status: 'Open', createdDate: new Date().toISOString(), offerCount: 0, ...input,
-  };
-  setAdverts([...list, advert]);
-  return advert;
+export async function createAdvert(input: AdvertCreateInput): Promise<Advert> {
+  const dto = await api.post<AdvertDto>('/advert/create', toCreateDto(input));
+  return fromDto(dto);
 }
 
-export async function updateAdvert(id: number, input: Partial<AdvertCreateInput>): Promise<Advert> {
-  await delay();
-  const list = getAdverts();
-  const idx = list.findIndex((a) => a.id === id);
-  if (idx === -1) throw new Error('İlan bulunamadı.');
-  list[idx] = { ...list[idx], ...input };
-  setAdverts(list);
-  return list[idx];
+export async function updateAdvert(id: number, input: AdvertUpdateInput): Promise<void> {
+  await api.put(`/advert/update?advertId=${id}`, toCreateDto(input));
 }
 
-export async function cancelAdvert(id: number): Promise<Advert> {
-  return setAdvertStatus(id, 'Cancelled');
-}
-
-export async function setAdvertStatus(id: number, status: AdvertStatus): Promise<Advert> {
-  await delay();
-  const list = getAdverts();
-  const idx = list.findIndex((a) => a.id === id);
-  if (idx === -1) throw new Error('İlan bulunamadı.');
-  list[idx] = { ...list[idx], status };
-  setAdverts(list);
-  return list[idx];
+export async function cancelAdvert(id: number): Promise<void> {
+  await api.put(`/advert/cancel?advertId=${id}`);
 }

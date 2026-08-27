@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import {
   ArrowRight, Bell, Briefcase, ListChecks, MessageCircle, PlusCircle, Search,
 } from 'lucide-react';
@@ -17,20 +17,20 @@ import type { Advert, Offer } from '@/types';
 import { formatPrice, formatRelativeTime } from '@/lib/format';
 
 export function Dashboard() {
-  const { user, isMusician } = useAuth();
+  const { user, isMusician, isAdmin } = useAuth();
   const [offers, setOffers] = useState<Offer[]>([]);
   const [adverts, setAdverts] = useState<Advert[]>([]);
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
 
   useEffect(() => {
-    if (!user) return;
-    messageService.listConversations(user.id).then((cs) => setUnreadMessages(cs.reduce((s, c) => s + c.unreadCount, 0)));
+    if (!user || isAdmin) return;
+    messageService.listConversations().then((cs) => setUnreadMessages(cs.reduce((s, c) => s + c.unreadCount, 0)));
     notificationService.listNotifications().then((ns) => setUnreadNotifications(ns.filter((n) => !n.isRead).length));
 
     if (isMusician) {
-      offerService.listOffersByMusician(user.id).then(setOffers);
-      advertService.listAdverts({ status: 'Open' }).then((list) => setAdverts(list.slice(0, 4)));
+      offerService.listMyOffers().then(setOffers);
+      advertService.listAdverts({ status: 'Open', pageSize: 4 }).then((res) => setAdverts(res.items));
     } else {
       advertService.listAdvertsByCreator(user.id).then(async (myAdverts) => {
         setAdverts(myAdverts);
@@ -38,9 +38,10 @@ export function Dashboard() {
         setOffers(allOffers.flat());
       });
     }
-  }, [user, isMusician]);
+  }, [user, isMusician, isAdmin]);
 
   if (!user) return null;
+  if (isAdmin) return <Navigate to="/admin" replace />;
 
   const pendingOffers = offers.filter((o) => o.offerStatus === 'Pending');
 

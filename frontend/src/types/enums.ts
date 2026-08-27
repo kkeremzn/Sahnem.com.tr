@@ -3,12 +3,16 @@
 // tutuluyor (numeric/string JSON serileştirmesi fark etmeksizin kolay eşleşsin diye).
 
 export const USER_TYPES = ['Musician', 'Organizer', 'Venue'] as const;
-export type UserType = (typeof USER_TYPES)[number];
+// Backend'de ayrıca "Admin" var (bkz. Sahnem.Core/Enums/UserType.cs) ama sadece
+// manuel olarak DB'den atanıyor, register akışında hiç seçilemiyor — bu yüzden
+// USER_TYPES (kayıt formundaki seçenekler) dışında, ayrı bir tip olarak tutuluyor.
+export type UserType = (typeof USER_TYPES)[number] | 'Admin';
 
 export const USER_TYPE_LABELS: Record<UserType, string> = {
   Musician: 'Müzisyen',
   Organizer: 'Organizatör',
   Venue: 'Mekan',
+  Admin: 'Yönetici',
 };
 
 export const MUSIC_BRANCHES = [

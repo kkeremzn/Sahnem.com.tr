@@ -23,9 +23,10 @@ export interface MusicianProfile {
   linkedinUrl?: string;
   verificationStatus: VerificationStatus;
   avatarUrl?: string;
-  coverUrl?: string;
-  ratingAvg: number;
-  ratingCount: number;
+  // Backend'de puanlama/fiyatlandırma sistemi henüz yok — bu alanlar sadece
+  // UI'da opsiyonel gösterim için tutuluyor, gerçek veri gelene dek undefined.
+  ratingAvg?: number;
+  ratingCount?: number;
   priceFrom?: number;
 }
 
@@ -59,8 +60,7 @@ export interface OrganizerProfile {
   instagramUrl?: string;
   youtubeUrl?: string;
   linkedinUrl?: string;
-  logoUrl?: string;
-  coverUrl?: string;
+  avatarUrl?: string;
 }
 
 export interface OrganizerProfileInput {
@@ -93,8 +93,7 @@ export interface VenueProfile {
   instagramUrl?: string;
   youtubeUrl?: string;
   linkedinUrl?: string;
-  logoUrl?: string;
-  coverUrl?: string;
+  avatarUrl?: string;
 }
 
 export interface VenueProfileInput {

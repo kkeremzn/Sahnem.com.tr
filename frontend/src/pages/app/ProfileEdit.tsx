@@ -13,11 +13,13 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import * as authService from '@/services/authService';
 import * as profileService from '@/services/profileService';
+import { uploadAvatar } from '@/services/uploadService';
+import { formatApiError } from '@/lib/apiClient';
 import {
   CITIES, CITY_LABELS, MUSIC_BRANCHES, MUSIC_BRANCH_LABELS, ORGANIZER_TYPES, ORGANIZER_TYPE_LABELS,
   VENUE_TYPES, VENUE_TYPE_LABELS, optionsFrom,
   type City, type EmployerProfile, type IsAvailableToTravel, type MusicBranch, type MusicianProfile,
-  type OrganizerType, type VenueType, type WorkStatus,
+  type OrganizerProfile, type OrganizerType, type VenueProfile, type VenueType, type WorkStatus,
 } from '@/types';
 import { cn } from '@/lib/cn';
 
@@ -30,6 +32,9 @@ export function ProfileEdit() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
+  // Avatar AppUser'a ait — profil (musician/employer) kaydından ayrı tutulup
+  // authService.updateUser ile persist edilir, bkz. AppUserUpdateDto.AvatarUrl.
+  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(undefined);
 
   const [musician, setMusician] = useState<MusicianProfile | null>(null);
   const [employer, setEmployer] = useState<EmployerProfile | null>(null);
@@ -39,31 +44,40 @@ export function ProfileEdit() {
     setFirstName(user.firstName);
     setLastName(user.lastName);
     setPhoneNumber(user.phoneNumber);
-    const load = isMusician
-      ? profileService.getMusicianByUserId(user.id).then((p) => setMusician(p ?? null))
-      : profileService.getEmployerByUserId(user.id).then((p) => setEmployer(p ?? null));
-    load.finally(() => setLoading(false));
+    setAvatarUrl(user.avatarUrl);
+    profileService
+      .getMyProfile()
+      .then((profile) => {
+        if (isMusician) {
+          setMusician(profile as MusicianProfile);
+        } else if (user.role === 'Organizer') {
+          setEmployer({ kind: 'Organizer', ...(profile as OrganizerProfile) });
+        } else if (user.role === 'Venue') {
+          setEmployer({ kind: 'Venue', ...(profile as VenueProfile) });
+        }
+      })
+      .finally(() => setLoading(false));
   }, [user, isMusician]);
 
   async function handleSave() {
     if (!user) return;
     setSaving(true);
     try {
-      await authService.updateUser(user.id, { firstName, lastName, phoneNumber });
+      await authService.updateUser({ firstName, lastName, phoneNumber, avatarUrl });
       if (isMusician && musician) {
-        const updated = await profileService.updateMusicianProfile(musician.id, musician);
+        const updated = await profileService.updateMusicianProfile(musician);
         setMusician(updated);
       } else if (employer?.kind === 'Organizer') {
-        const updated = await profileService.updateOrganizerProfile(employer.id, employer);
+        const updated = await profileService.updateOrganizerProfile(employer);
         setEmployer({ kind: 'Organizer', ...updated });
       } else if (employer?.kind === 'Venue') {
-        const updated = await profileService.updateVenueProfile(employer.id, employer);
+        const updated = await profileService.updateVenueProfile(employer);
         setEmployer({ kind: 'Venue', ...updated });
       }
       await refreshUser();
       toast('Profilin güncellendi.', 'success');
     } catch (e) {
-      toast(e instanceof Error ? e.message : 'Bir hata oluştu.', 'error');
+      toast(formatApiError(e), 'error');
     } finally {
       setSaving(false);
     }
@@ -82,11 +96,9 @@ export function ProfileEdit() {
           <h3 className="mb-4 font-display text-base font-bold">Profil görseli</h3>
           <FileDropzone
             shape="circle"
-            value={isMusician ? musician?.avatarUrl : employer?.logoUrl}
-            onChange={(url) => {
-              if (isMusician && musician) setMusician({ ...musician, avatarUrl: url });
-              else if (employer) setEmployer({ ...employer, logoUrl: url } as EmployerProfile);
-            }}
+            value={avatarUrl}
+            onUpload={uploadAvatar}
+            onChange={setAvatarUrl}
           />
         </Card>
 
@@ -115,9 +127,6 @@ export function ProfileEdit() {
                 </Field>
                 <Field label="Türler" className="sm:col-span-2">
                   <Input value={musician.genres} onChange={(e) => setMusician({ ...musician, genres: e.target.value })} />
-                </Field>
-                <Field label="Başlangıç fiyatı (₺)">
-                  <Input type="number" min={0} value={musician.priceFrom ?? ''} onChange={(e) => setMusician({ ...musician, priceFrom: Number(e.target.value) || undefined })} />
                 </Field>
                 <Field label="Çalışma şekli">
                   <div className="flex gap-2">
@@ -207,10 +216,10 @@ export function ProfileEdit() {
                     {optionsFrom(CITIES, CITY_LABELS).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                   </Select>
                 </Field>
-                <Field label="İlçe">
+                <Field label="İlçe" required>
                   <Input value={employer.district ?? ''} onChange={(e) => setEmployer({ ...employer, district: e.target.value })} />
                 </Field>
-                <Field label="Adres" className="sm:col-span-2">
+                <Field label="Adres" required hint="En az 15 karakter" className="sm:col-span-2">
                   <Input value={employer.address} onChange={(e) => setEmployer({ ...employer, address: e.target.value })} />
                 </Field>
               </div>

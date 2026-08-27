@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Ortama özel ayarlar — her geliştirici/ortam kendi .env'ini oluşturur
+.env
+.env.local
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

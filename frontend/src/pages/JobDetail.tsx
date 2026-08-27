@@ -19,6 +19,7 @@ import * as advertService from '@/services/advertService';
 import * as offerService from '@/services/offerService';
 import { CITY_LABELS, MUSIC_BRANCH_LABELS, type Advert, type Offer } from '@/types';
 import { formatDate, formatPrice } from '@/lib/format';
+import { formatApiError } from '@/lib/apiClient';
 
 const offerSchema = z.object({
   message: z.string().min(10, 'Mesajın en az 10 karakter olmalı.'),
@@ -45,7 +46,7 @@ export function JobDetail() {
 
   useEffect(() => {
     if (user?.role === 'Musician' && advert) {
-      offerService.listOffersByMusician(user.id).then((offers) => {
+      offerService.listMyOffers().then((offers) => {
         setExistingOffer(offers.find((o) => o.advertId === advert.id));
       });
     }
@@ -54,13 +55,13 @@ export function JobDetail() {
   async function onSubmit(data: OfferFormData) {
     if (!user || !advert) return;
     try {
-      const offer = await offerService.createOffer(user.id, `${user.firstName} ${user.lastName}`, 'Vocal', {
+      const offer = await offerService.createOffer({
         advertId: advert.id, message: data.message, proposedPrice: data.proposedPrice,
       });
       setExistingOffer(offer);
       toast('Teklifin gönderildi.', 'success');
     } catch (e) {
-      toast(e instanceof Error ? e.message : 'Bir hata oluştu.', 'error');
+      toast(formatApiError(e), 'error');
     }
   }
 

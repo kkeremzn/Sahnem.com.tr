@@ -25,7 +25,7 @@ export function Offers() {
   const [tab, setTab] = useState<'all' | OfferStatus>('all');
 
   useEffect(() => {
-    if (user) offerService.listOffersByMusician(user.id).then(setOffers);
+    if (user) offerService.listMyOffers().then(setOffers);
   }, [user]);
 
   const filtered = useMemo(() => {

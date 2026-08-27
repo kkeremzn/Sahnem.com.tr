@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -15,21 +15,34 @@ import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import * as advertService from '@/services/advertService';
-import * as profileService from '@/services/profileService';
 import { CITIES, CITY_LABELS, MUSIC_BRANCHES, MUSIC_BRANCH_LABELS, optionsFrom } from '@/types';
+import { formatApiError } from '@/lib/apiClient';
 
-const schema = z.object({
-  title: z.string().min(6, 'Başlık en az 6 karakter olmalı.'),
-  description: z.string().min(30, 'Açıklama en az 30 karakter olmalı.'),
-  city: z.string().min(1, 'Şehir seç.'),
-  district: z.string().optional(),
-  address: z.string().min(4, 'Adres gerekli.'),
-  branch: z.string().optional(),
-  eventTime: z.string().min(1, 'Etkinlik tarihi gerekli.'),
-  applicationDeadline: z.string().min(1, 'Son başvuru tarihi gerekli.'),
-  budget: z.coerce.number().min(1, 'Geçerli bir bütçe gir.'),
-  minimumExperienceYears: z.coerce.number().min(0).optional(),
-});
+const schema = z
+  .object({
+    title: z.string().min(20, 'Başlık en az 20 karakter olmalı.').max(100, 'Başlık en fazla 100 karakter olabilir.'),
+    description: z.string().min(30, 'Açıklama en az 30 karakter olmalı.').max(100, 'Açıklama en fazla 100 karakter olabilir.'),
+    city: z.string().min(1, 'Şehir seç.'),
+    district: z.string().max(17, 'İlçe en fazla 17 karakter olabilir.').optional(),
+    address: z.string().min(1, 'Adres gerekli.'),
+    branch: z.string().optional(),
+    eventTime: z.string().min(1, 'Etkinlik tarihi gerekli.'),
+    applicationDeadline: z.string().min(1, 'Son başvuru tarihi gerekli.'),
+    budget: z.coerce.number().min(1, 'Geçerli bir bütçe gir.'),
+    minimumExperienceYears: z.coerce.number().min(0).max(50, 'En fazla 50 yıl girilebilir.').optional(),
+  })
+  .refine((data) => new Date(data.eventTime).getTime() > Date.now() + 24 * 60 * 60 * 1000, {
+    message: 'Etkinlik tarihi en az 1 gün sonrası için olmalı.',
+    path: ['eventTime'],
+  })
+  .refine((data) => new Date(data.applicationDeadline).getTime() > Date.now(), {
+    message: 'Son başvuru tarihi gelecekte olmalı.',
+    path: ['applicationDeadline'],
+  })
+  .refine((data) => new Date(data.applicationDeadline).getTime() < new Date(data.eventTime).getTime(), {
+    message: 'Son başvuru tarihi etkinlik tarihinden önce olmalı.',
+    path: ['applicationDeadline'],
+  });
 type FormInput = z.input<typeof schema>;
 type FormData = z.infer<typeof schema>;
 
@@ -37,27 +50,16 @@ export function PostAdvert() {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [employerName, setEmployerName] = useState('');
-  const [employerKind, setEmployerKind] = useState<'Organizer' | 'Venue'>('Organizer');
   const [equipmentProvided, setEquipmentProvided] = useState(true);
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormInput, unknown, FormData>({
     resolver: zodResolver(schema),
   });
 
-  useEffect(() => {
-    if (!user) return;
-    profileService.getEmployerByUserId(user.id).then((e) => {
-      if (!e) return;
-      setEmployerKind(e.kind);
-      setEmployerName(e.kind === 'Organizer' ? e.organizerName : e.venueName);
-    });
-  }, [user]);
-
   async function onSubmit(data: FormData) {
     if (!user) return;
     try {
-      const advert = await advertService.createAdvert(user.id, employerName, employerKind, {
+      const advert = await advertService.createAdvert({
         title: data.title, description: data.description, city: data.city as never,
         district: data.district || undefined, address: data.address,
         equipmentProvided, eventTime: new Date(data.eventTime).toISOString(),
@@ -68,7 +70,7 @@ export function PostAdvert() {
       toast('İlanın yayınlandı.', 'success');
       navigate(`/my-adverts/${advert.id}`);
     } catch (e) {
-      toast(e instanceof Error ? e.message : 'Bir hata oluştu.', 'error');
+      toast(formatApiError(e), 'error');
     }
   }
 
@@ -78,10 +80,10 @@ export function PostAdvert() {
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <Card className="space-y-4">
-          <Field label="İlan başlığı" required error={errors.title?.message}>
+          <Field label="İlan başlığı" required hint="20-100 karakter" error={errors.title?.message}>
             <Input placeholder="ör. Kurumsal Gala Gecesi için Caz Vokalisti" {...register('title')} invalid={!!errors.title} />
           </Field>
-          <Field label="Açıklama" required error={errors.description?.message}>
+          <Field label="Açıklama" required hint="30-100 karakter" error={errors.description?.message}>
             <Textarea rows={5} placeholder="Etkinliğin detaylarını, beklentilerini yaz..." {...register('description')} invalid={!!errors.description} />
           </Field>
           <div className="grid gap-4 sm:grid-cols-2">

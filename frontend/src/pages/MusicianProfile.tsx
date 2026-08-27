@@ -8,7 +8,6 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { StarRating } from '@/components/ui/StarRating';
-import { Tabs } from '@/components/ui/Tabs';
 import { VerificationBadge } from '@/components/ui/StatusBadge';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
@@ -16,11 +15,7 @@ import * as profileService from '@/services/profileService';
 import * as favoriteService from '@/services/favoriteService';
 import { CITY_LABELS, MUSIC_BRANCH_LABELS, TRAVEL_LABELS, WORK_STATUS_LABELS, type MusicianProfile as MusicianProfileType } from '@/types';
 import { formatPrice } from '@/lib/format';
-
-const MOCK_REVIEWS = [
-  { name: 'Bosphorus Events', rating: 5, comment: 'Çok profesyonel bir performans sundu, tekrar çalışmak isteriz.' },
-  { name: 'Zorlu PSM', rating: 4.5, comment: 'Zamanında geldi, teknik gereksinimleri önceden netti. Teşekkürler.' },
-];
+import { resolveAssetUrl } from '@/lib/apiClient';
 
 export function MusicianProfile() {
   const { id } = useParams();
@@ -28,22 +23,21 @@ export function MusicianProfile() {
   const { isEmployer, user } = useAuth();
   const { toast } = useToast();
   const [musician, setMusician] = useState<MusicianProfileType | null | undefined>(null);
-  const [tab, setTab] = useState('about');
   const [favorite, setFavorite] = useState(false);
 
   useEffect(() => {
-    profileService.getMusicianById(Number(id)).then((m) => setMusician(m ?? undefined));
+    profileService.getMusicianByUserId(Number(id)).then((m) => setMusician(m ?? undefined));
   }, [id]);
 
   useEffect(() => {
     if (isEmployer && musician) {
-      favoriteService.listFavoriteMusicianIds().then((ids) => setFavorite(ids.includes(musician.id)));
+      favoriteService.listFavoriteMusicianIds().then((ids) => setFavorite(ids.includes(musician.appUserId)));
     }
   }, [isEmployer, musician]);
 
   async function handleToggleFavorite() {
     if (!musician) return;
-    const now = await favoriteService.toggleFavorite(musician.id);
+    const now = await favoriteService.toggleFavorite(musician.appUserId);
     setFavorite(now);
     toast(now ? 'Favorilere eklendi.' : 'Favorilerden çıkarıldı.', 'success');
   }
@@ -81,7 +75,7 @@ export function MusicianProfile() {
       <Container className="relative -mt-14 pb-14 sm:-mt-16">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-end">
-            <Avatar name={`${musician.firstName} ${musician.lastName}`} size={110} className="border-4 border-black text-3xl" />
+            <Avatar name={`${musician.firstName} ${musician.lastName}`} src={resolveAssetUrl(musician.avatarUrl)} size={110} className="border-4 border-black text-3xl" />
             <div className="pb-1">
               <div className="flex items-center gap-2">
                 <h1 className="font-display text-2xl font-bold sm:text-3xl">{musician.firstName} {musician.lastName}</h1>
@@ -90,7 +84,9 @@ export function MusicianProfile() {
               <p className="mt-1 text-sm text-text-dim">{MUSIC_BRANCH_LABELS[musician.branch]} · {musician.genres}</p>
               <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-text-faint">
                 <span className="inline-flex items-center gap-1"><MapPin size={12} /> {CITY_LABELS[musician.city]}{musician.district ? `, ${musician.district}` : ''}</span>
-                <StarRating rating={musician.ratingAvg} count={musician.ratingCount} showValue />
+                {musician.ratingAvg !== undefined && (
+                  <StarRating rating={musician.ratingAvg} count={musician.ratingCount} showValue />
+                )}
               </div>
             </div>
           </div>
@@ -106,53 +102,35 @@ export function MusicianProfile() {
 
         <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_300px]">
           <div>
-            <Tabs
-              items={[{ key: 'about', label: 'Hakkında' }, { key: 'reviews', label: 'Değerlendirmeler', count: musician.ratingCount }]}
-              active={tab}
-              onChange={setTab}
-            />
-            {tab === 'about' ? (
-              <div className="mt-6 space-y-6">
-                <Card>
-                  <h3 className="mb-2 font-display text-base font-bold">Biyografi</h3>
-                  <p className="text-sm leading-relaxed text-text-dim">{musician.bio}</p>
+            <h2 className="font-display text-base font-bold">Hakkında</h2>
+            <div className="mt-4 space-y-6">
+              <Card>
+                <h3 className="mb-2 font-display text-base font-bold">Biyografi</h3>
+                <p className="text-sm leading-relaxed text-text-dim">{musician.bio}</p>
+              </Card>
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                <Card className="text-center">
+                  <Music2 size={18} className="mx-auto text-gold-soft" />
+                  <p className="mt-2 text-sm font-semibold">{musician.experienceYears} yıl</p>
+                  <p className="text-xs text-text-faint">Deneyim</p>
                 </Card>
-                <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                  <Card className="text-center">
-                    <Music2 size={18} className="mx-auto text-gold-soft" />
-                    <p className="mt-2 text-sm font-semibold">{musician.experienceYears} yıl</p>
-                    <p className="text-xs text-text-faint">Deneyim</p>
-                  </Card>
-                  <Card className="text-center">
-                    <Wrench size={18} className="mx-auto text-gold-soft" />
-                    <p className="mt-2 text-sm font-semibold">{musician.hasOwnEquipment ? 'Var' : 'Yok'}</p>
-                    <p className="text-xs text-text-faint">Kendi ekipmanı</p>
-                  </Card>
-                  <Card className="text-center">
-                    <Plane size={18} className="mx-auto text-gold-soft" />
-                    <p className="mt-2 text-sm font-semibold">{TRAVEL_LABELS[musician.isAvailableToTravel]}</p>
-                    <p className="text-xs text-text-faint">Seyahat</p>
-                  </Card>
-                  <Card className="text-center">
-                    <Star size={18} className="mx-auto text-gold-soft" />
-                    <p className="mt-2 text-sm font-semibold">{WORK_STATUS_LABELS[musician.workStatus]}</p>
-                    <p className="text-xs text-text-faint">Çalışma şekli</p>
-                  </Card>
-                </div>
+                <Card className="text-center">
+                  <Wrench size={18} className="mx-auto text-gold-soft" />
+                  <p className="mt-2 text-sm font-semibold">{musician.hasOwnEquipment ? 'Var' : 'Yok'}</p>
+                  <p className="text-xs text-text-faint">Kendi ekipmanı</p>
+                </Card>
+                <Card className="text-center">
+                  <Plane size={18} className="mx-auto text-gold-soft" />
+                  <p className="mt-2 text-sm font-semibold">{TRAVEL_LABELS[musician.isAvailableToTravel]}</p>
+                  <p className="text-xs text-text-faint">Seyahat</p>
+                </Card>
+                <Card className="text-center">
+                  <Star size={18} className="mx-auto text-gold-soft" />
+                  <p className="mt-2 text-sm font-semibold">{WORK_STATUS_LABELS[musician.workStatus]}</p>
+                  <p className="text-xs text-text-faint">Çalışma şekli</p>
+                </Card>
               </div>
-            ) : (
-              <div className="mt-6 space-y-4">
-                {MOCK_REVIEWS.map((r) => (
-                  <Card key={r.name}>
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-semibold">{r.name}</p>
-                      <StarRating rating={r.rating} />
-                    </div>
-                    <p className="mt-2 text-sm text-text-dim">{r.comment}</p>
-                  </Card>
-                ))}
-              </div>
-            )}
+            </div>
           </div>
 
           <aside className="space-y-5">

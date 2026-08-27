@@ -12,6 +12,7 @@ import { useAuth } from '@/context/AuthContext';
 import * as profileService from '@/services/profileService';
 import * as advertService from '@/services/advertService';
 import { CITY_LABELS, ORGANIZER_TYPE_LABELS, VENUE_TYPE_LABELS, type Advert, type EmployerProfile as EmployerProfileType } from '@/types';
+import { resolveAssetUrl } from '@/lib/apiClient';
 
 export function EmployerProfile() {
   const { id } = useParams();
@@ -55,7 +56,7 @@ export function EmployerProfile() {
       <Container className="relative -mt-14 pb-14 sm:-mt-16">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-end">
-            <Avatar name={name} size={110} className="border-4 border-black text-3xl" />
+            <Avatar name={name} src={resolveAssetUrl(employer.avatarUrl)} size={110} className="border-4 border-black text-3xl" />
             <div className="pb-1">
               <div className="flex items-center gap-2">
                 <h1 className="font-display text-2xl font-bold sm:text-3xl">{name}</h1>

@@ -1,4 +1,6 @@
-// Backend'de henüz modellenmemiş — bkz. backend/BACKEND-TODO.md P2 madde 11. Mock veri ile simüle ediliyor.
+// Sahnem.Business/DTOs/Notification/NotificationResponseDto.cs — Type backend'de
+// serbest bir string (bkz. NotificationService.CreateNotification çağrıları),
+// şu an üretilen değerler: "offer", "message", "verification".
 export type NotificationType = 'offer' | 'message' | 'system' | 'advert' | 'verification';
 
 export interface AppNotification {
@@ -7,12 +9,6 @@ export interface AppNotification {
   title: string;
   body: string;
   isRead: boolean;
-  createdDate: string;
   linkTo?: string;
-}
-
-// Backend'de henüz modellenmemiş — bkz. backend/BACKEND-TODO.md P2 madde 12. Mock veri ile simüle ediliyor.
-export interface Favorite {
-  id: number;
-  musicianId: number;
+  createdDate: string;
 }

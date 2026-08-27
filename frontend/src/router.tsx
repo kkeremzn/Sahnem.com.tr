@@ -31,6 +31,7 @@ import { Messages } from '@/pages/app/Messages';
 import { Favorites } from '@/pages/app/Favorites';
 import { Notifications } from '@/pages/app/Notifications';
 import { Settings } from '@/pages/app/Settings';
+import { AdminPanel } from '@/pages/app/AdminPanel';
 
 export const router = createBrowserRouter([
   {
@@ -74,6 +75,7 @@ export const router = createBrowserRouter([
       { path: '/favorites', element: <Favorites /> },
       { path: '/notifications', element: <Notifications /> },
       { path: '/settings', element: <Settings /> },
+      { path: '/admin', element: <AdminPanel /> },
     ],
   },
   { path: '*', element: <NotFound /> },

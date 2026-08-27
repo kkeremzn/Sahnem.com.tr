@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json.Serialization;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -56,6 +57,7 @@ builder.Services.AddScoped<IOfferService, OfferService>();
 builder.Services.AddScoped<IFavoriteService, FavoriteService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
@@ -109,7 +111,16 @@ builder.Services.AddAuthorization(options =>
         policy.RequireClaim("IsProfileCompleted", "True"));
 });
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    // Enum'lar JSON'da sayı yerine isim olarak dönsün ("Musician" gibi, 1 değil) —
+    // API tüketen frontend/başka bir istemci için okunabilir ve kendi kendini
+    // açıklayan bir sözleşme. allowIntegerValues varsayılan olarak true olduğu
+    // için istemci yine de sayı gönderirse (geriye dönük uyumluluk) kabul edilir,
+    // sadece ÇIKIŞ formatı değişiyor.
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 builder.Services.AddEndpointsApiExplorer();
 var app = builder.Build();
 

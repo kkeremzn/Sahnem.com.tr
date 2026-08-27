@@ -31,8 +31,8 @@ export function Home() {
   const [searchCity, setSearchCity] = useState<City | ''>('');
 
   useEffect(() => {
-    profileService.listMusicians().then((list) => {
-      setMusicians([...list].sort((a, b) => b.ratingAvg - a.ratingAvg).slice(0, 4));
+    profileService.listMusicians({ pageSize: 4 }).then((res) => {
+      setMusicians(res.items);
     });
   }, []);
 

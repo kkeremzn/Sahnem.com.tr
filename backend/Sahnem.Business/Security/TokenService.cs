@@ -1,6 +1,5 @@
 using System.Security.Cryptography;
 using Microsoft.Extensions.Options;
-using Sahnem.Business.DTOs;
 using Sahnem.Core.Entities;
 using Sahnem.Core.Interfaces;
 
@@ -28,7 +27,7 @@ namespace Sahnem.Business.Security
             _jwtSettings = jwtSettings.Value;
         }
 
-        public async Task<AuthResponseDto> IssueTokensAsync(AppUser user)
+        public async Task<TokenPairDto> IssueTokensAsync(AppUser user)
         {
             var accessToken = _jwtService.GenerateToken(user);
 
@@ -41,7 +40,7 @@ namespace Sahnem.Business.Security
             await _refreshTokenRepository.AddAsync(refreshToken);
             await _unitOfWork.SaveChanges();
 
-            return new AuthResponseDto
+            return new TokenPairDto
             {
                 AccessToken = accessToken.AccessToken,
                 ExpiresAt = accessToken.ExpiresAt,
@@ -50,7 +49,7 @@ namespace Sahnem.Business.Security
             };
         }
 
-        public async Task<AuthResponseDto> RefreshAsync(string refreshToken)
+        public async Task<TokenPairDto> RefreshAsync(string refreshToken)
         {
             if (string.IsNullOrWhiteSpace(refreshToken))
             {

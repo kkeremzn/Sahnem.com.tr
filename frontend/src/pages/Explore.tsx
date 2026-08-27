@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search, SlidersHorizontal, Users } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
@@ -30,30 +30,35 @@ export function Explore() {
   const [city, setCity] = useState<City | ''>((searchParams.get('city') as City) ?? '');
   const [travelOnly, setTravelOnly] = useState(false);
   const [musicians, setMusicians] = useState<MusicianProfile[] | null>(null);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
   const [favorites, setFavorites] = useState<number[]>([]);
   const [page, setPage] = useState(1);
 
   useEffect(() => {
-    setMusicians(null);
-    profileService.listMusicians({ search, branch: branch || undefined, city: city || undefined, travelOnly }).then(setMusicians);
     setPage(1);
   }, [search, branch, city, travelOnly]);
+
+  useEffect(() => {
+    setMusicians(null);
+    profileService
+      .listMusicians({ search, branch: branch || undefined, city: city || undefined, travelOnly, page, pageSize: PAGE_SIZE })
+      .then((res) => {
+        setMusicians(res.items);
+        setTotalCount(res.totalCount);
+        setTotalPages(Math.max(1, res.totalPages));
+      });
+  }, [search, branch, city, travelOnly, page]);
 
   useEffect(() => {
     if (isEmployer) favoriteService.listFavoriteMusicianIds().then(setFavorites);
   }, [isEmployer]);
 
-  async function handleToggleFavorite(id: number) {
-    const nowFavorite = await favoriteService.toggleFavorite(id);
-    setFavorites((prev) => (nowFavorite ? [...prev, id] : prev.filter((f) => f !== id)));
+  async function handleToggleFavorite(appUserId: number) {
+    const nowFavorite = await favoriteService.toggleFavorite(appUserId);
+    setFavorites((prev) => (nowFavorite ? [...prev, appUserId] : prev.filter((f) => f !== appUserId)));
     toast(nowFavorite ? 'Favorilere eklendi.' : 'Favorilerden çıkarıldı.', 'success');
   }
-
-  const paged = useMemo(() => {
-    if (!musicians) return [];
-    return musicians.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-  }, [musicians, page]);
-  const totalPages = musicians ? Math.max(1, Math.ceil(musicians.length / PAGE_SIZE)) : 1;
 
   return (
     <Container className="py-10">
@@ -100,7 +105,7 @@ export function Explore() {
 
         <div>
           <p className="mb-4 text-sm text-text-dim">
-            {musicians === null ? 'Yükleniyor...' : `${musicians.length} müzisyen bulundu`}
+            {musicians === null ? 'Yükleniyor...' : `${totalCount} müzisyen bulundu`}
           </p>
           {musicians === null ? (
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
@@ -115,11 +120,11 @@ export function Explore() {
           ) : (
             <>
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
-                {paged.map((m) => (
+                {musicians.map((m) => (
                   <MusicianCard
                     key={m.id}
                     musician={m}
-                    favorite={isEmployer ? favorites.includes(m.id) : undefined}
+                    favorite={isEmployer ? favorites.includes(m.appUserId) : undefined}
                     onToggleFavorite={isEmployer ? handleToggleFavorite : undefined}
                   />
                 ))}

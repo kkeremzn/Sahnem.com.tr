@@ -7,7 +7,6 @@ import { CardSkeleton } from '@/components/ui/Skeleton';
 import { MusicianCard } from '@/components/musician/MusicianCard';
 import { useToast } from '@/context/ToastContext';
 import * as favoriteService from '@/services/favoriteService';
-import * as profileService from '@/services/profileService';
 import type { MusicianProfile } from '@/types';
 
 export function Favorites() {
@@ -15,15 +14,13 @@ export function Favorites() {
   const [musicians, setMusicians] = useState<MusicianProfile[] | null>(null);
 
   async function load() {
-    const ids = await favoriteService.listFavoriteMusicianIds();
-    const all = await profileService.listMusicians();
-    setMusicians(all.filter((m) => ids.includes(m.id)));
+    setMusicians(await favoriteService.listFavoriteMusicians());
   }
 
   useEffect(() => { load(); }, []);
 
-  async function handleToggleFavorite(id: number) {
-    await favoriteService.toggleFavorite(id);
+  async function handleToggleFavorite(appUserId: number) {
+    await favoriteService.toggleFavorite(appUserId);
     toast('Favorilerden çıkarıldı.', 'success');
     load();
   }

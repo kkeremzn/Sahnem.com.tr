@@ -1,19 +1,21 @@
 using Sahnem.Business.DTOs;
 using Sahnem.Business.DTOs.User;
+using Sahnem.Business.Security;
 
 namespace Sahnem.Business.Interfaces
 {
     public interface IUserService
     {
-        Task<AuthResponseDto> LoginUser(AppUserLoginDto userLoginDto);
+        Task<TokenPairDto> LoginUser(AppUserLoginDto userLoginDto);
         Task<AppUserResponseDto> GetUserById(int id);
         Task<AppUserResponseDto> GetMe();
         Task<PagedResultDto<AppUserResponseDto>> GetAllUsers(int page = 1, int pageSize = 20);
-        Task<AuthResponseDto> RegisterUser(AppUserRegisterDto userRegisterDto);
+        Task<TokenPairDto> RegisterUser(AppUserRegisterDto userRegisterDto);
         Task UpdateUser(AppUserUpdateDto userUpdateDto);
+        Task ChangePassword(ChangePasswordDto dto);
         Task DeleteUser();
 
-        Task<AuthResponseDto> RefreshToken(string refreshToken);
+        Task<TokenPairDto> RefreshToken(string refreshToken);
         Task Logout(string refreshToken);
 
         Task VerifyEmail(string code);

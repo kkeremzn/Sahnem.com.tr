@@ -7,6 +7,7 @@ using Sahnem.Business.Interfaces;
 using Sahnem.Business.Security;
 using Sahnem.Business.Validators;
 using Sahnem.Core.Entities;
+using Sahnem.Core.Enums;
 using Sahnem.Core.Interfaces;
 
 namespace Sahnem.Business.Services
@@ -19,6 +20,7 @@ namespace Sahnem.Business.Services
         private readonly IValidator<AppUserRegisterDto> _appUserRegisterValidator;
         private readonly IValidator<AppUserLoginDto> _appUserLoginValidator;
         private readonly IValidator<AppUserUpdateDto> _appUserUpdateValidator;
+        private readonly IValidator<ChangePasswordDto> _changePasswordValidator;
         private readonly IPasswordService _passwordService;
         private readonly ITokenService _tokenService;
         private readonly IEmailService _emailService;
@@ -32,6 +34,7 @@ namespace Sahnem.Business.Services
             IValidator<AppUserRegisterDto> appUserRegiserValidator,
             IValidator<AppUserLoginDto> appUserLoginValidator,
             IValidator<AppUserUpdateDto> appUserUpdateValidator,
+            IValidator<ChangePasswordDto> changePasswordValidator,
             IPasswordService passwordService,
             ITokenService tokenService,
             IEmailService emailService,
@@ -43,6 +46,7 @@ namespace Sahnem.Business.Services
             _appUserRegisterValidator = appUserRegiserValidator;
             _appUserLoginValidator = appUserLoginValidator;
             _appUserUpdateValidator = appUserUpdateValidator;
+            _changePasswordValidator = changePasswordValidator;
             _passwordService = passwordService;
             _tokenService = tokenService;
             _emailService = emailService;
@@ -53,6 +57,15 @@ namespace Sahnem.Business.Services
 
         public async Task<PagedResultDto<AppUserResponseDto>> GetAllUsers(int page = 1, int pageSize = 20)
         {
+            // Controller seviyesinde zaten [Authorize(Roles="Admin")] var; burada da
+            // aynı kuralı tekrarlamak defense-in-depth — servis tek başına çağrılsa
+            // (ör. ileride başka bir controller'dan) bile tüm kullanıcıların
+            // e-posta/telefon gibi PII bilgileri sızmaz.
+            if (_currentUserService.Role != nameof(UserType.Admin))
+            {
+                throw new Exception("You are not authorized to list all users");
+            }
+
             if (page < 1) page = 1;
             if (pageSize < 1 || pageSize > 100) pageSize = 20;
 
@@ -74,6 +87,14 @@ namespace Sahnem.Business.Services
 
         public async Task<AppUserResponseDto> GetUserById(int id)
         {
+            // IDOR koruması: bir kullanıcının e-posta/telefon gibi PII bilgilerini
+            // sadece kendisi ya da bir Admin görebilir — id'yi değiştirip başka bir
+            // kullanıcının profiline bakmak mümkün olmamalı.
+            if (id != _currentUserService.UserId && _currentUserService.Role != nameof(UserType.Admin))
+            {
+                throw new Exception("You are not authorized to view this user");
+            }
+
             var user = await _repository.GetByIdAsync(id);
             if(user == null)
             {
@@ -85,7 +106,7 @@ namespace Sahnem.Business.Services
 
         }
 
-        public async Task<AuthResponseDto> RegisterUser(AppUserRegisterDto userRegisterDto)
+        public async Task<TokenPairDto> RegisterUser(AppUserRegisterDto userRegisterDto)
         {
             var validationResult = await _appUserRegisterValidator.ValidateAsync(userRegisterDto);
             if (!validationResult.IsValid)
@@ -137,7 +158,7 @@ namespace Sahnem.Business.Services
             await _unitOfWork.SaveChanges();
         }
 
-        public async Task<AuthResponseDto> LoginUser(AppUserLoginDto userLoginDto)
+        public async Task<TokenPairDto> LoginUser(AppUserLoginDto userLoginDto)
         {
             var validationResult = await _appUserLoginValidator.ValidateAsync(userLoginDto);
             if(!validationResult.IsValid)
@@ -189,7 +210,31 @@ namespace Sahnem.Business.Services
             await _unitOfWork.SaveChanges();
         }
 
-        public async Task<AuthResponseDto> RefreshToken(string refreshToken)
+        public async Task ChangePassword(ChangePasswordDto dto)
+        {
+            var validationResult = await _changePasswordValidator.ValidateAsync(dto);
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
+
+            var user = await _repository.GetByIdAsync(_currentUserService.UserId);
+            if (user == null)
+            {
+                throw new Exception("User not found");
+            }
+
+            var isValid = _passwordService.VerifyPassword(user, user.PasswordHash, dto.CurrentPassword);
+            if (!isValid)
+            {
+                throw new Exception("Current password is incorrect");
+            }
+
+            user.PasswordHash = _passwordService.HashPassword(user, dto.NewPassword);
+            await _unitOfWork.SaveChanges();
+        }
+
+        public async Task<TokenPairDto> RefreshToken(string refreshToken)
         {
             return await _tokenService.RefreshAsync(refreshToken);
         }

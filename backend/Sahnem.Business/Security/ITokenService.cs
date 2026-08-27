@@ -1,4 +1,3 @@
-using Sahnem.Business.DTOs;
 using Sahnem.Core.Entities;
 
 namespace Sahnem.Business.Security
@@ -9,8 +8,8 @@ namespace Sahnem.Business.Security
     // böylece access+refresh token her zaman birlikte ve tutarlı üretiliyor.
     public interface ITokenService
     {
-        Task<AuthResponseDto> IssueTokensAsync(AppUser user);
-        Task<AuthResponseDto> RefreshAsync(string refreshToken);
+        Task<TokenPairDto> IssueTokensAsync(AppUser user);
+        Task<TokenPairDto> RefreshAsync(string refreshToken);
         Task RevokeAsync(string refreshToken);
     }
 }

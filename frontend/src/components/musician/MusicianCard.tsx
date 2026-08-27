@@ -7,19 +7,21 @@ import { Badge } from '@/components/ui/Badge';
 import { CITY_LABELS, MUSIC_BRANCH_LABELS, type MusicianProfile } from '@/types';
 import { formatPrice } from '@/lib/format';
 import { cn } from '@/lib/cn';
+import { resolveAssetUrl } from '@/lib/apiClient';
 
 interface MusicianCardProps {
   musician: MusicianProfile;
   favorite?: boolean;
-  onToggleFavorite?: (id: number) => void;
+  // Favoriler backend'de AppUserId (appUserId) ile anahtarlanıyor, MusicianProfile.Id ile DEĞİL.
+  onToggleFavorite?: (appUserId: number) => void;
 }
 
 export function MusicianCard({ musician, favorite, onToggleFavorite }: MusicianCardProps) {
   return (
     <Card hover className="group relative flex flex-col p-0 overflow-hidden">
-      <Link to={`/musicians/${musician.id}`} className="flex flex-1 flex-col p-5">
+      <Link to={`/musicians/${musician.appUserId}`} className="flex flex-1 flex-col p-5">
         <div className="flex items-start justify-between">
-          <Avatar name={`${musician.firstName} ${musician.lastName}`} src={musician.avatarUrl?.startsWith('data:') ? musician.avatarUrl : undefined} size={56} />
+          <Avatar name={`${musician.firstName} ${musician.lastName}`} src={resolveAssetUrl(musician.avatarUrl)} size={56} />
           {musician.verificationStatus === 'Approved' && (
             <Badge variant="accent">Doğrulanmış</Badge>
           )}
@@ -40,16 +42,20 @@ export function MusicianCard({ musician, favorite, onToggleFavorite }: MusicianC
           )}
         </div>
 
-        <div className="mt-3 flex items-center justify-between">
-          <StarRating rating={musician.ratingAvg} count={musician.ratingCount} size={13} />
-          {musician.priceFrom && (
-            <span className="text-sm font-semibold text-gold-soft">{formatPrice(musician.priceFrom)}&apos;dan</span>
-          )}
-        </div>
+        {(musician.ratingAvg !== undefined || musician.priceFrom) && (
+          <div className="mt-3 flex items-center justify-between">
+            {musician.ratingAvg !== undefined && (
+              <StarRating rating={musician.ratingAvg} count={musician.ratingCount} size={13} />
+            )}
+            {musician.priceFrom && (
+              <span className="text-sm font-semibold text-gold-soft">{formatPrice(musician.priceFrom)}&apos;dan</span>
+            )}
+          </div>
+        )}
       </Link>
       {onToggleFavorite && (
         <button
-          onClick={(e) => { e.preventDefault(); onToggleFavorite(musician.id); }}
+          onClick={(e) => { e.preventDefault(); onToggleFavorite(musician.appUserId); }}
           className={cn(
             'focus-ring absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 backdrop-blur transition-colors',
             favorite ? 'text-gold' : 'text-white hover:text-gold',

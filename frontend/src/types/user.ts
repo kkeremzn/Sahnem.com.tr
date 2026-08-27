@@ -15,14 +15,16 @@ export interface AppUser {
   createdDate: string;
 }
 
-// Sahnem.Business/DTOs/User/AppUserRegisterDto.cs
+// Sahnem.Business/DTOs/User/AppUserRegisterDto.cs — backend'de rol alanı YOK.
+// Rol, register anında değil, profil oluşturma anında (CreateMusicianProfile vb.)
+// atanır. Kayıt formundaki rol seçimi sadece profil kurulum sihirbazına hangi
+// formun gösterileceğini belirleyen bir istemci-tarafı seçimdir (bkz. Register.tsx).
 export interface AppUserRegisterInput {
   firstName: string;
   lastName: string;
   email: string;
   password: string;
   phoneNumber: string;
-  role: UserType;
 }
 
 // Sahnem.Business/DTOs/User/AppUserLoginDto.cs
@@ -36,4 +38,5 @@ export interface AppUserUpdateInput {
   firstName: string;
   lastName: string;
   phoneNumber: string;
+  avatarUrl?: string;
 }

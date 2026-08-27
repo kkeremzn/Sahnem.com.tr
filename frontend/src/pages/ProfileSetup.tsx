@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Check, Sparkles } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Building2, Check, Mic2, Sparkles, Store } from 'lucide-react';
 import { Field } from '@/components/ui/Field';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
@@ -10,14 +10,28 @@ import { Switch } from '@/components/ui/Switch';
 import { FileDropzone } from '@/components/ui/FileDropzone';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
-import * as profileService from '@/services/profileService';
+import { formatApiError } from '@/lib/apiClient';
 import * as authService from '@/services/authService';
+import * as profileService from '@/services/profileService';
+import { uploadAvatar } from '@/services/uploadService';
 import {
   CITIES, CITY_LABELS, MUSIC_BRANCHES, MUSIC_BRANCH_LABELS, ORGANIZER_TYPES, ORGANIZER_TYPE_LABELS,
-  VENUE_TYPES, VENUE_TYPE_LABELS, optionsFrom,
+  USER_TYPE_LABELS, VENUE_TYPES, VENUE_TYPE_LABELS, optionsFrom,
   type City, type IsAvailableToTravel, type MusicBranch, type OrganizerType, type VenueType, type WorkStatus,
 } from '@/types';
 import { cn } from '@/lib/cn';
+
+// Backend'de rol, register anında değil profil oluşturma anında atanıyor —
+// bu yüzden "hangi formu göstereceğiz" bilgisi user.role'den DEĞİL, Register
+// sayfasından navigation state ile taşınan seçimden geliyor. Sayfa yenilenip
+// bu state kaybolursa (ör. kullanıcı linki kopyalayıp sonra açtıysa), aşağıdaki
+// RoleSelector adımı devreye girip aynı seçimi tekrar yaptırıyor.
+type Role = 'Musician' | 'Organizer' | 'Venue';
+const ROLE_OPTIONS: { value: Role; icon: typeof Mic2 }[] = [
+  { value: 'Musician', icon: Mic2 },
+  { value: 'Organizer', icon: Building2 },
+  { value: 'Venue', icon: Store },
+];
 
 interface MusicianForm {
   avatarUrl?: string; branch: MusicBranch | ''; genres: string; experienceYears: string;
@@ -34,11 +48,19 @@ export function ProfileSetup() {
   const { user, refreshUser } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  const isMusician = user?.role === 'Musician';
+  // Register.tsx'in navigate() ile taşıdığı state, AuthLayout'un aynı anda
+  // tetiklediği kendi (state'siz) yönlendirmesiyle yarışabiliyor — bu yüzden
+  // birincil kaynak sessionStorage, location.state ise yedek.
+  const storedRole = sessionStorage.getItem('sahnem_pending_role') as Role | null;
+  const stateRole = (location.state as { role?: Role } | null)?.role ?? storedRole ?? null;
+  const [role, setRole] = useState<Role | null>(stateRole);
+
+  const isMusician = role === 'Musician';
 
   const [mForm, setMForm] = useState<MusicianForm>({
     branch: '', genres: '', experienceYears: '', workStatus: 'Solo', city: '', district: '',
@@ -55,13 +77,14 @@ export function ProfileSetup() {
     if (step === 1) {
       if (isMusician && !mForm.branch) return 'Lütfen bir branş seç.';
       if (!isMusician && !eForm.name.trim()) return 'İsim alanı zorunlu.';
-      if (!isMusician && user?.role === 'Organizer' && !eForm.organizerType) return 'Lütfen organizatör tipini seç.';
-      if (!isMusician && user?.role === 'Venue' && !eForm.venueType) return 'Lütfen mekan tipini seç.';
+      if (!isMusician && role === 'Organizer' && !eForm.organizerType) return 'Lütfen organizatör tipini seç.';
+      if (!isMusician && role === 'Venue' && !eForm.venueType) return 'Lütfen mekan tipini seç.';
     }
     if (step === 2) {
       if (isMusician && !mForm.city) return 'Lütfen şehir seç.';
       if (!isMusician && !eForm.city) return 'Lütfen şehir seç.';
-      if (!isMusician && !eForm.address.trim()) return 'Adres alanı zorunlu.';
+      if (!isMusician && !eForm.district.trim()) return 'İlçe alanı zorunlu.';
+      if (!isMusician && eForm.address.trim().length < 15) return 'Adres en az 15 karakter olmalı.';
     }
     if (step === 3) {
       if (isMusician && mForm.bio.trim().length < 20) return 'Biyografi en az 20 karakter olmalı.';
@@ -82,27 +105,27 @@ export function ProfileSetup() {
   }
 
   async function handleSubmit() {
-    if (!user) return;
+    if (!user || !role) return;
     setSubmitting(true);
     try {
       if (isMusician) {
-        await profileService.createMusicianProfile(user.id, {
+        await profileService.createMusicianProfile({
           bio: mForm.bio, branch: mForm.branch as MusicBranch, genres: mForm.genres,
           experienceYears: Number(mForm.experienceYears) || 0, city: mForm.city as City,
           district: mForm.district || undefined, isAvailableToTravel: mForm.isAvailableToTravel,
           hasOwnEquipment: mForm.hasOwnEquipment, workStatus: mForm.workStatus,
           instagramUrl: mForm.instagramUrl || undefined, youtubeUrl: mForm.youtubeUrl || undefined,
           linkedinUrl: mForm.linkedinUrl || undefined,
-        }, user.firstName, user.lastName);
-      } else if (user.role === 'Organizer') {
-        await profileService.createOrganizerProfile(user.id, {
+        });
+      } else if (role === 'Organizer') {
+        await profileService.createOrganizerProfile({
           organizerName: eForm.name, organizerType: eForm.organizerType as OrganizerType, bio: eForm.bio,
           city: eForm.city as City, district: eForm.district || undefined, address: eForm.address,
           websiteUrl: eForm.websiteUrl || undefined, instagramUrl: eForm.instagramUrl || undefined,
           youtubeUrl: eForm.youtubeUrl || undefined, linkedinUrl: eForm.linkedinUrl || undefined,
         });
       } else {
-        await profileService.createVenueProfile(user.id, {
+        await profileService.createVenueProfile({
           venueName: eForm.name, venueType: eForm.venueType as VenueType, bio: eForm.bio,
           city: eForm.city as City, district: eForm.district || undefined, capacity: Number(eForm.capacity) || 0,
           address: eForm.address, hasSoundSystem: eForm.hasSoundSystem, websiteUrl: eForm.websiteUrl || undefined,
@@ -110,15 +133,51 @@ export function ProfileSetup() {
           linkedinUrl: eForm.linkedinUrl || undefined,
         });
       }
-      await authService.markProfileCompleted(user.id);
+      // Profil oluşturma uçları Role + IsProfileCompleted=true claim'lerini
+      // taşıyan yeni bir access token döner (bkz. backend TokenPairDto akışı);
+      // refreshUser bu yeni token'la /user/me'yi tekrar çekip context'i günceller.
       await refreshUser();
+      sessionStorage.removeItem('sahnem_pending_role');
+
+      // Avatar AppUser'a ait, profil oluşturma uçları bu alanı almıyor — bu
+      // yüzden yüklendiyse ayrıca /user/update ile kalıcı hale getiriliyor.
+      const avatarUrl = isMusician ? mForm.avatarUrl : eForm.avatarUrl;
+      if (avatarUrl) {
+        await authService.updateUser({ firstName: user.firstName, lastName: user.lastName, phoneNumber: user.phoneNumber, avatarUrl });
+        await refreshUser();
+      }
+
       toast('Profilin oluşturuldu, hoş geldin!', 'success');
       navigate('/dashboard');
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Bir hata oluştu.');
+      setError(formatApiError(e));
     } finally {
       setSubmitting(false);
     }
+  }
+
+  // Register'dan gelen navigation state kayboldu (ör. sayfa doğrudan açıldı) —
+  // sihirbaza devam etmeden önce rolü tekrar sor.
+  if (!role) {
+    return (
+      <div className="rounded-lg border border-border bg-card p-6 sm:p-8">
+        <h2 className="font-display text-xl font-bold">Hangi rolde devam ediyorsun?</h2>
+        <p className="mt-1 text-sm text-text-dim">Profilini bu seçime göre oluşturacağız.</p>
+        <div className="mt-6 grid grid-cols-3 gap-2">
+          {ROLE_OPTIONS.map((r) => (
+            <button
+              key={r.value}
+              type="button"
+              onClick={() => setRole(r.value)}
+              className="flex flex-col items-center gap-1.5 rounded-md border border-border px-3 py-4 text-xs font-medium text-text-dim transition-colors hover:border-gold/50 hover:text-gold-soft"
+            >
+              <r.icon size={20} />
+              {USER_TYPE_LABELS[r.value]}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -153,6 +212,7 @@ export function ProfileSetup() {
               <FileDropzone
                 shape="circle"
                 value={isMusician ? mForm.avatarUrl : eForm.avatarUrl}
+                onUpload={uploadAvatar}
                 onChange={(url) => (isMusician ? setMForm((f) => ({ ...f, avatarUrl: url })) : setEForm((f) => ({ ...f, avatarUrl: url })))}
                 label="Yükle"
               />
@@ -192,11 +252,11 @@ export function ProfileSetup() {
 
         {step === 1 && !isMusician && (
           <div className="space-y-4">
-            <h2 className="font-display text-xl font-bold">{user?.role === 'Organizer' ? 'Organizasyon bilgin' : 'Mekan bilgin'}</h2>
-            <Field label={user?.role === 'Organizer' ? 'Organizasyon adı' : 'Mekan adı'} required>
+            <h2 className="font-display text-xl font-bold">{role === 'Organizer' ? 'Organizasyon bilgin' : 'Mekan bilgin'}</h2>
+            <Field label={role === 'Organizer' ? 'Organizasyon adı' : 'Mekan adı'} required>
               <Input value={eForm.name} onChange={(e) => setEForm((f) => ({ ...f, name: e.target.value }))} />
             </Field>
-            {user?.role === 'Organizer' ? (
+            {role === 'Organizer' ? (
               <Field label="Organizatör tipi" required>
                 <Select value={eForm.organizerType} onChange={(e) => setEForm((f) => ({ ...f, organizerType: e.target.value as OrganizerType }))}>
                   <option value="">Seç</option>
@@ -216,7 +276,7 @@ export function ProfileSetup() {
                 </Field>
               </div>
             )}
-            {user?.role === 'Venue' && (
+            {role === 'Venue' && (
               <Switch checked={eForm.hasSoundSystem} onChange={(v) => setEForm((f) => ({ ...f, hasSoundSystem: v }))} label="Ses sistemi mevcut" />
             )}
           </div>
@@ -251,11 +311,11 @@ export function ProfileSetup() {
                   {optionsFrom(CITIES, CITY_LABELS).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </Select>
               </Field>
-              <Field label="İlçe">
+              <Field label="İlçe" required>
                 <Input value={eForm.district} onChange={(e) => setEForm((f) => ({ ...f, district: e.target.value }))} />
               </Field>
             </div>
-            <Field label="Açık adres" required>
+            <Field label="Açık adres" required hint="En az 15 karakter">
               <Input value={eForm.address} onChange={(e) => setEForm((f) => ({ ...f, address: e.target.value }))} />
             </Field>
           </div>

@@ -24,7 +24,7 @@ export function Messages() {
 
   useEffect(() => {
     if (!user) return;
-    messageService.listConversations(user.id).then((list) => {
+    messageService.listConversations().then((list) => {
       setConversations(list);
       if (!conversationId && list.length > 0) navigate(`/messages/${list[0].id}`, { replace: true });
     });
@@ -33,7 +33,7 @@ export function Messages() {
   useEffect(() => {
     if (!activeId || !user) return;
     messageService.listMessages(activeId).then(setMessages);
-    messageService.markConversationRead(activeId, user.id).then(() => {
+    messageService.markConversationRead(activeId).then(() => {
       setConversations((prev) => prev?.map((c) => (c.id === activeId ? { ...c, unreadCount: 0 } : c)) ?? prev);
     });
   }, [activeId, user]);
@@ -46,7 +46,7 @@ export function Messages() {
     if (!draft.trim() || !activeId || !user) return;
     setSending(true);
     try {
-      const msg = await messageService.sendMessage(activeId, user.id, draft.trim());
+      const msg = await messageService.sendMessage({ conversationId: activeId, body: draft.trim() });
       setMessages((prev) => [...prev, msg]);
       setDraft('');
       setConversations((prev) =>

@@ -1,30 +1,16 @@
-// Backend'de henüz modellenmemiş — bkz. backend/BACKEND-TODO.md P2 madde 10. Mock veri ile simüle ediliyor.
-// Her iki taraf da saklanır ki oturum açan kullanıcı kim olursa olsun "karşı taraf" doğru hesaplanabilsin.
-export interface ConversationRecord {
-  id: number;
-  userAId: number;
-  userAName: string;
-  userARole: 'Musician' | 'Organizer' | 'Venue';
-  userBId: number;
-  userBName: string;
-  userBRole: 'Musician' | 'Organizer' | 'Venue';
-  lastMessage: string;
-  lastMessageAt: string;
-  unreadCountA: number;
-  unreadCountB: number;
-}
-
-// Oturum açan kullanıcının bakış açısına göre türetilmiş görünüm
+// Sahnem.Business/DTOs/Message/ConversationResponseDto.cs — oturum açan kullanıcının
+// bakış açısına göre türetilmiş görünüm, "karşı taraf" backend'de hesaplanıyor.
 export interface Conversation {
   id: number;
   participantId: number;
   participantName: string;
   participantRole: 'Musician' | 'Organizer' | 'Venue';
-  lastMessage: string;
+  lastMessage: string | null;
   lastMessageAt: string;
   unreadCount: number;
 }
 
+// Sahnem.Business/DTOs/Message/MessageResponseDto.cs
 export interface Message {
   id: number;
   conversationId: number;

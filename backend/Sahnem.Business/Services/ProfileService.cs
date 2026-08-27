@@ -45,7 +45,7 @@ namespace Sahnem.Business.Services
 
         }
 
-        public async Task<AuthResponseDto> CreateMusicianProfile(MusicianProfileCreateDto dto)
+        public async Task<TokenPairDto> CreateMusicianProfile(MusicianProfileCreateDto dto)
         {
             var userId = _cureentUserService.UserId;
 
@@ -80,7 +80,7 @@ namespace Sahnem.Business.Services
 
         }
 
-        public async Task<AuthResponseDto>  CreateOrganizerProfile(OrganizerProfileCreateDto dto)
+        public async Task<TokenPairDto>  CreateOrganizerProfile(OrganizerProfileCreateDto dto)
         {
 
             var userId = _cureentUserService.UserId;
@@ -111,7 +111,7 @@ namespace Sahnem.Business.Services
         
         }
 
-        public async Task<AuthResponseDto>  CreateVenueProfile(VenueProfileCreateDto dto)
+        public async Task<TokenPairDto>  CreateVenueProfile(VenueProfileCreateDto dto)
         {
             var userId = _cureentUserService.UserId;
             var validationResult = await _validatorVenueCreateProfile.ValidateAsync(dto);
@@ -187,6 +187,20 @@ namespace Sahnem.Business.Services
         public async Task<MusicianProfileResponseDto> GetMusicianById(int id)
         {
             var musician = await _musicianProfileRepository.GetByIdAsync(id);
+            if (musician == null)
+            {
+                throw new Exception("Musician profile not found");
+            }
+
+            return await BuildMusicianResponse(musician);
+        }
+
+        // Offer/Favorite gibi AppUserId taşıyan kayıtlardan müzisyenin herkese açık
+        // profiline yönlendirmek için — GetMusicianById MusicianProfile.Id bekliyor,
+        // bu ise AppUserId ile arıyor (bkz. GetEmployerByUserId'nin organizer/venue eşdeğeri).
+        public async Task<MusicianProfileResponseDto> GetMusicianByUserId(int userId)
+        {
+            var musician = await _musicianProfileRepository.FirstOrDefaultAsync(m => m.AppUserId == userId);
             if (musician == null)
             {
                 throw new Exception("Musician profile not found");

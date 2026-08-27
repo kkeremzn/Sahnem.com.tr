@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
+import { formatApiError } from '@/lib/apiClient';
 
 const schema = z.object({
   email: z.string().email('Geçerli bir e-posta gir.'),
@@ -29,7 +30,7 @@ export function Login() {
       toast('Tekrar hoş geldin!', 'success');
       navigate('/dashboard');
     } catch (e) {
-      setError('root', { message: e instanceof Error ? e.message : 'Giriş yapılamadı.' });
+      setError('root', { message: formatApiError(e, 'Giriş yapılamadı.') });
     }
   }
 
@@ -53,10 +54,6 @@ export function Login() {
           Giriş Yap
         </Button>
       </form>
-
-      <div className="mt-6 rounded-md border border-border bg-deep px-4 py-3 text-xs text-text-faint">
-        Demo hesap: <span className="text-text-dim">elif@sahnem.com</span> veya <span className="text-text-dim">bosphorus@sahnem.com</span> · şifre: <span className="text-text-dim">sahnem123</span>
-      </div>
 
       <p className="mt-6 text-center text-sm text-text-dim">
         Hesabın yok mu? <Link to="/register" className="font-semibold text-gold-soft hover:underline">Kayıt Ol</Link>

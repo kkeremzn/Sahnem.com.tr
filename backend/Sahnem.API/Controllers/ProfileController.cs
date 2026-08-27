@@ -8,7 +8,7 @@ namespace Sahnem.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ProfileController : ControllerBase
+    public class ProfileController : ApiControllerBase
     {
         private readonly IProfileService _profileService;
 
@@ -20,26 +20,27 @@ namespace Sahnem.API.Controllers
         [HttpPost("musician")]
         public async Task<IActionResult> CreateMusicianProfile([FromBody] MusicianProfileCreateDto dto)
         {
-            var result = await _profileService.CreateMusicianProfile(dto);
-            return Ok(result);
+            var tokens = await _profileService.CreateMusicianProfile(dto);
+            SetRefreshTokenCookie(tokens);
+            return Ok(new AuthResponseDto { AccessToken = tokens.AccessToken, ExpiresAt = tokens.ExpiresAt });
         }
 
         [Authorize]
         [HttpPost("venue")]
         public async Task<IActionResult> CreateVenueProfile([FromBody] VenueProfileCreateDto dto)
         {
-            var result = await _profileService.CreateVenueProfile(dto);
-            return Ok(result);
-            
+            var tokens = await _profileService.CreateVenueProfile(dto);
+            SetRefreshTokenCookie(tokens);
+            return Ok(new AuthResponseDto { AccessToken = tokens.AccessToken, ExpiresAt = tokens.ExpiresAt });
         }
 
         [Authorize]
         [HttpPost("organizer")]
         public async Task<IActionResult> CreateOrganizerProfile([FromBody] OrganizerProfileCreateDto dto)
         {
-            var result = await _profileService.CreateOrganizerProfile(dto);
-            return Ok(result);
-            
+            var tokens = await _profileService.CreateOrganizerProfile(dto);
+            SetRefreshTokenCookie(tokens);
+            return Ok(new AuthResponseDto { AccessToken = tokens.AccessToken, ExpiresAt = tokens.ExpiresAt });
         }
 
         [Authorize]
@@ -54,6 +55,13 @@ namespace Sahnem.API.Controllers
         public async Task<IActionResult> GetMusicianById(int id)
         {
             var result = await _profileService.GetMusicianById(id);
+            return Ok(result);
+        }
+
+        [HttpGet("musician/by-user/{userId:int}")]
+        public async Task<IActionResult> GetMusicianByUserId(int userId)
+        {
+            var result = await _profileService.GetMusicianByUserId(userId);
             return Ok(result);
         }
 

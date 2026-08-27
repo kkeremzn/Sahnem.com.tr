@@ -2,16 +2,15 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import * as authService from '@/services/authService';
 import type { AppUser, AppUserLoginInput, AppUserRegisterInput } from '@/types';
 
-const SESSION_KEY = 'sahnem:session';
-
 interface AuthContextValue {
   user: AppUser | null;
   loading: boolean;
   isMusician: boolean;
   isEmployer: boolean;
+  isAdmin: boolean;
   login: (input: AppUserLoginInput) => Promise<AppUser>;
   register: (input: AppUserRegisterInput) => Promise<AppUser>;
-  logout: () => void;
+  logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
 
@@ -21,42 +20,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Oturum artık localStorage'da değil, HttpOnly bir cookie'de (refresh token)
+  // tutuluyor — JS bu cookie'yi okuyamaz. Açılışta yapabileceğimiz tek şey
+  // backend'e "bu cookie geçerliyse bana yeni bir access token ver" demek.
   useEffect(() => {
-    const savedId = localStorage.getItem(SESSION_KEY);
-    if (!savedId) {
-      setLoading(false);
-      return;
-    }
     authService
-      .getById(Number(savedId))
-      .then((u) => setUser(u ?? null))
+      .tryRestoreSession()
+      .then(setUser)
       .finally(() => setLoading(false));
   }, []);
 
   const login = useCallback(async (input: AppUserLoginInput) => {
-    const u = await authService.login(input);
-    localStorage.setItem(SESSION_KEY, String(u.id));
+    await authService.login(input);
+    const u = await authService.getMe();
     setUser(u);
     return u;
   }, []);
 
   const register = useCallback(async (input: AppUserRegisterInput) => {
-    const u = await authService.register(input);
-    localStorage.setItem(SESSION_KEY, String(u.id));
+    await authService.register(input);
+    const u = await authService.getMe();
     setUser(u);
     return u;
   }, []);
 
-  const logout = useCallback(() => {
-    localStorage.removeItem(SESSION_KEY);
+  const logout = useCallback(async () => {
+    await authService.logout();
     setUser(null);
   }, []);
 
   const refreshUser = useCallback(async () => {
-    if (!user) return;
-    const u = await authService.getById(user.id);
-    setUser(u ?? null);
-  }, [user]);
+    const u = await authService.getMe();
+    setUser(u);
+  }, []);
 
   const value = useMemo<AuthContextValue>(
     () => ({
@@ -64,6 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loading,
       isMusician: user?.role === 'Musician',
       isEmployer: user?.role === 'Organizer' || user?.role === 'Venue',
+      isAdmin: user?.role === 'Admin',
       login,
       register,
       logout,

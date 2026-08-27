@@ -1,12 +1,11 @@
 import type { AdvertStatus, City, MusicBranch } from './enums';
 
-// Sahnem.Core/Entities/Advert.cs
+// Sahnem.Business/DTOs/Advert/AdvertResponseDto.cs
 export interface Advert {
   id: number;
   creatorId: number;
   creatorName: string;
-  creatorKind: 'Organizer' | 'Venue';
-  creatorAvatarUrl?: string;
+  creatorRole: 'Organizer' | 'Venue';
   title: string;
   description: string;
   city: City;
@@ -16,18 +15,14 @@ export interface Advert {
   eventTime: string;
   budget: number;
   minimumExperienceYears?: number;
+  branch?: MusicBranch;
   status: AdvertStatus;
   applicationDeadline: string;
   createdDate: string;
-  // NOT: Backend'deki Advert entity'sinde ve DTO'larında henüz bir "hedef branş" alanı yok
-  // (bkz. backend/BACKEND-TODO.md). Branşa göre filtreleme/etiketleme değerli bir özellik
-  // olduğu için frontend'de tutuluyor; backend'e MusicBranch alanı eklendiğinde buradaki
-  // opsiyonellik kaldırılabilir.
-  branch?: MusicBranch;
   offerCount: number;
 }
 
-// Sahnem.Business/DTOs/Advert/AdvertCreateDto.cs + frontend-only "branch" eklentisi
+// Sahnem.Business/DTOs/Advert/AdvertCreateDto.cs (+ AdvertUpdateDto — alanlar birebir aynı)
 export interface AdvertCreateInput {
   title: string;
   description: string;
@@ -38,8 +33,8 @@ export interface AdvertCreateInput {
   eventTime: string;
   budget: number;
   minimumExperienceYears?: number;
-  applicationDeadline: string;
   branch?: MusicBranch;
+  applicationDeadline: string;
 }
 
 export type AdvertUpdateInput = AdvertCreateInput;

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Briefcase, Search, SlidersHorizontal } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
@@ -23,16 +23,24 @@ export function Jobs() {
   const [branch, setBranch] = useState<MusicBranch | ''>((searchParams.get('branch') as MusicBranch) ?? '');
   const [city, setCity] = useState<City | ''>('');
   const [adverts, setAdverts] = useState<Advert[] | null>(null);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
   const [page, setPage] = useState(1);
 
   useEffect(() => {
-    setAdverts(null);
-    advertService.listAdverts({ search, branch: branch || undefined, city: city || undefined }).then(setAdverts);
     setPage(1);
   }, [search, branch, city]);
 
-  const paged = useMemo(() => (adverts ? adverts.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE) : []), [adverts, page]);
-  const totalPages = adverts ? Math.max(1, Math.ceil(adverts.length / PAGE_SIZE)) : 1;
+  useEffect(() => {
+    setAdverts(null);
+    advertService
+      .listAdverts({ search, branch: branch || undefined, city: city || undefined, page, pageSize: PAGE_SIZE })
+      .then((res) => {
+        setAdverts(res.items);
+        setTotalCount(res.totalCount);
+        setTotalPages(Math.max(1, res.totalPages));
+      });
+  }, [search, branch, city, page]);
 
   return (
     <Container className="py-10">
@@ -75,7 +83,7 @@ export function Jobs() {
 
         <div>
           <p className="mb-4 text-sm text-text-dim">
-            {adverts === null ? 'Yükleniyor...' : `${adverts.length} açık ilan bulundu`}
+            {adverts === null ? 'Yükleniyor...' : `${totalCount} açık ilan bulundu`}
           </p>
           {adverts === null ? (
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
@@ -86,7 +94,7 @@ export function Jobs() {
           ) : (
             <>
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
-                {paged.map((a) => <AdvertCard key={a.id} advert={a} />)}
+                {adverts.map((a) => <AdvertCard key={a.id} advert={a} />)}
               </div>
               <div className="mt-8">
                 <Pagination page={page} totalPages={totalPages} onChange={setPage} />

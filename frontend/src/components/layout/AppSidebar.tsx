@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import {
   Bell, Briefcase, Heart, LayoutDashboard, ListChecks, MessageCircle,
-  PlusCircle, Search, Settings, User, type LucideIcon,
+  PlusCircle, Search, Settings, ShieldCheck, User, type LucideIcon,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/cn';
@@ -34,9 +34,14 @@ const EMPLOYER_ITEMS: NavItem[] = [
   { to: '/settings', label: 'Ayarlar', icon: Settings },
 ];
 
+const ADMIN_ITEMS: NavItem[] = [
+  { to: '/admin', label: 'Yönetim Paneli', icon: ShieldCheck },
+  { to: '/settings', label: 'Ayarlar', icon: Settings },
+];
+
 export function AppSidebar() {
-  const { isMusician } = useAuth();
-  const items = isMusician ? MUSICIAN_ITEMS : EMPLOYER_ITEMS;
+  const { isMusician, isAdmin } = useAuth();
+  const items = isAdmin ? ADMIN_ITEMS : isMusician ? MUSICIAN_ITEMS : EMPLOYER_ITEMS;
 
   return (
     <aside className="sticky top-20 hidden h-fit w-60 shrink-0 lg:block">

@@ -8,7 +8,7 @@ namespace Sahnem.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class UserController : ControllerBase
+    public class UserController : ApiControllerBase
     {
         private readonly IUserService _userService;
 
@@ -16,16 +16,9 @@ namespace Sahnem.API.Controllers
         {
             _userService = userService;
         }
-        [Authorize]
-        [HttpGet("getall")]
-        public async Task<IActionResult> GetAllUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
-        {
-            var result = await _userService.GetAllUsers(page, pageSize);
-            return Ok(result);
-        }
 
         [Authorize]
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
             var user = await _userService.GetUserById(id);
@@ -43,29 +36,45 @@ namespace Sahnem.API.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> RegisterUser([FromBody] AppUserRegisterDto userRegisterDto)
         {
-            var result = await _userService.RegisterUser(userRegisterDto);
-            return Ok(result);
+            var tokens = await _userService.RegisterUser(userRegisterDto);
+            SetRefreshTokenCookie(tokens);
+            return Ok(new AuthResponseDto { AccessToken = tokens.AccessToken, ExpiresAt = tokens.ExpiresAt });
         }
 
 
         [HttpPost("login")]
-        public async Task<IActionResult> LoginUser([FromBody]AppUserLoginDto appUserLoginDto)
+        public async Task<IActionResult> LoginUser([FromBody] AppUserLoginDto appUserLoginDto)
         {
-            var result = await _userService.LoginUser(appUserLoginDto);
-            return Ok(result);
+            var tokens = await _userService.LoginUser(appUserLoginDto);
+            SetRefreshTokenCookie(tokens);
+            return Ok(new AuthResponseDto { AccessToken = tokens.AccessToken, ExpiresAt = tokens.ExpiresAt });
         }
 
+        // Refresh token body'den DEĞİL, sadece HttpOnly cookie'den okunuyor —
+        // JS'in bu değere hiçbir şekilde erişimi/kontrolü yok.
         [HttpPost("refresh")]
-        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestDto dto)
+        public async Task<IActionResult> RefreshToken()
         {
-            var result = await _userService.RefreshToken(dto.RefreshToken);
-            return Ok(result);
+            var refreshToken = ReadRefreshTokenCookie();
+            if (string.IsNullOrEmpty(refreshToken))
+            {
+                return Unauthorized(new { message = "No refresh token", errors = (object?)null });
+            }
+
+            var tokens = await _userService.RefreshToken(refreshToken);
+            SetRefreshTokenCookie(tokens);
+            return Ok(new AuthResponseDto { AccessToken = tokens.AccessToken, ExpiresAt = tokens.ExpiresAt });
         }
 
         [HttpPost("logout")]
-        public async Task<IActionResult> Logout([FromBody] RefreshTokenRequestDto dto)
+        public async Task<IActionResult> Logout()
         {
-            await _userService.Logout(dto.RefreshToken);
+            var refreshToken = ReadRefreshTokenCookie();
+            if (!string.IsNullOrEmpty(refreshToken))
+            {
+                await _userService.Logout(refreshToken);
+            }
+            ClearRefreshTokenCookie();
             return Ok();
         }
 
@@ -100,6 +109,14 @@ namespace Sahnem.API.Controllers
         public async Task<IActionResult> UpdateUser(AppUserUpdateDto dto)
         {
             await _userService.UpdateUser(dto);
+            return Ok();
+        }
+
+        [Authorize]
+        [HttpPut("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
+        {
+            await _userService.ChangePassword(dto);
             return Ok();
         }
     }

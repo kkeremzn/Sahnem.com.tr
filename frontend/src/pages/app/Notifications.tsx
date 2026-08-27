@@ -10,7 +10,7 @@ import type { AppNotification, NotificationType } from '@/types';
 import { formatRelativeTime } from '@/lib/format';
 import { cn } from '@/lib/cn';
 
-const ICONS: Record<NotificationType, typeof Bell> = {
+const ICONS: Partial<Record<NotificationType, typeof Bell>> = {
   offer: ScrollText, message: MessageCircle, advert: Bell, verification: ShieldCheck, system: Sparkles,
 };
 
@@ -44,7 +44,7 @@ export function Notifications() {
       ) : (
         <div className="space-y-2.5">
           {notifications.map((n) => {
-            const Icon = ICONS[n.type];
+            const Icon = ICONS[n.type] ?? Bell;
             const content = (
               <Card
                 hover

@@ -6,6 +6,7 @@ import { LogoMark } from '@/components/brand/LogoMark';
 import { Avatar } from '@/components/ui/Avatar';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/cn';
+import { resolveAssetUrl } from '@/lib/apiClient';
 
 const PUBLIC_LINKS = [
   { to: '/explore', label: 'Keşfet' },
@@ -15,7 +16,7 @@ const PUBLIC_LINKS = [
 ];
 
 export function Navbar() {
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -80,7 +81,7 @@ export function Navbar() {
                   onClick={() => setMenuOpen((o) => !o)}
                   className="focus-ring flex items-center gap-2 rounded-full border border-border p-1 pr-2 transition-colors hover:border-border-hover"
                 >
-                  <Avatar name={`${user.firstName} ${user.lastName}`} size={32} />
+                  <Avatar name={`${user.firstName} ${user.lastName}`} src={resolveAssetUrl(user.avatarUrl)} size={32} />
                   <span className="hidden text-sm font-medium sm:inline">{user.firstName}</span>
                 </button>
                 <AnimatePresence>
@@ -96,12 +97,14 @@ export function Navbar() {
                         <p className="truncate text-sm font-semibold">{user.firstName} {user.lastName}</p>
                         <p className="truncate text-xs text-text-dim">{user.email}</p>
                       </div>
-                      <Link to="/dashboard" onClick={() => setMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-dim hover:bg-card-hover hover:text-text">
+                      <Link to={isAdmin ? '/admin' : '/dashboard'} onClick={() => setMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-dim hover:bg-card-hover hover:text-text">
                         <LayoutDashboard size={16} /> Panel
                       </Link>
-                      <Link to="/profile/edit" onClick={() => setMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-dim hover:bg-card-hover hover:text-text">
-                        <User size={16} /> Profilim
-                      </Link>
+                      {!isAdmin && (
+                        <Link to="/profile/edit" onClick={() => setMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-dim hover:bg-card-hover hover:text-text">
+                          <User size={16} /> Profilim
+                        </Link>
+                      )}
                       <Link to="/settings" onClick={() => setMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-dim hover:bg-card-hover hover:text-text">
                         <Settings size={16} /> Ayarlar
                       </Link>

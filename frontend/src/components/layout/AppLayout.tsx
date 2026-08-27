@@ -24,7 +24,10 @@ export function AppLayout() {
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
 
-  if (!user.isProfileCompleted) {
+  // Admin hesapları manuel olarak DB'den atanıyor ve hiç Musician/Organizer/Venue
+  // profili kurmuyor — profil sihirbazının bu rol için hiç seçeneği yok, bu yüzden
+  // isProfileCompleted kontrolü admin için atlanıyor (yoksa sonsuz yönlendirme olur).
+  if (!user.isProfileCompleted && user.role !== 'Admin') {
     return <Navigate to="/profile-setup" replace />;
   }
 

@@ -11,6 +11,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { USER_TYPE_LABELS, type UserType } from '@/types';
 import { cn } from '@/lib/cn';
+import { formatApiError } from '@/lib/apiClient';
 
 const schema = z
   .object({
@@ -45,11 +46,21 @@ export function Register() {
 
   async function onSubmit(data: FormData) {
     try {
-      await registerUser({ ...data, role });
+      // Backend'in register uçları hiç "role" almıyor — rol ancak profil
+      // oluşturulunca atanıyor. Buradaki seçim sadece profil kurulum
+      // sihirbazına hangi formun gösterileceğini söylemek için taşınıyor.
+      const { confirmPassword: _confirmPassword, terms: _terms, ...registerInput } = data;
+      // Not: registerUser() sonrası AuthContext'teki user state'i değişince
+      // AuthLayout kendi Navigate guard'ı ile /profile-setup'a state'siz olarak
+      // ZATEN yönlendiriyor (bkz. AuthLayout.tsx) — bu yüzden aşağıdaki navigate
+      // çağrısı bu redirect'le yarışıyor ve state kaybolabiliyor. sessionStorage,
+      // navigasyondan bağımsız olduğu için bu yarış durumundan etkilenmiyor.
+      sessionStorage.setItem('sahnem_pending_role', role);
+      await registerUser(registerInput);
       toast('Hesabın oluşturuldu, profilini tamamlayalım.', 'success');
-      navigate('/profile-setup');
+      navigate('/profile-setup', { state: { role } });
     } catch (e) {
-      setError('root', { message: e instanceof Error ? e.message : 'Kayıt olunamadı.' });
+      setError('root', { message: formatApiError(e, 'Kayıt olunamadı.') });
     }
   }
 

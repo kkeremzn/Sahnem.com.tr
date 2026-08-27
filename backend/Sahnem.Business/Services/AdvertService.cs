@@ -152,6 +152,10 @@ namespace Sahnem.Business.Services
                 {
                     query = query.Where(a => a.Budget >= filter.MinBudget.Value);
                 }
+                if (filter.CreatorId.HasValue)
+                {
+                    query = query.Where(a => a.CreatorId == filter.CreatorId.Value);
+                }
             }
 
             var page = filter?.Page is > 0 ? filter.Page : 1;

@@ -1,16 +1,18 @@
 using Sahnem.Business.DTOs;
 using Sahnem.Business.DTOs.Profile;
+using Sahnem.Business.Security;
 
 namespace Sahnem.Business.Interfaces
 {
     public interface IProfileService
     {
-        Task<AuthResponseDto> CreateMusicianProfile( MusicianProfileCreateDto dto);
-        Task<AuthResponseDto> CreateVenueProfile( VenueProfileCreateDto dto);
-        Task<AuthResponseDto> CreateOrganizerProfile( OrganizerProfileCreateDto dto);
+        Task<TokenPairDto> CreateMusicianProfile( MusicianProfileCreateDto dto);
+        Task<TokenPairDto> CreateVenueProfile( VenueProfileCreateDto dto);
+        Task<TokenPairDto> CreateOrganizerProfile( OrganizerProfileCreateDto dto);
         Task<Object> GetMyProfile();
 
         Task<MusicianProfileResponseDto> GetMusicianById(int id);
+        Task<MusicianProfileResponseDto> GetMusicianByUserId(int userId);
         Task<PagedResultDto<MusicianProfileResponseDto>> GetMusicians(MusicianFilterDto? filter = null);
         Task<Object> GetEmployerByUserId(int userId);
 

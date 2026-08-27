@@ -13,6 +13,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import * as authService from '@/services/authService';
 import { USER_TYPE_LABELS } from '@/types';
+import { formatApiError } from '@/lib/apiClient';
 
 const TAB_ITEMS = [
   { key: 'notifications', label: 'Bildirimler' },
@@ -31,11 +32,29 @@ export function Settings() {
   const [notifPrefs, setNotifPrefs] = useState({ offers: true, messages: true, marketing: false });
   const [privacyPrefs, setPrivacyPrefs] = useState({ showProfile: true, showContact: false });
 
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [changingPassword, setChangingPassword] = useState(false);
+
+  async function handleChangePassword() {
+    setChangingPassword(true);
+    try {
+      await authService.changePassword(currentPassword, newPassword);
+      toast('Şifren güncellendi.', 'success');
+      setCurrentPassword('');
+      setNewPassword('');
+    } catch (e) {
+      toast(formatApiError(e, 'Şifre güncellenemedi.'), 'error');
+    } finally {
+      setChangingPassword(false);
+    }
+  }
+
   async function handleDelete() {
     if (!user) return;
     setDeleting(true);
     try {
-      await authService.deleteAccount(user.id);
+      await authService.deleteAccount();
       toast('Hesabın silindi.', 'success');
       logout();
       navigate('/');
@@ -89,9 +108,21 @@ export function Settings() {
               <KeyRound size={15} /> Şifre değiştir
             </h3>
             <div className="space-y-3">
-              <Field label="Mevcut şifre"><Input type="password" placeholder="••••••••" /></Field>
-              <Field label="Yeni şifre"><Input type="password" placeholder="••••••••" /></Field>
-              <Button variant="secondary" size="sm" onClick={() => toast('Şifren güncellendi.', 'success')}>Şifreyi Güncelle</Button>
+              <Field label="Mevcut şifre">
+                <Input type="password" placeholder="••••••••" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
+              </Field>
+              <Field label="Yeni şifre">
+                <Input type="password" placeholder="••••••••" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+              </Field>
+              <Button
+                variant="secondary"
+                size="sm"
+                loading={changingPassword}
+                disabled={!currentPassword || newPassword.length < 6}
+                onClick={handleChangePassword}
+              >
+                Şifreyi Güncelle
+              </Button>
             </div>
           </Card>
 

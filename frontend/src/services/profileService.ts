@@ -1,148 +1,88 @@
-import { delay } from '@/lib/async';
-import { nextId, readStore, writeStore } from '@/lib/storage';
-import { SEED_MUSICIANS, SEED_ORGANIZERS, SEED_VENUES } from '@/mocks/seed';
+import { api } from '@/lib/apiClient';
+import { setAccessToken } from '@/lib/tokenStore';
 import type {
   City, EmployerProfile, MusicBranch, MusicianProfile, MusicianProfileInput,
   OrganizerProfile, OrganizerProfileInput, VenueProfile, VenueProfileInput,
 } from '@/types';
 
-function getMusicians(): MusicianProfile[] {
-  return readStore('musicians', SEED_MUSICIANS);
-}
-function setMusicians(list: MusicianProfile[]) {
-  writeStore('musicians', list);
-}
-function getOrganizers(): OrganizerProfile[] {
-  return readStore('organizers', SEED_ORGANIZERS);
-}
-function setOrganizers(list: OrganizerProfile[]) {
-  writeStore('organizers', list);
-}
-function getVenues(): VenueProfile[] {
-  return readStore('venues', SEED_VENUES);
-}
-function setVenues(list: VenueProfile[]) {
-  writeStore('venues', list);
+interface PagedResult<T> {
+  items: T[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
 }
 
 export interface MusicianFilters {
   search?: string;
   branch?: MusicBranch;
   city?: City;
-  maxPrice?: number;
   travelOnly?: boolean;
+  page?: number;
+  pageSize?: number;
 }
 
-export async function listMusicians(filters: MusicianFilters = {}): Promise<MusicianProfile[]> {
-  await delay();
-  let list = getMusicians();
-  if (filters.search) {
-    const q = filters.search.toLowerCase();
-    list = list.filter(
-      (m) =>
-        `${m.firstName} ${m.lastName}`.toLowerCase().includes(q) ||
-        m.genres.toLowerCase().includes(q) ||
-        m.bio.toLowerCase().includes(q),
-    );
-  }
-  if (filters.branch) list = list.filter((m) => m.branch === filters.branch);
-  if (filters.city) list = list.filter((m) => m.city === filters.city);
-  if (filters.maxPrice) list = list.filter((m) => (m.priceFrom ?? 0) <= filters.maxPrice!);
-  if (filters.travelOnly) list = list.filter((m) => m.isAvailableToTravel === 'Yes');
-  return list;
+export async function listMusicians(filters: MusicianFilters = {}): Promise<PagedResult<MusicianProfile>> {
+  return api.get<PagedResult<MusicianProfile>>('/profile/musicians', {
+    search: filters.search,
+    branch: filters.branch,
+    city: filters.city,
+    travelOnly: filters.travelOnly,
+    page: filters.page ?? 1,
+    pageSize: filters.pageSize ?? 20,
+  });
 }
 
-export async function getMusicianById(id: number): Promise<MusicianProfile | undefined> {
-  await delay(200);
-  return getMusicians().find((m) => m.id === id);
-}
-
+// Herkese açık müzisyen profili — /musicians/:id route'u tutarlılık için
+// (bkz. /employers/:id) her yerde AppUserId taşıyor, MusicianProfile.Id değil.
 export async function getMusicianByUserId(userId: number): Promise<MusicianProfile | undefined> {
-  await delay(150);
-  return getMusicians().find((m) => m.appUserId === userId);
+  try {
+    return await api.get<MusicianProfile>(`/profile/musician/by-user/${userId}`);
+  } catch {
+    return undefined;
+  }
 }
 
-export async function createMusicianProfile(userId: number, input: MusicianProfileInput, firstName: string, lastName: string): Promise<MusicianProfile> {
-  await delay();
-  const list = getMusicians();
-  const profile: MusicianProfile = {
-    id: nextId(list), appUserId: userId, firstName, lastName,
-    ratingAvg: 0, ratingCount: 0, verificationStatus: 'Pending', ...input,
-  };
-  setMusicians([...list, profile]);
-  return profile;
+export async function createMusicianProfile(input: MusicianProfileInput): Promise<void> {
+  const res = await api.post<{ accessToken: string }>('/profile/musician', input);
+  setAccessToken(res.accessToken);
 }
 
-export async function updateMusicianProfile(id: number, input: Partial<MusicianProfileInput>): Promise<MusicianProfile> {
-  await delay();
-  const list = getMusicians();
-  const idx = list.findIndex((m) => m.id === id);
-  if (idx === -1) throw new Error('Profil bulunamadı.');
-  list[idx] = { ...list[idx], ...input };
-  setMusicians(list);
-  return list[idx];
+export async function updateMusicianProfile(input: MusicianProfileInput): Promise<MusicianProfile> {
+  return api.put<MusicianProfile>('/profile/musician', input);
 }
 
-export async function getOrganizerByUserId(userId: number): Promise<OrganizerProfile | undefined> {
-  await delay(150);
-  return getOrganizers().find((o) => o.appUserId === userId);
+export async function createOrganizerProfile(input: OrganizerProfileInput): Promise<void> {
+  const res = await api.post<{ accessToken: string }>('/profile/organizer', input);
+  setAccessToken(res.accessToken);
 }
 
-export async function createOrganizerProfile(userId: number, input: OrganizerProfileInput): Promise<OrganizerProfile> {
-  await delay();
-  const list = getOrganizers();
-  const profile: OrganizerProfile = { id: nextId(list), appUserId: userId, verificationStatus: 'Pending', ...input };
-  setOrganizers([...list, profile]);
-  return profile;
+export async function updateOrganizerProfile(input: OrganizerProfileInput): Promise<OrganizerProfile> {
+  return api.put<OrganizerProfile>('/profile/organizer', input);
 }
 
-export async function updateOrganizerProfile(id: number, input: Partial<OrganizerProfileInput>): Promise<OrganizerProfile> {
-  await delay();
-  const list = getOrganizers();
-  const idx = list.findIndex((o) => o.id === id);
-  if (idx === -1) throw new Error('Profil bulunamadı.');
-  list[idx] = { ...list[idx], ...input };
-  setOrganizers(list);
-  return list[idx];
+export async function createVenueProfile(input: VenueProfileInput): Promise<void> {
+  const res = await api.post<{ accessToken: string }>('/profile/venue', input);
+  setAccessToken(res.accessToken);
 }
 
-export async function getVenueByUserId(userId: number): Promise<VenueProfile | undefined> {
-  await delay(150);
-  return getVenues().find((v) => v.appUserId === userId);
+export async function updateVenueProfile(input: VenueProfileInput): Promise<VenueProfile> {
+  return api.put<VenueProfile>('/profile/venue', input);
 }
 
-export async function createVenueProfile(userId: number, input: VenueProfileInput): Promise<VenueProfile> {
-  await delay();
-  const list = getVenues();
-  const profile: VenueProfile = { id: nextId(list), appUserId: userId, verificationStatus: 'Pending', ...input };
-  setVenues([...list, profile]);
-  return profile;
-}
-
-export async function updateVenueProfile(id: number, input: Partial<VenueProfileInput>): Promise<VenueProfile> {
-  await delay();
-  const list = getVenues();
-  const idx = list.findIndex((v) => v.id === id);
-  if (idx === -1) throw new Error('Profil bulunamadı.');
-  list[idx] = { ...list[idx], ...input };
-  setVenues(list);
-  return list[idx];
+// Kendi profilini getirir — rolüne göre üç şekilden biri döner, sayfa hangi
+// alanların dolu olduğuna bakarak (role zaten context'te var) ayırt eder.
+export async function getMyProfile(): Promise<MusicianProfile | OrganizerProfile | VenueProfile> {
+  return api.get('/profile/getmyprofile');
 }
 
 export async function getEmployerByUserId(userId: number): Promise<EmployerProfile | undefined> {
-  const org = await getOrganizerByUserId(userId);
-  if (org) return { kind: 'Organizer', ...org };
-  const venue = await getVenueByUserId(userId);
-  if (venue) return { kind: 'Venue', ...venue };
-  return undefined;
-}
-
-export async function getEmployerById(id: number, kind: 'Organizer' | 'Venue'): Promise<EmployerProfile | undefined> {
-  await delay(200);
-  if (kind === 'Organizer') {
-    const o = getOrganizers().find((x) => x.id === id);
-    return o ? { kind: 'Organizer', ...o } : undefined;
+  try {
+    const res = await api.get<{ kind: 'Organizer' | 'Venue'; profile: OrganizerProfile | VenueProfile }>(
+      `/profile/employer/${userId}`,
+    );
+    return { kind: res.kind, ...res.profile } as EmployerProfile;
+  } catch {
+    return undefined;
   }
-  const v = getVenues().find((x) => x.id === id);
-  return v ? { kind: 'Venue', ...v } : undefined;
 }
