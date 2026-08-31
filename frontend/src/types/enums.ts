@@ -18,7 +18,8 @@ export const USER_TYPE_LABELS: Record<UserType, string> = {
 export const MUSIC_BRANCHES = [
   'Vocal', 'Guitar', 'BassGuitar', 'Drums', 'Piano', 'Keyboard', 'Violin',
   'Cello', 'Saxophone', 'Clarinet', 'Trumpet', 'Flute', 'DJ', 'Producer',
-  'Percussion', 'Oud', 'Baglama', 'Kanun',
+  'Percussion', 'Oud', 'Baglama', 'Kanun', 'Trombone', 'Tuba', 'FrenchHorn',
+  'Ney', 'Zurna', 'Mey',
 ] as const;
 export type MusicBranch = (typeof MUSIC_BRANCHES)[number];
 
@@ -27,7 +28,8 @@ export const MUSIC_BRANCH_LABELS: Record<MusicBranch, string> = {
   Piano: 'Piyano', Keyboard: 'Klavye', Violin: 'Keman', Cello: 'Çello',
   Saxophone: 'Saksafon', Clarinet: 'Klarnet', Trumpet: 'Trompet', Flute: 'Flüt',
   DJ: 'DJ', Producer: 'Prodüktör', Percussion: 'Perküsyon', Oud: 'Ud',
-  Baglama: 'Bağlama', Kanun: 'Kanun',
+  Baglama: 'Bağlama', Kanun: 'Kanun', Trombone: 'Trombon', Tuba: 'Tuba',
+  FrenchHorn: 'Korno', Ney: 'Ney', Zurna: 'Zurna', Mey: 'Mey',
 };
 
 export const VENUE_TYPES = [
@@ -55,9 +57,9 @@ export const ORGANIZER_TYPE_LABELS: Record<OrganizerType, string> = {
   SunsetOrganizer: 'Sunset Organizatörü', Other: 'Diğer',
 };
 
-export const WORK_STATUSES = ['Solo', 'Group'] as const;
+export const WORK_STATUSES = ['Solo', 'Group', 'Both'] as const;
 export type WorkStatus = (typeof WORK_STATUSES)[number];
-export const WORK_STATUS_LABELS: Record<WorkStatus, string> = { Solo: 'Solo', Group: 'Grup' };
+export const WORK_STATUS_LABELS: Record<WorkStatus, string> = { Solo: 'Solo', Group: 'Grup', Both: 'İkisi de' };
 
 export const TRAVEL_OPTIONS = ['Yes', 'No'] as const;
 export type IsAvailableToTravel = (typeof TRAVEL_OPTIONS)[number];

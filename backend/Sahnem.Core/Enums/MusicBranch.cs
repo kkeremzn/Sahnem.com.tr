@@ -20,7 +20,13 @@ namespace Sahnem.Core.Enums
         Percussion = 15,
         Oud = 16,
         Baglama = 17,
-        Kanun = 18
+        Kanun = 18,
+        Trombone = 19,
+        Tuba = 20,
+        FrenchHorn = 21,
+        Ney = 22,
+        Zurna = 23,
+        Mey = 24
     }
 }
 

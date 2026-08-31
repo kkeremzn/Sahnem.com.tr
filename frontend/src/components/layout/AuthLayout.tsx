@@ -1,7 +1,8 @@
-import { Navigate, Outlet, Link } from 'react-router-dom';
+import { Navigate, Link } from 'react-router-dom';
 import { LogoMark } from '@/components/brand/LogoMark';
 import { useAuth } from '@/context/AuthContext';
 import { ScrollToTop } from './ScrollToTop';
+import { PageTransition } from './PageTransition';
 
 export function AuthLayout() {
   const { user, loading } = useAuth();
@@ -37,7 +38,7 @@ export function AuthLayout() {
           </Link>
         </div>
         <div className="w-full max-w-md">
-          <Outlet />
+          <PageTransition />
         </div>
       </div>
     </div>

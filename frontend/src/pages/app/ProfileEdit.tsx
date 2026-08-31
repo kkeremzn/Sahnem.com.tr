@@ -17,9 +17,9 @@ import { uploadAvatar } from '@/services/uploadService';
 import { formatApiError } from '@/lib/apiClient';
 import {
   CITIES, CITY_LABELS, MUSIC_BRANCHES, MUSIC_BRANCH_LABELS, ORGANIZER_TYPES, ORGANIZER_TYPE_LABELS,
-  VENUE_TYPES, VENUE_TYPE_LABELS, optionsFrom,
+  VENUE_TYPES, VENUE_TYPE_LABELS, WORK_STATUSES, WORK_STATUS_LABELS, optionsFrom,
   type City, type EmployerProfile, type IsAvailableToTravel, type MusicBranch, type MusicianProfile,
-  type OrganizerProfile, type OrganizerType, type VenueProfile, type VenueType, type WorkStatus,
+  type OrganizerProfile, type OrganizerType, type VenueProfile, type VenueType,
 } from '@/types';
 import { cn } from '@/lib/cn';
 
@@ -130,10 +130,10 @@ export function ProfileEdit() {
                 </Field>
                 <Field label="Çalışma şekli">
                   <div className="flex gap-2">
-                    {(['Solo', 'Group'] as WorkStatus[]).map((ws) => (
+                    {WORK_STATUSES.map((ws) => (
                       <button key={ws} type="button" onClick={() => setMusician({ ...musician, workStatus: ws })}
                         className={cn('flex-1 rounded-md border px-3 py-2.5 text-sm font-medium', musician.workStatus === ws ? 'border-gold bg-gold/10 text-gold-soft' : 'border-border text-text-dim')}>
-                        {ws === 'Solo' ? 'Solo' : 'Grup'}
+                        {WORK_STATUS_LABELS[ws]}
                       </button>
                     ))}
                   </div>

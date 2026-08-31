@@ -1,10 +1,11 @@
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { Navbar } from './Navbar';
 import { AppFooter } from './AppFooter';
 import { AppSidebar } from './AppSidebar';
 import { AppMobileNav } from './AppMobileNav';
 import { ScrollToTop } from './ScrollToTop';
+import { PageTransition } from './PageTransition';
 import { Container } from '@/components/ui/Container';
 import { useAuth } from '@/context/AuthContext';
 
@@ -40,7 +41,7 @@ export function AppLayout() {
         <Container className="flex gap-8 py-8">
           <AppSidebar />
           <div className="min-w-0 flex-1">
-            <Outlet />
+            <PageTransition />
           </div>
         </Container>
       </main>

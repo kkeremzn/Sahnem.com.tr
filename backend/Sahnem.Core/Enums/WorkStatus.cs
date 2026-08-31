@@ -4,6 +4,7 @@ namespace Sahnem.Core.Enums
     {
         None = 0,
         Solo = 1,
-        Group = 2
-    }   
+        Group = 2,
+        Both = 3
+    }
 }

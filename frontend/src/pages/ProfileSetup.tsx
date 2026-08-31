@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Building2, Check, Mic2, Sparkles, Store } from 'lucide-react';
 import { Field } from '@/components/ui/Field';
 import { Input } from '@/components/ui/Input';
@@ -16,7 +17,7 @@ import * as profileService from '@/services/profileService';
 import { uploadAvatar } from '@/services/uploadService';
 import {
   CITIES, CITY_LABELS, MUSIC_BRANCHES, MUSIC_BRANCH_LABELS, ORGANIZER_TYPES, ORGANIZER_TYPE_LABELS,
-  USER_TYPE_LABELS, VENUE_TYPES, VENUE_TYPE_LABELS, optionsFrom,
+  USER_TYPE_LABELS, VENUE_TYPES, VENUE_TYPE_LABELS, WORK_STATUSES, WORK_STATUS_LABELS, optionsFrom,
   type City, type IsAvailableToTravel, type MusicBranch, type OrganizerType, type VenueType, type WorkStatus,
 } from '@/types';
 import { cn } from '@/lib/cn';
@@ -202,6 +203,14 @@ export function ProfileSetup() {
       </div>
 
       <div className="rounded-lg border border-border bg-card p-6 sm:p-8">
+      <AnimatePresence mode="wait">
+      <motion.div
+        key={step}
+        initial={{ opacity: 0, x: 16 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: -16 }}
+        transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+      >
         {step === 0 && (
           <div>
             <h2 className="font-display text-xl font-bold">Profil fotoğrafın</h2>
@@ -239,10 +248,10 @@ export function ProfileSetup() {
             </Field>
             <Field label="Çalışma şekli">
               <div className="flex gap-2">
-                {(['Solo', 'Group'] as const).map((ws) => (
+                {WORK_STATUSES.map((ws) => (
                   <button key={ws} type="button" onClick={() => setMForm((f) => ({ ...f, workStatus: ws }))}
                     className={cn('flex-1 rounded-md border px-3 py-2.5 text-sm font-medium', mForm.workStatus === ws ? 'border-gold bg-gold/10 text-gold-soft' : 'border-border text-text-dim')}>
-                    {ws === 'Solo' ? 'Solo' : 'Grup'}
+                    {WORK_STATUS_LABELS[ws]}
                   </button>
                 ))}
               </div>
@@ -368,6 +377,8 @@ export function ProfileSetup() {
             <p className="mt-1.5 text-sm text-text-dim">Profilini oluşturmak için onaylamanı bekliyoruz.</p>
           </div>
         )}
+      </motion.div>
+      </AnimatePresence>
 
         {error && <p className="mt-4 text-sm text-danger">{error}</p>}
 
