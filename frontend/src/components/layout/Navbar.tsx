@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { LogoMark } from '@/components/brand/LogoMark';
 import { Avatar } from '@/components/ui/Avatar';
 import { useAuth } from '@/context/AuthContext';
+import { useNotifications } from '@/context/NotificationContext';
 import { cn } from '@/lib/cn';
 import { resolveAssetUrl } from '@/lib/apiClient';
 
@@ -17,6 +18,7 @@ const PUBLIC_LINKS = [
 
 export function Navbar() {
   const { user, logout, isAdmin } = useAuth();
+  const { unreadCount } = useNotifications();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -74,7 +76,7 @@ export function Navbar() {
                 aria-label="Bildirimler"
               >
                 <Bell size={19} />
-                <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-gold" />
+                {unreadCount > 0 && <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-gold" />}
               </Link>
               <div className="relative" ref={menuRef}>
                 <button
@@ -97,9 +99,11 @@ export function Navbar() {
                         <p className="truncate text-sm font-semibold">{user.firstName} {user.lastName}</p>
                         <p className="truncate text-xs text-text-dim">{user.email}</p>
                       </div>
-                      <Link to={isAdmin ? '/admin' : '/dashboard'} onClick={() => setMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-dim hover:bg-card-hover hover:text-text">
-                        <LayoutDashboard size={16} /> Panel
-                      </Link>
+                      {isAdmin && (
+                        <Link to="/admin" onClick={() => setMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-dim hover:bg-card-hover hover:text-text">
+                          <LayoutDashboard size={16} /> Yönetim Paneli
+                        </Link>
+                      )}
                       {!isAdmin && (
                         <Link to="/profile/edit" onClick={() => setMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-dim hover:bg-card-hover hover:text-text">
                           <User size={16} /> Profilim

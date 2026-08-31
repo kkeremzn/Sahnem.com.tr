@@ -1,6 +1,7 @@
 import { Navigate, Link } from 'react-router-dom';
 import { LogoMark } from '@/components/brand/LogoMark';
 import { useAuth } from '@/context/AuthContext';
+import { getHomeRoute } from '@/lib/homeRoute';
 import { ScrollToTop } from './ScrollToTop';
 import { PageTransition } from './PageTransition';
 
@@ -8,7 +9,7 @@ export function AuthLayout() {
   const { user, loading } = useAuth();
 
   if (!loading && user) {
-    return <Navigate to={user.isProfileCompleted ? '/dashboard' : '/profile-setup'} replace />;
+    return <Navigate to={getHomeRoute(user)} replace />;
   }
 
   return (

@@ -126,7 +126,9 @@ export function MusicianProfile() {
                 </Card>
                 <Card className="text-center">
                   <Star size={18} className="mx-auto text-gold-soft" />
-                  <p className="mt-2 text-sm font-semibold">{WORK_STATUS_LABELS[musician.workStatus]}</p>
+                  <p className="mt-2 text-sm font-semibold">
+                    {musician.workStatus === 'Both' ? 'Solo & Grup' : WORK_STATUS_LABELS[musician.workStatus]}
+                  </p>
                   <p className="text-xs text-text-faint">Çalışma şekli</p>
                 </Card>
               </div>

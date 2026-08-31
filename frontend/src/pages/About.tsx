@@ -2,7 +2,6 @@ import { useNavigate } from 'react-router-dom';
 import { Compass, Heart, ShieldCheck, Sparkles } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
-import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 
 const VALUES = [
@@ -10,12 +9,6 @@ const VALUES = [
   { icon: ShieldCheck, title: 'Güven', desc: 'Doğrulanmış profiller ve şeffaf teklif süreciyle güvenli bir ortam sağlıyoruz.' },
   { icon: Compass, title: 'Erişilebilirlik', desc: '81 ilde, her ölçekte etkinlik için doğru ismi bulmayı kolaylaştırıyoruz.' },
   { icon: Heart, title: 'Müziğe saygı', desc: 'Platformun merkezinde her zaman sanatçı ve sanatı var.' },
-];
-
-const TEAM = [
-  { name: 'Kerem Uzun', role: 'Kurucu & Ürün' },
-  { name: 'Elif Demir', role: 'Tasarım' },
-  { name: 'Can Yıldız', role: 'Mühendislik' },
 ];
 
 export function About() {
@@ -64,21 +57,6 @@ export function About() {
                 </div>
                 <h3 className="mt-3 font-semibold text-text">{v.title}</h3>
                 <p className="mt-1.5 text-sm text-text-dim">{v.desc}</p>
-              </Card>
-            ))}
-          </div>
-        </Container>
-      </section>
-
-      <section className="border-b border-border py-16">
-        <Container>
-          <h2 className="text-center font-display text-2xl font-bold">Ekibimiz</h2>
-          <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-3">
-            {TEAM.map((member) => (
-              <Card key={member.name} className="text-center">
-                <Avatar name={member.name} size={64} className="mx-auto" />
-                <h3 className="mt-3 font-semibold text-text">{member.name}</h3>
-                <p className="text-sm text-text-dim">{member.role}</p>
               </Card>
             ))}
           </div>

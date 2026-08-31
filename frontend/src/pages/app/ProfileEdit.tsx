@@ -123,7 +123,7 @@ export function ProfileEdit() {
                   </Select>
                 </Field>
                 <Field label="Deneyim (yıl)">
-                  <Input type="number" min={0} value={musician.experienceYears} onChange={(e) => setMusician({ ...musician, experienceYears: Number(e.target.value) })} />
+                  <Input type="number" min={1} max={50} value={musician.experienceYears} onChange={(e) => setMusician({ ...musician, experienceYears: Number(e.target.value) })} />
                 </Field>
                 <Field label="Türler" className="sm:col-span-2">
                   <Input value={musician.genres} onChange={(e) => setMusician({ ...musician, genres: e.target.value })} />

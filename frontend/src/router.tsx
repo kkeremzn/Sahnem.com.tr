@@ -12,7 +12,6 @@ import { MusicianProfile } from '@/pages/MusicianProfile';
 import { EmployerProfile } from '@/pages/EmployerProfile';
 import { About } from '@/pages/About';
 import { Help } from '@/pages/Help';
-import { Sitemap } from '@/pages/Sitemap';
 import { NotFound } from '@/pages/NotFound';
 
 import { Login } from '@/pages/auth/Login';
@@ -45,7 +44,6 @@ export const router = createBrowserRouter([
       { path: '/employers/:id', element: <EmployerProfile /> },
       { path: '/about', element: <About /> },
       { path: '/help', element: <Help /> },
-      { path: '/sitemap', element: <Sitemap /> },
     ],
   },
   {

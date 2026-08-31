@@ -13,7 +13,6 @@ const PRODUCT_LINKS = [
 const COMPANY_LINKS = [
   { label: 'Hakkımızda', to: '/about' },
   { label: 'Yardım Merkezi', to: '/help' },
-  { label: 'Site Haritası', to: '/sitemap' },
 ];
 
 const LEGAL_LINKS = [

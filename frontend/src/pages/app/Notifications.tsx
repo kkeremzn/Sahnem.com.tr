@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import * as notificationService from '@/services/notificationService';
+import { useNotifications } from '@/context/NotificationContext';
 import type { AppNotification, NotificationType } from '@/types';
 import { formatRelativeTime } from '@/lib/format';
 import { cn } from '@/lib/cn';
@@ -16,17 +17,20 @@ const ICONS: Partial<Record<NotificationType, typeof Bell>> = {
 
 export function Notifications() {
   const [notifications, setNotifications] = useState<AppNotification[] | null>(null);
+  const { refresh } = useNotifications();
 
   useEffect(() => { notificationService.listNotifications().then(setNotifications); }, []);
 
   async function handleRead(id: number) {
     await notificationService.markAsRead(id);
     setNotifications((prev) => prev?.map((n) => (n.id === id ? { ...n, isRead: true } : n)) ?? prev);
+    refresh();
   }
 
   async function handleReadAll() {
     await notificationService.markAllAsRead();
     setNotifications((prev) => prev?.map((n) => ({ ...n, isRead: true })) ?? prev);
+    refresh();
   }
 
   const unreadCount = notifications?.filter((n) => !n.isRead).length ?? 0;

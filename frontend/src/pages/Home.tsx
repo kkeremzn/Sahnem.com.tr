@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Guitar, Mic2, Music4, Piano, Search, Sparkles } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
@@ -8,6 +8,8 @@ import { Card } from '@/components/ui/Card';
 import { CardSkeleton } from '@/components/ui/Skeleton';
 import { MusicianCard } from '@/components/musician/MusicianCard';
 import { Select } from '@/components/ui/Select';
+import { useAuth } from '@/context/AuthContext';
+import { getHomeRoute } from '@/lib/homeRoute';
 import * as profileService from '@/services/profileService';
 import { CITIES, CITY_LABELS, MUSIC_BRANCHES, MUSIC_BRANCH_LABELS, optionsFrom, type City, type MusicBranch, type MusicianProfile } from '@/types';
 
@@ -26,6 +28,7 @@ const BRANCH_ICONS = [Mic2, Guitar, Piano, Music4];
 
 export function Home() {
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
   const [musicians, setMusicians] = useState<MusicianProfile[] | null>(null);
   const [searchBranch, setSearchBranch] = useState<MusicBranch | ''>('');
   const [searchCity, setSearchCity] = useState<City | ''>('');
@@ -42,6 +45,10 @@ export function Home() {
     if (searchCity) params.set('city', searchCity);
     navigate(`/explore?${params.toString()}`);
   }
+
+  // Giriş yapmış bir kullanıcının pazarlama anasayfasını görmesinin anlamı yok —
+  // zaten üye, doğrudan kendi işlevsel sayfasına gitsin.
+  if (!loading && user) return <Navigate to={getHomeRoute(user)} replace />;
 
   return (
     <div>

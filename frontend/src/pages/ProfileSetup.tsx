@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Building2, Check, Mic2, Sparkles, Store } from 'lucide-react';
 import { Field } from '@/components/ui/Field';
 import { Input } from '@/components/ui/Input';
@@ -77,9 +77,14 @@ export function ProfileSetup() {
   function validateStep(): string | null {
     if (step === 1) {
       if (isMusician && !mForm.branch) return 'Lütfen bir branş seç.';
+      if (isMusician && (!mForm.experienceYears || Number(mForm.experienceYears) < 1)) return 'Deneyim en az 1 yıl olmalı.';
+      if (isMusician && mForm.genres.trim().length < 2) return 'En az bir tür yaz (ör. Caz, Pop).';
       if (!isMusician && !eForm.name.trim()) return 'İsim alanı zorunlu.';
       if (!isMusician && role === 'Organizer' && !eForm.organizerType) return 'Lütfen organizatör tipini seç.';
       if (!isMusician && role === 'Venue' && !eForm.venueType) return 'Lütfen mekan tipini seç.';
+      if (!isMusician && role === 'Venue' && (Number(eForm.capacity) <= 10 || Number(eForm.capacity) >= 50000)) {
+        return 'Kapasite 10 ile 50.000 arasında olmalı.';
+      }
     }
     if (step === 2) {
       if (isMusician && !mForm.city) return 'Lütfen şehir seç.';
@@ -89,7 +94,9 @@ export function ProfileSetup() {
     }
     if (step === 3) {
       if (isMusician && mForm.bio.trim().length < 20) return 'Biyografi en az 20 karakter olmalı.';
-      if (!isMusician && eForm.bio.trim().length < 20) return 'Açıklama en az 20 karakter olmalı.';
+      if (isMusician && mForm.bio.trim().length > 100) return 'Biyografi en fazla 100 karakter olabilir.';
+      if (!isMusician && eForm.bio.trim().length < 30) return 'Açıklama en az 30 karakter olmalı.';
+      if (!isMusician && eForm.bio.trim().length > 300) return 'Açıklama en fazla 300 karakter olabilir.';
     }
     return null;
   }
@@ -149,7 +156,7 @@ export function ProfileSetup() {
       }
 
       toast('Profilin oluşturuldu, hoş geldin!', 'success');
-      navigate('/dashboard');
+      navigate(isMusician ? '/jobs' : '/explore');
     } catch (e) {
       setError(formatApiError(e));
     } finally {
@@ -203,12 +210,10 @@ export function ProfileSetup() {
       </div>
 
       <div className="rounded-lg border border-border bg-card p-6 sm:p-8">
-      <AnimatePresence mode="wait">
       <motion.div
         key={step}
         initial={{ opacity: 0, x: 16 }}
         animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: -16 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
       >
         {step === 0 && (
@@ -239,11 +244,11 @@ export function ProfileSetup() {
                   {optionsFrom(MUSIC_BRANCHES, MUSIC_BRANCH_LABELS).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </Select>
               </Field>
-              <Field label="Deneyim (yıl)">
-                <Input type="number" min={0} value={mForm.experienceYears} onChange={(e) => setMForm((f) => ({ ...f, experienceYears: e.target.value }))} />
+              <Field label="Deneyim (yıl)" required>
+                <Input type="number" min={1} max={50} value={mForm.experienceYears} onChange={(e) => setMForm((f) => ({ ...f, experienceYears: e.target.value }))} />
               </Field>
             </div>
-            <Field label="Türler / Genre" hint="Virgülle ayırarak yaz (ör. Caz, Soul, Pop)">
+            <Field label="Türler / Genre" required hint="Virgülle ayırarak yaz (ör. Caz, Soul, Pop)">
               <Input value={mForm.genres} onChange={(e) => setMForm((f) => ({ ...f, genres: e.target.value }))} />
             </Field>
             <Field label="Çalışma şekli">
@@ -280,8 +285,8 @@ export function ProfileSetup() {
                     {optionsFrom(VENUE_TYPES, VENUE_TYPE_LABELS).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                   </Select>
                 </Field>
-                <Field label="Kapasite">
-                  <Input type="number" min={0} value={eForm.capacity} onChange={(e) => setEForm((f) => ({ ...f, capacity: e.target.value }))} />
+                <Field label="Kapasite" required hint="10-50.000 arası">
+                  <Input type="number" min={11} max={49999} value={eForm.capacity} onChange={(e) => setEForm((f) => ({ ...f, capacity: e.target.value }))} />
                 </Field>
               </div>
             )}
@@ -333,7 +338,7 @@ export function ProfileSetup() {
         {step === 3 && (
           <div className="space-y-4">
             <h2 className="font-display text-xl font-bold">{isMusician ? 'Biyografin' : 'Hakkında'}</h2>
-            <Field label="Açıklama" required hint="En az 20 karakter">
+            <Field label="Açıklama" required hint={isMusician ? '20-100 karakter' : '30-300 karakter'}>
               <Textarea
                 rows={5}
                 value={isMusician ? mForm.bio : eForm.bio}
@@ -378,7 +383,6 @@ export function ProfileSetup() {
           </div>
         )}
       </motion.div>
-      </AnimatePresence>
 
         {error && <p className="mt-4 text-sm text-danger">{error}</p>}
 

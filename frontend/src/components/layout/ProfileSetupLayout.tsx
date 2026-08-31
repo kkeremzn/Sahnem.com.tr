@@ -3,6 +3,7 @@ import { Loader2 } from 'lucide-react';
 import { LogoMark } from '@/components/brand/LogoMark';
 import { Container } from '@/components/ui/Container';
 import { useAuth } from '@/context/AuthContext';
+import { getHomeRoute } from '@/lib/homeRoute';
 
 export function ProfileSetupLayout() {
   const { user, loading } = useAuth();
@@ -16,7 +17,7 @@ export function ProfileSetupLayout() {
   }
 
   if (!user) return <Navigate to="/login" replace />;
-  if (user.isProfileCompleted) return <Navigate to="/dashboard" replace />;
+  if (user.isProfileCompleted) return <Navigate to={getHomeRoute(user)} replace />;
 
   return (
     <div className="min-h-screen bg-black">

@@ -13,7 +13,6 @@ export function AppFooter() {
         <div className="flex items-center gap-5">
           <Link to="/help" className="transition-colors hover:text-text-dim">Yardım</Link>
           <Link to="/settings" className="transition-colors hover:text-text-dim">Ayarlar</Link>
-          <Link to="/sitemap" className="transition-colors hover:text-text-dim">Site Haritası</Link>
         </div>
       </Container>
     </footer>

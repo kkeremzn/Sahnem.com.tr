@@ -44,44 +44,47 @@ export function FileDropzone({ value, onChange, onUpload, shape = 'rect', classN
 
   return (
     <div>
-      <div
-        onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
-        onDragLeave={() => setDragging(false)}
-        onDrop={onDrop}
-        onClick={() => !uploading && inputRef.current?.click()}
-        className={cn(
-          'relative flex cursor-pointer flex-col items-center justify-center overflow-hidden border-2 border-dashed border-border bg-deep text-center transition-colors hover:border-gold/50',
-          shape === 'circle' ? 'h-28 w-28 rounded-full' : 'aspect-video w-full rounded-md',
-          dragging && 'border-gold bg-gold/5',
-          uploading && 'pointer-events-none opacity-70',
-          className,
-        )}
-      >
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={(e) => void handleFile(e.target.files?.[0])}
-        />
-        {uploading ? (
-          <Loader2 className="animate-spin text-gold" size={20} />
-        ) : previewSrc ? (
-          <>
+      {/* Dış sarmalayıcı kırpma yapmıyor — X butonu bu yüzden shape="circle"
+          durumunda dairesel maskeyle kesilmiyor, kare sınırın köşesinde tam görünüyor. */}
+      <div className={cn('relative', shape === 'rect' && 'w-full', className)}>
+        <div
+          onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={onDrop}
+          onClick={() => !uploading && inputRef.current?.click()}
+          className={cn(
+            'relative flex cursor-pointer flex-col items-center justify-center overflow-hidden border-2 border-dashed border-border bg-deep text-center transition-colors hover:border-gold/50',
+            shape === 'circle' ? 'h-28 w-28 rounded-full' : 'aspect-video w-full rounded-md',
+            dragging && 'border-gold bg-gold/5',
+            uploading && 'pointer-events-none opacity-70',
+          )}
+        >
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => void handleFile(e.target.files?.[0])}
+          />
+          {uploading ? (
+            <Loader2 className="animate-spin text-gold" size={20} />
+          ) : previewSrc ? (
             <img src={previewSrc} alt="" className="absolute inset-0 h-full w-full object-cover" />
-            <button
-              type="button"
-              onClick={(e) => { e.stopPropagation(); onChange(undefined); }}
-              className="absolute right-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-white hover:bg-black"
-            >
-              <X size={13} />
-            </button>
-          </>
-        ) : (
-          <div className="flex flex-col items-center gap-1.5 px-3 text-text-faint">
-            <ImagePlus size={20} />
-            <span className="text-xs">{label}</span>
-          </div>
+          ) : (
+            <div className="flex flex-col items-center gap-1.5 px-3 text-text-faint">
+              <ImagePlus size={20} />
+              <span className="text-xs">{label}</span>
+            </div>
+          )}
+        </div>
+        {previewSrc && !uploading && (
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onChange(undefined); }}
+            className="absolute -right-1 -top-1 z-10 flex h-6 w-6 items-center justify-center rounded-full border-2 border-black bg-danger text-white hover:bg-danger/80"
+          >
+            <X size={13} />
+          </button>
         )}
       </div>
       {error && <p className="mt-1.5 text-xs text-danger">{error}</p>}
