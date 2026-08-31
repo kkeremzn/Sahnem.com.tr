@@ -49,7 +49,7 @@ Tüm bu değişiklikler `dotnet build` ile hatasız derlendi, tek bir migration'
 4. API versioning (`/api/v1/...`).
 5. Unit/Integration test projesi — hâlâ hiç yok.
 6. Response compression, distributed/memory cache.
-7. SQL Server `sa` hesabı yerine dedicated, düşük yetkili kullanıcı (prod için).
+7. Postgres `sahnem` kullanıcısı şu an DB sahibi — prod için sadece gereken tablolara erişimi olan dedicated, düşük yetkili bir kullanıcıya geçilmeli.
 8. Prod ortamında `Jwt:Key`/`ConnectionStrings`/`Resend:ApiKey` için ortam değişkeni veya Key Vault (user-secrets sadece dev'de çalışır).
 9. `LocalFileStorageService` MVP için yerel disk kullanıyor — çoklu instance/deploy senaryosunda Azure Blob/S3'e taşınmalı (arayüz zaten hazır, sadece yeni implementasyon + DI kaydı değişecek).
 10. Telefon doğrulama (`IsPhoneNumberConfirmed`) — bilinçli olarak bu turda ertelendi, SMS sağlayıcısı seçilince eklenebilir.
