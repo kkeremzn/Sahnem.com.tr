@@ -17,6 +17,13 @@ namespace Sahnem.Business.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IGenericRepository<AppUser> _repository;
+        private readonly IGenericRepository<Offer> _offerRepository;
+        private readonly IGenericRepository<Advert> _advertRepository;
+        private readonly IGenericRepository<Favorite> _favoriteRepository;
+        private readonly IGenericRepository<Notification> _notificationRepository;
+        private readonly IGenericRepository<RefreshToken> _refreshTokenRepository;
+        private readonly IGenericRepository<Conversation> _conversationRepository;
+        private readonly IGenericRepository<Message> _messageRepository;
         private readonly IValidator<AppUserRegisterDto> _appUserRegisterValidator;
         private readonly IValidator<AppUserLoginDto> _appUserLoginValidator;
         private readonly IValidator<AppUserUpdateDto> _appUserUpdateValidator;
@@ -31,6 +38,13 @@ namespace Sahnem.Business.Services
             IUnitOfWork unitOfWork,
             IMapper mapper,
             IGenericRepository<AppUser> repository,
+            IGenericRepository<Offer> offerRepository,
+            IGenericRepository<Advert> advertRepository,
+            IGenericRepository<Favorite> favoriteRepository,
+            IGenericRepository<Notification> notificationRepository,
+            IGenericRepository<RefreshToken> refreshTokenRepository,
+            IGenericRepository<Conversation> conversationRepository,
+            IGenericRepository<Message> messageRepository,
             IValidator<AppUserRegisterDto> appUserRegiserValidator,
             IValidator<AppUserLoginDto> appUserLoginValidator,
             IValidator<AppUserUpdateDto> appUserUpdateValidator,
@@ -43,6 +57,13 @@ namespace Sahnem.Business.Services
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _repository = repository;
+            _offerRepository = offerRepository;
+            _advertRepository = advertRepository;
+            _favoriteRepository = favoriteRepository;
+            _notificationRepository = notificationRepository;
+            _refreshTokenRepository = refreshTokenRepository;
+            _conversationRepository = conversationRepository;
+            _messageRepository = messageRepository;
             _appUserRegisterValidator = appUserRegiserValidator;
             _appUserLoginValidator = appUserLoginValidator;
             _appUserUpdateValidator = appUserUpdateValidator;
@@ -154,6 +175,61 @@ namespace Sahnem.Business.Services
                 throw new Exception("User Not Found");
 
             }
+
+            // AppUser'a Restrict ile bağlı ilişkiler (Offer/Advert/Favorite/
+            // Notification/RefreshToken/Conversation/Message) veritabanı seviyesinde
+            // otomatik silinmiyor — kullanıcıyı silmeden önce bunları burada elle
+            // temizlemezsek FK ihlaliyle patlar. Profil kayıtları (Musician/
+            // Organizer/Venue) zaten cascade olduğu için ayrıca elle silinmiyor.
+
+            var conversations = await _conversationRepository.WhereAsync(
+                c => c.UserAId == userId || c.UserBId == userId);
+            foreach (var conversation in conversations)
+            {
+                var messages = await _messageRepository.WhereAsync(m => m.ConversationId == conversation.Id);
+                foreach (var message in messages)
+                {
+                    _messageRepository.Delete(message);
+                }
+                _conversationRepository.Delete(conversation);
+            }
+
+            var offersAsMusician = await _offerRepository.WhereAsync(o => o.MusicianId == userId);
+            foreach (var offer in offersAsMusician)
+            {
+                _offerRepository.Delete(offer);
+            }
+
+            var ownAdverts = await _advertRepository.WhereAsync(a => a.CreatorId == userId);
+            foreach (var advert in ownAdverts)
+            {
+                var offersOnAdvert = await _offerRepository.WhereAsync(o => o.AdvertId == advert.Id);
+                foreach (var offer in offersOnAdvert)
+                {
+                    _offerRepository.Delete(offer);
+                }
+                _advertRepository.Delete(advert);
+            }
+
+            var favorites = await _favoriteRepository.WhereAsync(
+                f => f.OwnerUserId == userId || f.MusicianUserId == userId);
+            foreach (var favorite in favorites)
+            {
+                _favoriteRepository.Delete(favorite);
+            }
+
+            var notifications = await _notificationRepository.WhereAsync(n => n.UserId == userId);
+            foreach (var notification in notifications)
+            {
+                _notificationRepository.Delete(notification);
+            }
+
+            var refreshTokens = await _refreshTokenRepository.WhereAsync(r => r.AppUserId == userId);
+            foreach (var refreshToken in refreshTokens)
+            {
+                _refreshTokenRepository.Delete(refreshToken);
+            }
+
             _repository.Delete(user);
             await _unitOfWork.SaveChanges();
         }
