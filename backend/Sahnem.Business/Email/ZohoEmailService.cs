@@ -44,12 +44,23 @@ namespace Sahnem.Business.Email
                 // MailKit'in varsayılan timeout'u 100 saniye — SMTP bağlantısı
                 // tıkanırsa kayıt/doğrulama isteği kullanıcı için askıda kalıyordu.
                 // Kısa bir timeout ile hızlı başarısız olup akışı bloklamıyoruz.
+                // 587/STARTTLS Render'ın ağında takıldığı için doğrudan TLS (465/SSL)
+                // kullanıyoruz — STARTTLS'in "düz metinden TLS'e yükseltme" adımına
+                // müdahale eden ağ ekipmanlarına karşı daha güvenilir.
                 using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
                 using var client = new SmtpClient();
-                await client.ConnectAsync(_settings.Host, _settings.Port, SecureSocketOptions.StartTls, cts.Token);
+
+                _logger.LogInformation("Zoho SMTP: {Host}:{Port} adresine bağlanılıyor...", _settings.Host, _settings.Port);
+                await client.ConnectAsync(_settings.Host, _settings.Port, SecureSocketOptions.SslOnConnect, cts.Token);
+
+                _logger.LogInformation("Zoho SMTP: bağlanıldı, kimlik doğrulanıyor...");
                 await client.AuthenticateAsync(_settings.Username, _settings.Password, cts.Token);
+
+                _logger.LogInformation("Zoho SMTP: kimlik doğrulandı, '{Subject}' {ToEmail} adresine gönderiliyor...", subject, toEmail);
                 await client.SendAsync(message, cts.Token);
+
                 await client.DisconnectAsync(true, cts.Token);
+                _logger.LogInformation("Zoho SMTP: gönderim tamamlandı ({ToEmail}).", toEmail);
             }
             catch (OperationCanceledException)
             {
