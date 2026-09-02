@@ -11,6 +11,7 @@ export interface AppUser {
   isEmailConfirmed: boolean;
   isPhoneNumberConfirmed: boolean;
   isProfileCompleted: boolean;
+  isActive: boolean;
   avatarUrl?: string;
   createdDate: string;
 }

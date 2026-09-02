@@ -85,7 +85,8 @@ namespace Sahnem.Business.Services
             {
                 throw new Exception("Advert not found");
             }
-            if(advert.CreatorId != _currentUserService.UserId)
+            var isAdmin = _currentUserService.Role == nameof(UserType.Admin);
+            if(advert.CreatorId != _currentUserService.UserId && !isAdmin)
             {
                 throw new Exception("You are not authorized to cancel this advert");
             }
@@ -112,7 +113,8 @@ namespace Sahnem.Business.Services
         public async Task<AdvertResponseDto> GetAdvertById(int advertId)
         {
             var advert = await _advertRepository.GetByIdAsync(advertId);
-            if(advert == null || advert.Status == AdvertStatus.Cancelled)
+            var isAdmin = _currentUserService.Role == nameof(UserType.Admin);
+            if(advert == null || (advert.Status == AdvertStatus.Cancelled && !isAdmin))
             {
                 throw new Exception("Advert not found");
             }
@@ -121,11 +123,13 @@ namespace Sahnem.Business.Services
 
         }
 
-        public async Task<PagedResultDto<AdvertResponseDto>> GetAllAdvert(AdvertFilterDto? filter = null)
+        public async Task<PagedResultDto<AdvertResponseDto>> GetAllAdvert(AdvertFilterDto? filter = null, bool includeCancelled = false)
         {
             var adverts = await _advertRepository.GetAllAsync();
 
-            var query = adverts.Where(a => a.Status != AdvertStatus.Cancelled);
+            var query = includeCancelled
+                ? adverts.AsEnumerable()
+                : adverts.Where(a => a.Status != AdvertStatus.Cancelled);
 
             if (filter != null)
             {

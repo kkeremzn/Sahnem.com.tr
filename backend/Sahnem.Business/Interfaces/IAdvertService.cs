@@ -9,7 +9,7 @@ namespace Sahnem.Business.Interfaces
         Task UpdateAdvert(int advertId, AdvertUpdateDto dto);
         Task CancelAdvert(int advertId);
         Task<AdvertResponseDto> GetAdvertById(int advertId);
-        Task<PagedResultDto<AdvertResponseDto>> GetAllAdvert(AdvertFilterDto? filter = null);
+        Task<PagedResultDto<AdvertResponseDto>> GetAllAdvert(AdvertFilterDto? filter = null, bool includeCancelled = false);
         Task<IEnumerable<AdvertResponseDto>> GetMyAdverts();
     }
 }

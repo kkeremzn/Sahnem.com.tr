@@ -15,6 +15,7 @@ namespace Sahnem.Business.DTOs.User
         public bool IsEmailConfirmed{get; set;}
         public bool IsPhoneNumberConfirmed{get; set;}
         public bool IsProfileCompleted{get; set;}
+        public bool IsActive{get; set;}
         public DateTime CreatedDate{get; set;}
     }
 

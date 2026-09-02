@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sahnem.Business.DTOs.Admin;
+using Sahnem.Business.DTOs.Advert;
 using Sahnem.Business.Interfaces;
+using Sahnem.Core.Enums;
 
 namespace Sahnem.API.Controllers
 {
@@ -12,11 +14,20 @@ namespace Sahnem.API.Controllers
     {
         private readonly IAdminService _adminService;
         private readonly IUserService _userService;
+        private readonly IAdvertService _advertService;
 
-        public AdminController(IAdminService adminService, IUserService userService)
+        public AdminController(IAdminService adminService, IUserService userService, IAdvertService advertService)
         {
             _adminService = adminService;
             _userService = userService;
+            _advertService = advertService;
+        }
+
+        [HttpGet("stats")]
+        public async Task<IActionResult> GetStats()
+        {
+            var result = await _adminService.GetStats();
+            return Ok(result);
         }
 
         [HttpGet("verifications/pending")]
@@ -34,10 +45,54 @@ namespace Sahnem.API.Controllers
         }
 
         [HttpGet("users")]
-        public async Task<IActionResult> GetAllUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+        public async Task<IActionResult> GetAllUsers(
+            [FromQuery] int page = 1, [FromQuery] int pageSize = 20, [FromQuery] string? search = null,
+            [FromQuery] UserType? role = null, [FromQuery] bool? isActive = null, [FromQuery] bool? isEmailConfirmed = null)
         {
-            var result = await _userService.GetAllUsers(page, pageSize);
+            var result = await _userService.GetAllUsers(page, pageSize, search, role, isActive, isEmailConfirmed);
             return Ok(result);
+        }
+
+        [HttpGet("users/{id:int}")]
+        public async Task<IActionResult> GetUserDetail(int id)
+        {
+            var result = await _adminService.GetUserDetail(id);
+            return Ok(result);
+        }
+
+        [HttpPut("users/{id:int}/suspend")]
+        public async Task<IActionResult> SuspendUser(int id)
+        {
+            await _userService.SuspendUser(id);
+            return Ok();
+        }
+
+        [HttpPut("users/{id:int}/reactivate")]
+        public async Task<IActionResult> ReactivateUser(int id)
+        {
+            await _userService.ReactivateUser(id);
+            return Ok();
+        }
+
+        [HttpDelete("users/{id:int}")]
+        public async Task<IActionResult> DeleteUser(int id)
+        {
+            await _userService.AdminDeleteUser(id);
+            return Ok();
+        }
+
+        [HttpGet("adverts")]
+        public async Task<IActionResult> GetAllAdverts([FromQuery] AdvertFilterDto filter)
+        {
+            var result = await _advertService.GetAllAdvert(filter, includeCancelled: true);
+            return Ok(result);
+        }
+
+        [HttpPut("adverts/{id:int}/cancel")]
+        public async Task<IActionResult> CancelAdvert(int id)
+        {
+            await _advertService.CancelAdvert(id);
+            return Ok();
         }
     }
 }

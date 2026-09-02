@@ -85,7 +85,9 @@ namespace Sahnem.Business.Services
 
 
 
-        public async Task<PagedResultDto<AppUserResponseDto>> GetAllUsers(int page = 1, int pageSize = 20)
+        public async Task<PagedResultDto<AppUserResponseDto>> GetAllUsers(
+            int page = 1, int pageSize = 20, string? search = null, UserType? role = null,
+            bool? isActive = null, bool? isEmailConfirmed = null)
         {
             // Controller seviyesinde zaten [Authorize(Roles="Admin")] var; burada da
             // aynı kuralı tekrarlamak defense-in-depth — servis tek başına çağrılsa
@@ -99,20 +101,75 @@ namespace Sahnem.Business.Services
             if (page < 1) page = 1;
             if (pageSize < 1 || pageSize > 100) pageSize = 20;
 
-            var users = (await _repository.GetAllAsync()).ToList();
-            var paged = users
-                .OrderByDescending(u => u.CreatedDate)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToList();
+            var users = (await _repository.GetAllAsync()).AsEnumerable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var term = search.Trim().ToLowerInvariant();
+                users = users.Where(u =>
+                    u.FirstName.ToLowerInvariant().Contains(term) ||
+                    u.LastName.ToLowerInvariant().Contains(term) ||
+                    u.Email.ToLowerInvariant().Contains(term) ||
+                    u.PhoneNumber.Contains(term));
+            }
+            if (role.HasValue) users = users.Where(u => u.Role == role.Value);
+            if (isActive.HasValue) users = users.Where(u => u.IsActive == isActive.Value);
+            if (isEmailConfirmed.HasValue) users = users.Where(u => u.IsEmailConfirmed == isEmailConfirmed.Value);
+
+            var filtered = users.OrderByDescending(u => u.CreatedDate).ToList();
+            var paged = filtered.Skip((page - 1) * pageSize).Take(pageSize).ToList();
 
             return new PagedResultDto<AppUserResponseDto>
             {
                 Items = _mapper.Map<IEnumerable<AppUserResponseDto>>(paged),
                 Page = page,
                 PageSize = pageSize,
-                TotalCount = users.Count,
+                TotalCount = filtered.Count,
             };
+        }
+
+        public async Task SuspendUser(int userId)
+        {
+            EnsureAdmin();
+            if (userId == _currentUserService.UserId)
+            {
+                throw new Exception("You cannot suspend your own account");
+            }
+
+            var user = await _repository.GetByIdAsync(userId);
+            if (user == null) throw new Exception("User Not Found");
+
+            user.IsActive = false;
+
+            // Askıya alınan kullanıcının açık oturumları da kesilsin — access token
+            // süresi dolana kadar (en fazla Jwt:ExpireMinutes) işlem yapabilir ama
+            // sonrasında yeni bir token alamaz.
+            var tokens = await _refreshTokenRepository.WhereAsync(t => t.AppUserId == userId);
+            foreach (var token in tokens)
+            {
+                _refreshTokenRepository.Delete(token);
+            }
+
+            await _unitOfWork.SaveChanges();
+        }
+
+        public async Task ReactivateUser(int userId)
+        {
+            EnsureAdmin();
+
+            var user = await _repository.GetByIdAsync(userId);
+            if (user == null) throw new Exception("User Not Found");
+
+            user.IsActive = true;
+            await _unitOfWork.SaveChanges();
+        }
+
+        private void EnsureAdmin()
+        {
+            if (_currentUserService.Role != nameof(UserType.Admin))
+            {
+                throw new Exception("You are not authorized to perform this action");
+            }
         }
 
         public async Task<AppUserResponseDto> GetUserById(int id)
@@ -175,9 +232,27 @@ namespace Sahnem.Business.Services
 
 
 
-        public async Task DeleteUser()
+        public Task DeleteUser()
         {
-            var userId = _currentUserService.UserId;
+            return DeleteUserById(_currentUserService.UserId);
+        }
+
+        public async Task AdminDeleteUser(int userId)
+        {
+            if (_currentUserService.Role != nameof(UserType.Admin))
+            {
+                throw new Exception("You are not authorized to perform this action");
+            }
+            if (userId == _currentUserService.UserId)
+            {
+                throw new Exception("Use the regular account deletion to delete your own account");
+            }
+
+            await DeleteUserById(userId);
+        }
+
+        private async Task DeleteUserById(int userId)
+        {
             var user = await _repository.GetByIdAsync(userId);
             if(user == null)
             {
@@ -260,6 +335,10 @@ namespace Sahnem.Business.Services
             if (!isValid)
             {
                 throw new Exception("Invalid Email Or Password");
+            }
+            if (!user.IsActive)
+            {
+                throw new Exception("This account has been suspended");
             }
 
             return await _tokenService.IssueTokensAsync(user);

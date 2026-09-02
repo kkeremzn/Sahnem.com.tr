@@ -9,5 +9,7 @@ namespace Sahnem.Business.Interfaces
     {
         Task<IEnumerable<PendingVerificationDto>> GetPendingVerifications();
         Task SetVerificationStatus(string kind, int profileId, VerificationStatus status);
+        Task<AdminStatsDto> GetStats();
+        Task<AdminUserDetailDto> GetUserDetail(int userId);
     }
 }
