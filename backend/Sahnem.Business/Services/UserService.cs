@@ -349,6 +349,8 @@ namespace Sahnem.Business.Services
             await _unitOfWork.SaveChanges();
         }
 
+        private static readonly TimeSpan VerificationResendCooldown = TimeSpan.FromSeconds(60);
+
         public async Task ResendVerificationEmail()
         {
             var userId = _currentUserService.UserId;
@@ -362,6 +364,20 @@ namespace Sahnem.Business.Services
                 throw new Exception("Email already verified");
             }
 
+            // Aynı kullanıcının saniyeler içinde defalarca "yeniden gönder"e basıp
+            // hem kendi kutusunu spam'lemesini hem de Zoho gönderim kotamızı
+            // gereksiz tüketmesini engelliyor — IP bazlı genel rate limiter (auth
+            // policy) bunu tek başına yakalamaz çünkü aynı kullanıcı/IP'den gelir.
+            if (user.EmailVerificationCodeSentAt.HasValue)
+            {
+                var elapsed = DateTime.UtcNow - user.EmailVerificationCodeSentAt.Value;
+                if (elapsed < VerificationResendCooldown)
+                {
+                    var waitSeconds = (int)Math.Ceiling((VerificationResendCooldown - elapsed).TotalSeconds);
+                    throw new Exception($"Please wait {waitSeconds} seconds before requesting a new code");
+                }
+            }
+
             SetNewVerificationCode(user);
             await _unitOfWork.SaveChanges();
             await SendVerificationEmail(user);
@@ -369,8 +385,11 @@ namespace Sahnem.Business.Services
 
         private static void SetNewVerificationCode(AppUser user)
         {
+            // Yeni kod üretildiği an eski kod otomatik geçersiz sayılır — VerifyEmail
+            // her zaman user.EmailVerificationCode'daki GÜNCEL değerle karşılaştırıyor.
             user.EmailVerificationCode = Random.Shared.Next(100000, 999999).ToString();
             user.EmailVerificationCodeExpiresAt = DateTime.UtcNow.AddMinutes(15);
+            user.EmailVerificationCodeSentAt = DateTime.UtcNow;
         }
 
         private Task SendVerificationEmail(AppUser user)

@@ -81,7 +81,10 @@ namespace Sahnem.API.Controllers
             return Ok();
         }
 
+        // 6 haneli kodu deneme-yanılma ile bulmaya çalışmayı (1 milyon ihtimal)
+        // pratik olarak imkansız hale getirmek için rate limit — daha önce burada hiç yoktu.
         [Authorize]
+        [EnableRateLimiting("auth")]
         [HttpPost("verify-email")]
         public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailRequestDto dto)
         {

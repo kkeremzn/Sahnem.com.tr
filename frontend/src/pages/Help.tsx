@@ -59,7 +59,7 @@ export function Help() {
           <Mail size={20} className="text-gold-soft" />
           <div>
             <h3 className="text-sm font-semibold">Sorunun mu var?</h3>
-            <p className="text-xs text-text-dim">destek@sahnem.com adresinden bize ulaşabilirsin.</p>
+            <p className="text-xs text-text-dim">support@sahnem.com.tr adresinden bize ulaşabilirsin.</p>
           </div>
         </div>
       </Card>
