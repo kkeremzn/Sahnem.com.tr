@@ -157,6 +157,15 @@ builder.Services.AddRateLimiter(options =>
 
 var app = builder.Build();
 
+// Deploy pipeline'ında elle "dotnet ef database update" çalıştırmadığımız için
+// bekleyen migration'lar her açılışta otomatik uygulanıyor. Idempotent —
+// EF zaten uygulanmış migration'ları __EFMigrationsHistory tablosundan görüp atlıyor.
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<SahnemDbContext>();
+    db.Database.Migrate();
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
