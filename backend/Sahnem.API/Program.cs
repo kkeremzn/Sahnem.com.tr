@@ -31,7 +31,9 @@ builder.Services.AddCors(options =>
             .WithOrigins(
                 "http://localhost:5173",
                 "http://127.0.0.1:5173",
-                "http://localhost:4173" // vite preview
+                "http://localhost:4173",
+                "https://sahnem.com.tr",
+                "https://www.sahnem.com.tr"
             )
             .AllowAnyHeader()
             .AllowAnyMethod()
@@ -142,11 +144,7 @@ app.MapControllers();
 
 app.MapControllers();
 
-app.MapGet("/health", () => Results.Ok(new
-{
-    status = "ok",
-    service = "Sahnem API"
-}));
+
 
 app.Run();
 
