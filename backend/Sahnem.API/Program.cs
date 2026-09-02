@@ -14,6 +14,7 @@ using Sahnem.Business.Email;
 using Sahnem.Business.Interfaces;
 using Sahnem.Business.Security;
 using Sahnem.Business.Services;
+using Sahnem.Business.Storage;
 using Sahnem.Business.Validators;
 using Sahnem.Business.Validators.User;
 using Sahnem.Core.Entities;
@@ -64,7 +65,8 @@ builder.Services.AddScoped<IFavoriteService, FavoriteService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
-builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
+builder.Services.Configure<R2Settings>(builder.Configuration.GetSection("R2"));
+builder.Services.AddScoped<IFileStorageService, R2FileStorageService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddAutoMapper(typeof(AppUserProfileMapping));
@@ -182,7 +184,6 @@ app.Use(async (context, next) =>
 });
 
 app.UseHttpsRedirection();
-app.UseStaticFiles(); // wwwroot/uploads altındaki avatar/logo dosyalarını sunar
 app.UseCors(FrontendCorsPolicy);
 app.UseAuthentication();
 app.UseAuthorization();

@@ -1,0 +1,56 @@
+using Amazon.S3;
+using Amazon.S3.Model;
+using Microsoft.Extensions.Options;
+using Sahnem.Business.Interfaces;
+using Sahnem.Business.Storage;
+
+namespace Sahnem.API.Services
+{
+    // Render'daki container diski ephemeral — her deploy'da sıfırlanıyor (canlıda
+    // doğrulandı: önceki yüklenen avatarlar bir deploy sonrası 404 döndü). Bu
+    // yüzden dosyalar artık Cloudflare R2'de (S3 uyumlu, kalıcı) tutuluyor.
+    // IFileStorageService kontratı sabit kaldığı için controller'da değişiklik
+    // gerekmedi.
+    public class R2FileStorageService : IFileStorageService
+    {
+        private static readonly Dictionary<string, string> ContentTypesByExtension = new()
+        {
+            [".jpg"] = "image/jpeg",
+            [".png"] = "image/png",
+            [".webp"] = "image/webp",
+            [".gif"] = "image/gif",
+        };
+
+        private readonly R2Settings _settings;
+
+        public R2FileStorageService(IOptions<R2Settings> options)
+        {
+            _settings = options.Value;
+        }
+
+        public async Task<string> SaveFileAsync(Stream content, string fileName, string subFolder)
+        {
+            var extension = Path.GetExtension(fileName);
+            var key = $"{subFolder}/{Guid.NewGuid():N}{extension}";
+
+            var config = new AmazonS3Config
+            {
+                ServiceURL = $"https://{_settings.AccountId}.r2.cloudflarestorage.com",
+                ForcePathStyle = true,
+            };
+            using var client = new AmazonS3Client(_settings.AccessKey, _settings.SecretKey, config);
+
+            var request = new PutObjectRequest
+            {
+                BucketName = _settings.Bucket,
+                Key = key,
+                InputStream = content,
+                ContentType = ContentTypesByExtension.GetValueOrDefault(extension, "application/octet-stream"),
+                AutoCloseStream = false,
+            };
+            await client.PutObjectAsync(request);
+
+            return $"{_settings.PublicUrlBase.TrimEnd('/')}/{key}";
+        }
+    }
+}
