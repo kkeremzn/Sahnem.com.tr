@@ -2,13 +2,16 @@ using AutoMapper;
 using Sahnem.Business.DTOs.Admin;
 using Sahnem.Business.DTOs.User;
 using Sahnem.Business.Interfaces;
-using Sahnem.Business.Security;
 using Sahnem.Core.Entities;
 using Sahnem.Core.Enums;
 using Sahnem.Core.Interfaces;
 
 namespace Sahnem.Business.Services
 {
+    // Bu servisin tüm metodlarına yalnızca AdminController üzerinden erişilir —
+    // o controller [Authorize(Policy="SystemAdmin")] ile korunuyor (ayrı bir kimlik
+    // doğrulama şeması, normal kullanıcı sisteminden bağımsız) — burada tekrar
+    // rol kontrolü yapmak mümkün/gerekli değil.
     public class AdminService : IAdminService
     {
         private readonly IGenericRepository<MusicianProfile> _musicianProfileRepository;
@@ -20,9 +23,6 @@ namespace Sahnem.Business.Services
         private readonly IGenericRepository<Message> _messageRepository;
         private readonly IGenericRepository<Conversation> _conversationRepository;
         private readonly IGenericRepository<Favorite> _favoriteRepository;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly ICurrentUserService _currentUserService;
-        private readonly INotificationService _notificationService;
         private readonly IMapper _mapper;
 
         public AdminService(
@@ -35,9 +35,6 @@ namespace Sahnem.Business.Services
             IGenericRepository<Message> messageRepository,
             IGenericRepository<Conversation> conversationRepository,
             IGenericRepository<Favorite> favoriteRepository,
-            IUnitOfWork unitOfWork,
-            ICurrentUserService currentUserService,
-            INotificationService notificationService,
             IMapper mapper)
         {
             _musicianProfileRepository = musicianProfileRepository;
@@ -49,147 +46,35 @@ namespace Sahnem.Business.Services
             _messageRepository = messageRepository;
             _conversationRepository = conversationRepository;
             _favoriteRepository = favoriteRepository;
-            _unitOfWork = unitOfWork;
-            _currentUserService = currentUserService;
-            _notificationService = notificationService;
             _mapper = mapper;
-        }
-
-        public async Task<IEnumerable<PendingVerificationDto>> GetPendingVerifications()
-        {
-            EnsureAdmin();
-
-            var musicians = await _musicianProfileRepository.WhereAsync(m => m.VerificationStatus == VerificationStatus.Pending);
-            var organizers = await _organizerProfileRepository.WhereAsync(o => o.VerificationStatus == VerificationStatus.Pending);
-            var venues = await _venueProfileRepository.WhereAsync(v => v.VerificationStatus == VerificationStatus.Pending);
-
-            var userIds = musicians.Select(m => m.AppUserId)
-                .Concat(organizers.Select(o => o.AppUserId))
-                .Concat(venues.Select(v => v.AppUserId))
-                .Distinct()
-                .ToList();
-            var users = await _userRepository.WhereAsync(u => userIds.Contains(u.Id));
-
-            var result = new List<PendingVerificationDto>();
-
-            foreach (var m in musicians)
-            {
-                var user = users.FirstOrDefault(u => u.Id == m.AppUserId);
-                result.Add(new PendingVerificationDto
-                {
-                    Kind = "Musician",
-                    ProfileId = m.Id,
-                    AppUserId = m.AppUserId,
-                    Name = user == null ? "" : $"{user.FirstName} {user.LastName}",
-                    Email = user?.Email ?? "",
-                    CreatedDate = m.CreatedDate,
-                });
-            }
-            foreach (var o in organizers)
-            {
-                var user = users.FirstOrDefault(u => u.Id == o.AppUserId);
-                result.Add(new PendingVerificationDto
-                {
-                    Kind = "Organizer",
-                    ProfileId = o.Id,
-                    AppUserId = o.AppUserId,
-                    Name = o.OrganizerName,
-                    Email = user?.Email ?? "",
-                    CreatedDate = o.CreatedDate,
-                });
-            }
-            foreach (var v in venues)
-            {
-                var user = users.FirstOrDefault(u => u.Id == v.AppUserId);
-                result.Add(new PendingVerificationDto
-                {
-                    Kind = "Venue",
-                    ProfileId = v.Id,
-                    AppUserId = v.AppUserId,
-                    Name = v.VenueName,
-                    Email = user?.Email ?? "",
-                    CreatedDate = v.CreatedDate,
-                });
-            }
-
-            return result.OrderBy(r => r.CreatedDate);
-        }
-
-        public async Task SetVerificationStatus(string kind, int profileId, VerificationStatus status)
-        {
-            EnsureAdmin();
-
-            if (status != VerificationStatus.Approved && status != VerificationStatus.Rejected)
-            {
-                throw new Exception("Status must be Approved or Rejected");
-            }
-
-            int appUserId;
-            switch (kind.Trim().ToLowerInvariant())
-            {
-                case "musician":
-                    var musician = await _musicianProfileRepository.GetByIdAsync(profileId);
-                    if (musician == null) throw new Exception("Musician profile not found");
-                    musician.VerificationStatus = status;
-                    appUserId = musician.AppUserId;
-                    break;
-                case "organizer":
-                    var organizer = await _organizerProfileRepository.GetByIdAsync(profileId);
-                    if (organizer == null) throw new Exception("Organizer profile not found");
-                    organizer.VerificationStatus = status;
-                    appUserId = organizer.AppUserId;
-                    break;
-                case "venue":
-                    var venue = await _venueProfileRepository.GetByIdAsync(profileId);
-                    if (venue == null) throw new Exception("Venue profile not found");
-                    venue.VerificationStatus = status;
-                    appUserId = venue.AppUserId;
-                    break;
-                default:
-                    throw new Exception("Invalid profile kind, must be musician, organizer or venue");
-            }
-
-            await _unitOfWork.SaveChanges();
-
-            var approved = status == VerificationStatus.Approved;
-            await _notificationService.CreateNotification(
-                appUserId,
-                "verification",
-                approved ? "Profilin doğrulandı" : "Profil doğrulama talebin reddedildi",
-                approved
-                    ? "Tebrikler, profilin doğrulandı ve artık \"Doğrulanmış\" rozetiyle görünüyor."
-                    : "Profilin bu sefer doğrulanamadı. Bilgilerini gözden geçirip tekrar deneyebilirsin.",
-                "/profile/edit");
         }
 
         public async Task<AdminStatsDto> GetStats()
         {
-            EnsureAdmin();
-
             var users = (await _userRepository.GetAllAsync()).ToList();
             var adverts = (await _advertRepository.GetAllAsync()).ToList();
             var offers = (await _offerRepository.GetAllAsync()).ToList();
             var conversations = (await _conversationRepository.GetAllAsync()).ToList();
             var messages = (await _messageRepository.GetAllAsync()).ToList();
 
-            var pendingVerificationCount =
-                (await _musicianProfileRepository.WhereAsync(m => m.VerificationStatus == VerificationStatus.Pending)).Count() +
-                (await _organizerProfileRepository.WhereAsync(o => o.VerificationStatus == VerificationStatus.Pending)).Count() +
-                (await _venueProfileRepository.WhereAsync(v => v.VerificationStatus == VerificationStatus.Pending)).Count();
-
             var now = DateTime.UtcNow;
+
+            // Kaydolup e-posta doğrulamasını hiç bitirmeden yarım bırakılan hesaplar
+            // "gerçek" bir kullanıcı sayılmamalı — toplam kullanıcı sayısı bunları
+            // içermiyor (RegistrationCleanupService ile ayrıca periyodik temizleniyor).
+            var realUsers = users.Where(u => u.IsEmailConfirmed).ToList();
+            var abandonedSignups = users.Count - realUsers.Count;
 
             return new AdminStatsDto
             {
-                TotalUsers = users.Count,
-                TotalMusicians = users.Count(u => u.Role == UserType.Musician),
-                TotalOrganizers = users.Count(u => u.Role == UserType.Organizer),
-                TotalVenues = users.Count(u => u.Role == UserType.Venue),
-                UnverifiedEmailUsers = users.Count(u => !u.IsEmailConfirmed),
-                SuspendedUsers = users.Count(u => !u.IsActive),
-                PendingVerifications = pendingVerificationCount,
-                NewUsersLast7Days = users.Count(u => u.CreatedDate >= now.AddDays(-7)),
-                NewUsersLast30Days = users.Count(u => u.CreatedDate >= now.AddDays(-30)),
+                TotalUsers = realUsers.Count,
+                TotalMusicians = realUsers.Count(u => u.Role == UserType.Musician),
+                TotalOrganizers = realUsers.Count(u => u.Role == UserType.Organizer),
+                TotalVenues = realUsers.Count(u => u.Role == UserType.Venue),
+                AbandonedSignups = abandonedSignups,
+                SuspendedUsers = realUsers.Count(u => !u.IsActive),
+                NewUsersLast7Days = realUsers.Count(u => u.CreatedDate >= now.AddDays(-7)),
+                NewUsersLast30Days = realUsers.Count(u => u.CreatedDate >= now.AddDays(-30)),
 
                 TotalAdverts = adverts.Count,
                 OpenAdverts = adverts.Count(a => a.Status == AdvertStatus.Open),
@@ -204,7 +89,7 @@ namespace Sahnem.Business.Services
                 TotalConversations = conversations.Count,
                 TotalMessages = messages.Count,
 
-                RecentSignups = users
+                RecentSignups = realUsers
                     .OrderByDescending(u => u.CreatedDate)
                     .Take(8)
                     .Select(u => new AdminRecentUserDto
@@ -234,8 +119,6 @@ namespace Sahnem.Business.Services
 
         public async Task<AdminUserDetailDto> GetUserDetail(int userId)
         {
-            EnsureAdmin();
-
             var user = await _userRepository.GetByIdAsync(userId);
             if (user == null) throw new Exception("User Not Found");
 
@@ -246,7 +129,6 @@ namespace Sahnem.Business.Services
             var favoriteCount = (await _favoriteRepository.WhereAsync(f => f.OwnerUserId == userId || f.MusicianUserId == userId)).Count();
 
             string? profileSummary = null;
-            VerificationStatus? verificationStatus = null;
 
             switch (user.Role)
             {
@@ -255,7 +137,6 @@ namespace Sahnem.Business.Services
                     if (musician != null)
                     {
                         profileSummary = $"{musician.Branch} · {musician.City} · {musician.ExperienceYears} yıl deneyim";
-                        verificationStatus = musician.VerificationStatus;
                     }
                     break;
                 case UserType.Organizer:
@@ -263,7 +144,6 @@ namespace Sahnem.Business.Services
                     if (organizer != null)
                     {
                         profileSummary = $"{organizer.OrganizerName} · {organizer.OrganizerType} · {organizer.City}";
-                        verificationStatus = organizer.VerificationStatus;
                     }
                     break;
                 case UserType.Venue:
@@ -271,7 +151,6 @@ namespace Sahnem.Business.Services
                     if (venue != null)
                     {
                         profileSummary = $"{venue.VenueName} · {venue.City} · {venue.Capacity} kişi kapasite";
-                        verificationStatus = venue.VerificationStatus;
                     }
                     break;
             }
@@ -285,16 +164,7 @@ namespace Sahnem.Business.Services
                 ConversationCount = conversationCount,
                 FavoriteCount = favoriteCount,
                 ProfileSummary = profileSummary,
-                VerificationStatus = verificationStatus,
             };
-        }
-
-        private void EnsureAdmin()
-        {
-            if (_currentUserService.Role != nameof(UserType.Admin))
-            {
-                throw new Exception("You are not authorized to perform this action");
-            }
         }
     }
 }

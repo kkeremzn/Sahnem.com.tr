@@ -78,15 +78,18 @@ namespace Sahnem.Business.Services
 
         }
 
-        public async Task CancelAdvert(int advertId)
+        public async Task CancelAdvert(int advertId, bool asAdmin = false)
         {
             var advert = await _advertRepository.GetByIdAsync(advertId);
             if(advert == null)
             {
                 throw new Exception("Advert not found");
             }
-            var isAdmin = _currentUserService.Role == nameof(UserType.Admin);
-            if(advert.CreatorId != _currentUserService.UserId && !isAdmin)
+            // asAdmin sadece AdminController'dan (SystemAdmin policy'siyle korunan)
+            // true geçiriliyor — admin artık ayrı bir kimlik doğrulama şeması
+            // kullandığı için burada ICurrentUserService üzerinden tekrar rol
+            // kontrolü yapmak mümkün değil.
+            if(advert.CreatorId != _currentUserService.UserId && !asAdmin)
             {
                 throw new Exception("You are not authorized to cancel this advert");
             }
@@ -110,11 +113,10 @@ namespace Sahnem.Business.Services
 
 
 
-        public async Task<AdvertResponseDto> GetAdvertById(int advertId)
+        public async Task<AdvertResponseDto> GetAdvertById(int advertId, bool asAdmin = false)
         {
             var advert = await _advertRepository.GetByIdAsync(advertId);
-            var isAdmin = _currentUserService.Role == nameof(UserType.Admin);
-            if(advert == null || (advert.Status == AdvertStatus.Cancelled && !isAdmin))
+            if(advert == null || (advert.Status == AdvertStatus.Cancelled && !asAdmin))
             {
                 throw new Exception("Advert not found");
             }

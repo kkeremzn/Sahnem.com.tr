@@ -6,9 +6,8 @@ namespace Sahnem.Business.DTOs.Admin
         public int TotalMusicians {get; set;}
         public int TotalOrganizers {get; set;}
         public int TotalVenues {get; set;}
-        public int UnverifiedEmailUsers {get; set;}
+        public int AbandonedSignups {get; set;}
         public int SuspendedUsers {get; set;}
-        public int PendingVerifications {get; set;}
         public int NewUsersLast7Days {get; set;}
         public int NewUsersLast30Days {get; set;}
 

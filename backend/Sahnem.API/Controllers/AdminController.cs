@@ -9,7 +9,7 @@ namespace Sahnem.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = "SystemAdmin")]
     public class AdminController : ControllerBase
     {
         private readonly IAdminService _adminService;
@@ -28,20 +28,6 @@ namespace Sahnem.API.Controllers
         {
             var result = await _adminService.GetStats();
             return Ok(result);
-        }
-
-        [HttpGet("verifications/pending")]
-        public async Task<IActionResult> GetPendingVerifications()
-        {
-            var result = await _adminService.GetPendingVerifications();
-            return Ok(result);
-        }
-
-        [HttpPut("verifications/{kind}/{profileId:int}")]
-        public async Task<IActionResult> SetVerificationStatus(string kind, int profileId, [FromBody] VerificationDecisionDto dto)
-        {
-            await _adminService.SetVerificationStatus(kind, profileId, dto.Status);
-            return Ok();
         }
 
         [HttpGet("users")]
@@ -88,10 +74,17 @@ namespace Sahnem.API.Controllers
             return Ok(result);
         }
 
+        [HttpGet("adverts/{id:int}")]
+        public async Task<IActionResult> GetAdvertDetail(int id)
+        {
+            var result = await _advertService.GetAdvertById(id, asAdmin: true);
+            return Ok(result);
+        }
+
         [HttpPut("adverts/{id:int}/cancel")]
         public async Task<IActionResult> CancelAdvert(int id)
         {
-            await _advertService.CancelAdvert(id);
+            await _advertService.CancelAdvert(id, asAdmin: true);
             return Ok();
         }
     }

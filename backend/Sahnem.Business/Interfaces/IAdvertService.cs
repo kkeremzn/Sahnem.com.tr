@@ -7,8 +7,8 @@ namespace Sahnem.Business.Interfaces
     {
         Task<AdvertResponseDto> CreateAdvert(AdvertCreateDto dto);
         Task UpdateAdvert(int advertId, AdvertUpdateDto dto);
-        Task CancelAdvert(int advertId);
-        Task<AdvertResponseDto> GetAdvertById(int advertId);
+        Task CancelAdvert(int advertId, bool asAdmin = false);
+        Task<AdvertResponseDto> GetAdvertById(int advertId, bool asAdmin = false);
         Task<PagedResultDto<AdvertResponseDto>> GetAllAdvert(AdvertFilterDto? filter = null, bool includeCancelled = false);
         Task<IEnumerable<AdvertResponseDto>> GetMyAdverts();
     }

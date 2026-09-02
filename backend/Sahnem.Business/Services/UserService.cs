@@ -89,15 +89,10 @@ namespace Sahnem.Business.Services
             int page = 1, int pageSize = 20, string? search = null, UserType? role = null,
             bool? isActive = null, bool? isEmailConfirmed = null)
         {
-            // Controller seviyesinde zaten [Authorize(Roles="Admin")] var; burada da
-            // aynı kuralı tekrarlamak defense-in-depth — servis tek başına çağrılsa
-            // (ör. ileride başka bir controller'dan) bile tüm kullanıcıların
-            // e-posta/telefon gibi PII bilgileri sızmaz.
-            if (_currentUserService.Role != nameof(UserType.Admin))
-            {
-                throw new Exception("You are not authorized to list all users");
-            }
-
+            // Bu metoda sadece AdminController'dan erişiliyor ve o controller
+            // [Authorize(Policy="SystemAdmin")] ile korunuyor — ayrı bir kimlik
+            // doğrulama şeması (AdminScheme) kullandığı için burada normal kullanıcı
+            // ICurrentUserService'iyle tekrar rol kontrolü yapmak mümkün değil.
             if (page < 1) page = 1;
             if (pageSize < 1 || pageSize > 100) pageSize = 20;
 
@@ -130,12 +125,6 @@ namespace Sahnem.Business.Services
 
         public async Task SuspendUser(int userId)
         {
-            EnsureAdmin();
-            if (userId == _currentUserService.UserId)
-            {
-                throw new Exception("You cannot suspend your own account");
-            }
-
             var user = await _repository.GetByIdAsync(userId);
             if (user == null) throw new Exception("User Not Found");
 
@@ -155,21 +144,11 @@ namespace Sahnem.Business.Services
 
         public async Task ReactivateUser(int userId)
         {
-            EnsureAdmin();
-
             var user = await _repository.GetByIdAsync(userId);
             if (user == null) throw new Exception("User Not Found");
 
             user.IsActive = true;
             await _unitOfWork.SaveChanges();
-        }
-
-        private void EnsureAdmin()
-        {
-            if (_currentUserService.Role != nameof(UserType.Admin))
-            {
-                throw new Exception("You are not authorized to perform this action");
-            }
         }
 
         public async Task<AppUserResponseDto> GetUserById(int id)
@@ -237,18 +216,13 @@ namespace Sahnem.Business.Services
             return DeleteUserById(_currentUserService.UserId);
         }
 
-        public async Task AdminDeleteUser(int userId)
+        public Task AdminDeleteUser(int userId)
         {
-            if (_currentUserService.Role != nameof(UserType.Admin))
-            {
-                throw new Exception("You are not authorized to perform this action");
-            }
-            if (userId == _currentUserService.UserId)
-            {
-                throw new Exception("Use the regular account deletion to delete your own account");
-            }
-
-            await DeleteUserById(userId);
+            // Bu metoda sadece AdminController'dan (SystemAdmin policy'siyle korunan)
+            // erişiliyor — admin artık ayrı bir tabloda (Admins), silinen AppUser
+            // ile aynı kimlik uzayında olmadığı için burada bir "kendini silme"
+            // ihtimali de yok.
+            return DeleteUserById(userId);
         }
 
         private async Task DeleteUserById(int userId)

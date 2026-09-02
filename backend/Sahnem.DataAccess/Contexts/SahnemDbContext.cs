@@ -22,6 +22,8 @@ namespace Sahnem.DataAccess.Contexts
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Conversation> Conversations { get; set; }
         public DbSet<Message> Messages { get; set; }
+        public DbSet<Admin> Admins { get; set; }
+        public DbSet<AdminRefreshToken> AdminRefreshTokens { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -129,6 +131,25 @@ namespace Sahnem.DataAccess.Contexts
             .WithMany()
             .HasForeignKey(m => m.SenderId)
             .OnDelete(DeleteBehavior.Restrict);
+
+            // Admin — AppUser'dan tamamen bağımsız bir tablo, hiçbir ilişkisi yok.
+            modelBuilder.Entity<Admin>()
+            .HasIndex(a => a.Username)
+            .IsUnique();
+
+            modelBuilder.Entity<Admin>()
+            .HasIndex(a => a.Email)
+            .IsUnique();
+
+            modelBuilder.Entity<AdminRefreshToken>()
+            .HasOne(r => r.Admin)
+            .WithMany(a => a.RefreshTokens)
+            .HasForeignKey(r => r.AdminId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<AdminRefreshToken>()
+            .HasIndex(r => r.Token)
+            .IsUnique();
 
         }
     }

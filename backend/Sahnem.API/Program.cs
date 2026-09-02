@@ -79,6 +79,9 @@ builder.Services.Configure<R2Settings>(builder.Configuration.GetSection("R2"));
 builder.Services.AddScoped<IFileStorageService, R2FileStorageService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+builder.Services.AddScoped<IAdminAuthService, AdminAuthService>();
+builder.Services.AddScoped<ICurrentAdminService, CurrentAdminService>();
+builder.Services.AddHostedService<RegistrationCleanupService>();
 builder.Services.AddAutoMapper(typeof(AppUserProfileMapping));
 
 builder.Services.AddValidatorsFromAssemblyContaining<AppUserRegisterValidator>();
@@ -88,6 +91,13 @@ builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"))
 var jwtSettings = builder.Configuration
     .GetSection("Jwt")
     .Get<JwtSettings>();
+
+// Admin auth tamamen ayrı bir imzalama anahtarı kullanıyor — normal kullanıcı
+// Jwt:Key'i ele geçirilse bile admin token'ı sahtelenemez.
+builder.Services.Configure<AdminJwtSettings>(builder.Configuration.GetSection("AdminJwt"));
+var adminJwtSettings = builder.Configuration
+    .GetSection("AdminJwt")
+    .Get<AdminJwtSettings>();
 
 builder.Services.Configure<ZohoApiSettings>(builder.Configuration.GetSection("Zoho"));
 builder.Services.AddHttpClient<IEmailService, ZohoEmailService>();
@@ -106,7 +116,7 @@ builder.Services.AddAuthentication(options =>
         {
             ValidateIssuer = true,
             ValidateAudience = true,
-            ValidateLifetime = true, 
+            ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             ValidIssuer = jwtSettings!.Issuer,
             ValidAudience = jwtSettings.Audience,
@@ -117,7 +127,25 @@ builder.Services.AddAuthentication(options =>
         };
     }
 
-);
+// Admin panelinin kendi JWT şeması — ayrı bir imzalama anahtarıyla doğrulanıyor,
+// normal kullanıcı şemasından bağımsız. Sadece [Authorize(Policy="SystemAdmin")]
+// ile işaretli uçlar bu şemayı kullanır, varsayılan şema hâlâ normal kullanıcı şeması.
+).AddJwtBearer("AdminScheme", options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = adminJwtSettings!.Issuer,
+        ValidAudience = adminJwtSettings.Audience,
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(adminJwtSettings.Key)
+        ),
+        ClockSkew = TimeSpan.Zero
+    };
+});
 
 // IsProfileCompleted claim'ini kontrol eden, tekrar kullanılabilir policy.
 // AdvertController/OfferController'daki "profilini tamamlamadan ilan/teklif
@@ -127,6 +155,14 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("ProfileCompleted", policy =>
         policy.RequireClaim("IsProfileCompleted", "True"));
+
+    // Admin panel uçları normal kullanıcı rolüyle değil, sadece AdminScheme'den
+    // gelen ve "token_type"="system_admin" claim'ini taşıyan token'larla açılır.
+    options.AddPolicy("SystemAdmin", policy =>
+    {
+        policy.AuthenticationSchemes.Add("AdminScheme");
+        policy.RequireClaim("token_type", "system_admin");
+    });
 });
 
 builder.Services.AddControllers()

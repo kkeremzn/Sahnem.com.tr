@@ -1,5 +1,4 @@
 using Sahnem.Business.DTOs.User;
-using Sahnem.Core.Enums;
 
 namespace Sahnem.Business.DTOs.Admin
 {
@@ -12,6 +11,5 @@ namespace Sahnem.Business.DTOs.Admin
         public int ConversationCount {get; set;}
         public int FavoriteCount {get; set;}
         public string? ProfileSummary {get; set;}
-        public VerificationStatus? VerificationStatus {get; set;}
     }
 }
