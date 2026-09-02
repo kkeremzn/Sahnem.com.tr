@@ -23,6 +23,16 @@ using Sahnem.DataAccess.Contexts;
 using Sahnem.DataAccess.Repositories;
 using Scalar.AspNetCore;
 
+// Render'ın container'ında inotify limiti çok düşük olabiliyor; appsettings.json
+// için varsayılan FileSystemWatcher tabanlı hot-reload bu limiti doldurup
+// uygulamayı açılışta çökertebiliyor ("configured user limit (128) on the
+// number of inotify instances has been reached" — canlıda gerçekten yaşandı).
+// Config zaten sadece env var + redeploy ile değişiyor, çalışırken dosya
+// izlemeye ihtiyacımız yok — bu yüzden WebApplication.CreateBuilder'ın daha
+// içeride okuduğu bu bayrağı en baştan kapatıyoruz.
+Environment.SetEnvironmentVariable("DOTNET_hostBuilder:reloadConfigOnChange", "false");
+Environment.SetEnvironmentVariable("ASPNETCORE_hostBuilder:reloadConfigOnChange", "false");
+
 var builder = WebApplication.CreateBuilder(args);
 // Yanıtlarda hangi web sunucusunun (Kestrel) çalıştığını gereksiz yere ifşa etmesin.
 builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
