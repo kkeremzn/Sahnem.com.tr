@@ -54,6 +54,11 @@ namespace Sahnem.API.Services
                 InputStream = content,
                 ContentType = ContentTypesByExtension.GetValueOrDefault(extension, "application/octet-stream"),
                 AutoCloseStream = false,
+                // AWS SDK'nın varsayılan streaming (chunked) SigV4 imzalamasını R2
+                // desteklemiyor — "STREAMING-AWS4-HMAC-SHA256-PAYLOAD not implemented"
+                // hatasıyla reddediyor. HTTPS üzerinden gittiğimiz için payload
+                // imzalamayı kapatmak güvenli, standart tek-parça imzalamaya düşüyor.
+                DisablePayloadSigning = true,
             };
             await client.PutObjectAsync(request);
 
