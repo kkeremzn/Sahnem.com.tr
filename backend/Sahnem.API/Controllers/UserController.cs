@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Sahnem.Business.DTOs;
 using Sahnem.Business.DTOs.User;
 using Sahnem.Business.Interfaces;
@@ -33,6 +34,7 @@ namespace Sahnem.API.Controllers
             return Ok(me);
         }
 
+        [EnableRateLimiting("auth")]
         [HttpPost("register")]
         public async Task<IActionResult> RegisterUser([FromBody] AppUserRegisterDto userRegisterDto)
         {
@@ -42,6 +44,7 @@ namespace Sahnem.API.Controllers
         }
 
 
+        [EnableRateLimiting("auth")]
         [HttpPost("login")]
         public async Task<IActionResult> LoginUser([FromBody] AppUserLoginDto appUserLoginDto)
         {
@@ -87,6 +90,7 @@ namespace Sahnem.API.Controllers
         }
 
         [Authorize]
+        [EnableRateLimiting("auth")]
         [HttpPost("resend-verification-email")]
         public async Task<IActionResult> ResendVerificationEmail()
         {

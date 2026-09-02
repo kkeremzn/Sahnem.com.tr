@@ -1,6 +1,8 @@
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 using FluentValidation;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +23,8 @@ using Sahnem.DataAccess.Repositories;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
+// Yanıtlarda hangi web sunucusunun (Kestrel) çalıştığını gereksiz yere ifşa etmesin.
+builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
 
 const string FrontendCorsPolicy = "FrontendCorsPolicy";
 builder.Services.AddCors(options =>
@@ -124,6 +128,31 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 builder.Services.AddEndpointsApiExplorer();
+
+// Login/kayıt/e-posta-tekrar-gönder gibi kötüye kullanıma açık uçlar için IP
+// bazlı rate limit — sunucu Cloudflare arkasında olduğundan gerçek istemci IP'si
+// CF-Connecting-IP header'ından okunuyor (RemoteIpAddress proxy'nin kendi IP'sini
+// verir, aksi halde tüm istemciler tek bir limit havuzunu paylaşırdı).
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    options.AddPolicy("auth", httpContext =>
+    {
+        var key = httpContext.Request.Headers["CF-Connecting-IP"].FirstOrDefault()
+            ?? httpContext.Connection.RemoteIpAddress?.ToString()
+            ?? "unknown";
+
+        return RateLimitPartition.GetSlidingWindowLimiter(key, _ => new SlidingWindowRateLimiterOptions
+        {
+            PermitLimit = 10,
+            Window = TimeSpan.FromMinutes(1),
+            SegmentsPerWindow = 4,
+            QueueLimit = 0,
+        });
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -135,11 +164,29 @@ if (app.Environment.IsDevelopment())
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
+// Tarayıcı tarafında ekstra bir savunma katmanı — tek başına yeterli değil ama
+// clickjacking/MIME-sniffing/aşırı Referrer sızıntısı gibi ucuz saldırıları
+// bedavaya kapatıyor. API JSON döndüğü için CSP'yi de en kısıtlayıcı haliyle
+// (default-src 'none') veriyoruz, gömülü hiçbir kaynak yüklenmemesi gerekiyor.
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+    context.Response.Headers.Append("X-Frame-Options", "DENY");
+    context.Response.Headers.Append("Referrer-Policy", "strict-origin-when-cross-origin");
+    context.Response.Headers.Append("Content-Security-Policy", "default-src 'none'");
+    if (!app.Environment.IsDevelopment())
+    {
+        context.Response.Headers.Append("Strict-Transport-Security", "max-age=63072000; includeSubDomains");
+    }
+    await next();
+});
+
 app.UseHttpsRedirection();
 app.UseStaticFiles(); // wwwroot/uploads altındaki avatar/logo dosyalarını sunar
 app.UseCors(FrontendCorsPolicy);
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 app.MapControllers();
 
 app.MapGet("/health", () => Results.Ok(new
