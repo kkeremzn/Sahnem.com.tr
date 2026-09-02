@@ -101,6 +101,32 @@ namespace Sahnem.API.Controllers
             return Ok();
         }
 
+        // Kullanıcı henüz giriş yapamadığı için (şifresini unuttu) bu üç uç
+        // [Authorize] değil — anonim, ama brute-force'a karşı rate limitli.
+        [EnableRateLimiting("auth")]
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
+        {
+            await _userService.ForgotPassword(dto);
+            return Ok();
+        }
+
+        [EnableRateLimiting("auth")]
+        [HttpPost("verify-reset-code")]
+        public async Task<IActionResult> VerifyResetCode([FromBody] VerifyResetCodeDto dto)
+        {
+            await _userService.VerifyResetCode(dto);
+            return Ok();
+        }
+
+        [EnableRateLimiting("auth")]
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
+        {
+            await _userService.ResetPassword(dto);
+            return Ok();
+        }
+
 
         [Authorize]
         [HttpDelete("delete")]

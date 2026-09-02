@@ -3,6 +3,7 @@ import { PublicLayout } from '@/components/layout/PublicLayout';
 import { AuthLayout } from '@/components/layout/AuthLayout';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ProfileSetupLayout } from '@/components/layout/ProfileSetupLayout';
+import { VerifyEmailLayout } from '@/components/layout/VerifyEmailLayout';
 
 import { Home } from '@/pages/Home';
 import { Explore } from '@/pages/Explore';
@@ -17,6 +18,7 @@ import { NotFound } from '@/pages/NotFound';
 import { Login } from '@/pages/auth/Login';
 import { Register } from '@/pages/auth/Register';
 import { ForgotPassword } from '@/pages/auth/ForgotPassword';
+import { VerifyEmail } from '@/pages/auth/VerifyEmail';
 import { ProfileSetup } from '@/pages/ProfileSetup';
 
 import { Dashboard } from '@/pages/app/Dashboard';
@@ -53,6 +55,10 @@ export const router = createBrowserRouter([
       { path: '/register', element: <Register /> },
       { path: '/forgot-password', element: <ForgotPassword /> },
     ],
+  },
+  {
+    element: <VerifyEmailLayout />,
+    children: [{ path: '/verify-email', element: <VerifyEmail /> }],
   },
   {
     element: <ProfileSetupLayout />,

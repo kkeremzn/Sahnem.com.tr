@@ -66,3 +66,17 @@ export async function verifyEmail(code: string): Promise<void> {
 export async function resendVerificationEmail(): Promise<void> {
   await api.post('/user/resend-verification-email');
 }
+
+// Şifremi unuttum akışının üç adımı — kullanıcı henüz giriş yapmadığı için
+// bu üçü de token gerektirmiyor (backend'de [Authorize] yok).
+export async function forgotPassword(email: string): Promise<void> {
+  await api.post('/user/forgot-password', { email }, { skipAuthRetry: true });
+}
+
+export async function verifyResetCode(email: string, code: string): Promise<void> {
+  await api.post('/user/verify-reset-code', { email, code }, { skipAuthRetry: true });
+}
+
+export async function resetPassword(email: string, code: string, newPassword: string): Promise<void> {
+  await api.post('/user/reset-password', { email, code, newPassword }, { skipAuthRetry: true });
+}

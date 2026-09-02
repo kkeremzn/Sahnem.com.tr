@@ -28,6 +28,9 @@ namespace Sahnem.Business.Services
         private readonly IValidator<AppUserLoginDto> _appUserLoginValidator;
         private readonly IValidator<AppUserUpdateDto> _appUserUpdateValidator;
         private readonly IValidator<ChangePasswordDto> _changePasswordValidator;
+        private readonly IValidator<ForgotPasswordDto> _forgotPasswordValidator;
+        private readonly IValidator<VerifyResetCodeDto> _verifyResetCodeValidator;
+        private readonly IValidator<ResetPasswordDto> _resetPasswordValidator;
         private readonly IPasswordService _passwordService;
         private readonly ITokenService _tokenService;
         private readonly IEmailService _emailService;
@@ -49,6 +52,9 @@ namespace Sahnem.Business.Services
             IValidator<AppUserLoginDto> appUserLoginValidator,
             IValidator<AppUserUpdateDto> appUserUpdateValidator,
             IValidator<ChangePasswordDto> changePasswordValidator,
+            IValidator<ForgotPasswordDto> forgotPasswordValidator,
+            IValidator<VerifyResetCodeDto> verifyResetCodeValidator,
+            IValidator<ResetPasswordDto> resetPasswordValidator,
             IPasswordService passwordService,
             ITokenService tokenService,
             IEmailService emailService,
@@ -68,6 +74,9 @@ namespace Sahnem.Business.Services
             _appUserLoginValidator = appUserLoginValidator;
             _appUserUpdateValidator = appUserUpdateValidator;
             _changePasswordValidator = changePasswordValidator;
+            _forgotPasswordValidator = forgotPasswordValidator;
+            _verifyResetCodeValidator = verifyResetCodeValidator;
+            _resetPasswordValidator = resetPasswordValidator;
             _passwordService = passwordService;
             _tokenService = tokenService;
             _emailService = emailService;
@@ -398,6 +407,112 @@ namespace Sahnem.Business.Services
                 user.Email,
                 "Sahnem hesabını doğrula",
                 EmailTemplates.VerificationCode(user.FirstName, user.EmailVerificationCode!));
+        }
+
+        private static readonly TimeSpan PasswordResetCooldown = TimeSpan.FromSeconds(60);
+
+        public async Task ForgotPassword(ForgotPasswordDto dto)
+        {
+            var validationResult = await _forgotPasswordValidator.ValidateAsync(dto);
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
+
+            var user = await GetUserByEmailOrThrow(dto.Email);
+
+            if (user.PasswordResetCodeSentAt.HasValue)
+            {
+                var elapsed = DateTime.UtcNow - user.PasswordResetCodeSentAt.Value;
+                if (elapsed < PasswordResetCooldown)
+                {
+                    var waitSeconds = (int)Math.Ceiling((PasswordResetCooldown - elapsed).TotalSeconds);
+                    throw new Exception($"Please wait {waitSeconds} seconds before requesting a new code");
+                }
+            }
+
+            user.PasswordResetCode = Random.Shared.Next(100000, 999999).ToString();
+            user.PasswordResetCodeExpiresAt = DateTime.UtcNow.AddMinutes(15);
+            user.PasswordResetCodeSentAt = DateTime.UtcNow;
+            await _unitOfWork.SaveChanges();
+
+            await _emailService.SendAsync(
+                user.Email,
+                "Şifre sıfırlama kodun",
+                EmailTemplates.PasswordResetCode(user.FirstName, user.PasswordResetCode));
+        }
+
+        // Kod adım adım (önce doğrula, sonra yeni şifreyi gönder) girildiği için bu
+        // metod kodu TÜKETMİYOR — sadece geçerli mi diye bakıyor. Asıl tüketme
+        // (null'lanması) ResetPassword'de, gerçekten şifre değiştiğinde oluyor.
+        public async Task VerifyResetCode(VerifyResetCodeDto dto)
+        {
+            var validationResult = await _verifyResetCodeValidator.ValidateAsync(dto);
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
+
+            var user = await GetUserByEmailOrThrow(dto.Email);
+            EnsureResetCodeIsValid(user, dto.Code);
+        }
+
+        public async Task ResetPassword(ResetPasswordDto dto)
+        {
+            var validationResult = await _resetPasswordValidator.ValidateAsync(dto);
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
+
+            var user = await GetUserByEmailOrThrow(dto.Email);
+            EnsureResetCodeIsValid(user, dto.Code);
+
+            var isSameAsCurrentPassword = _passwordService.VerifyPassword(user, user.PasswordHash, dto.NewPassword);
+            if (isSameAsCurrentPassword)
+            {
+                throw new Exception("New password must be different from your current password");
+            }
+
+            user.PasswordHash = _passwordService.HashPassword(user, dto.NewPassword);
+            user.PasswordResetCode = null;
+            user.PasswordResetCodeExpiresAt = null;
+            user.PasswordResetCodeSentAt = null;
+
+            // Şifre sıfırlandığında tüm cihazlardaki oturumlar geçersiz olsun —
+            // hesaba başka biri erişmiş olsa bile eski refresh token'larla devam edemesin.
+            var tokens = await _refreshTokenRepository.WhereAsync(t => t.AppUserId == user.Id);
+            foreach (var token in tokens)
+            {
+                _refreshTokenRepository.Delete(token);
+            }
+
+            await _unitOfWork.SaveChanges();
+        }
+
+        private async Task<AppUser> GetUserByEmailOrThrow(string email)
+        {
+            var normalizedEmail = email.Trim().ToLower();
+            var user = await _repository.FirstOrDefaultAsync(u => u.Email == normalizedEmail);
+            if (user == null)
+            {
+                throw new Exception("No account found with this email");
+            }
+            return user;
+        }
+
+        private static void EnsureResetCodeIsValid(AppUser user, string code)
+        {
+            if (string.IsNullOrEmpty(user.PasswordResetCode)
+                || user.PasswordResetCodeExpiresAt == null
+                || user.PasswordResetCodeExpiresAt < DateTime.UtcNow)
+            {
+                throw new Exception("Reset code has expired, please request a new one");
+            }
+            if (user.PasswordResetCode != code.Trim())
+            {
+                throw new Exception("Invalid reset code");
+            }
         }
 
         private Task<bool> EmailExists(string email)

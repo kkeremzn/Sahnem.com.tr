@@ -19,6 +19,10 @@ namespace Sahnem.Core.Entities
         public DateTime? EmailVerificationCodeExpiresAt {get; set;}
         public DateTime? EmailVerificationCodeSentAt {get; set;}
 
+        public string? PasswordResetCode {get; set;}
+        public DateTime? PasswordResetCodeExpiresAt {get; set;}
+        public DateTime? PasswordResetCodeSentAt {get; set;}
+
         public virtual MusicianProfile MusicianProfile {get; set;}
         public virtual OrganizerProfile OrganizerProfile {get; set;}
         public virtual VenueProfile VenueProfile {get; set;}

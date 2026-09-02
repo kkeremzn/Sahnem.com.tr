@@ -57,8 +57,8 @@ export function Register() {
       // navigasyondan bağımsız olduğu için bu yarış durumundan etkilenmiyor.
       sessionStorage.setItem('sahnem_pending_role', role);
       await registerUser(registerInput);
-      toast('Hesabın oluşturuldu, profilini tamamlayalım.', 'success');
-      navigate('/profile-setup', { state: { role } });
+      toast('Hesabın oluşturuldu, e-postanı doğrula.', 'success');
+      navigate('/verify-email', { state: { role } });
     } catch (e) {
       setError('root', { message: formatApiError(e, 'Kayıt olunamadı.') });
     }

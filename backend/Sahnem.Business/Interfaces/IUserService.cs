@@ -21,5 +21,9 @@ namespace Sahnem.Business.Interfaces
         Task VerifyEmail(string code);
         Task ResendVerificationEmail();
 
+        Task ForgotPassword(ForgotPasswordDto dto);
+        Task VerifyResetCode(VerifyResetCodeDto dto);
+        Task ResetPassword(ResetPasswordDto dto);
+
     }
 }
