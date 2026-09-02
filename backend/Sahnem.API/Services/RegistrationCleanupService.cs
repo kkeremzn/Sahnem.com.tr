@@ -64,7 +64,12 @@ namespace Sahnem.API.Services
             var userService = scope.ServiceProvider.GetRequiredService<IUserService>();
 
             var cutoff = DateTime.UtcNow - GracePeriod;
-            var abandoned = await userRepository.WhereAsync(u => !u.IsEmailConfirmed && u.CreatedDate < cutoff);
+            // Profili tamamlanmış hesaplar ASLA silinmez, e-posta doğrulaması bu
+            // özellik eklenmeden önce hesap açmış gerçek kullanıcılarda hâlâ
+            // false olabilir — gerçek "terk edilmiş" bir kayıt hem doğrulanmamış
+            // HEM profili hiç oluşturulmamış olmalı.
+            var abandoned = await userRepository.WhereAsync(
+                u => !u.IsEmailConfirmed && !u.IsProfileCompleted && u.CreatedDate < cutoff);
             var abandonedList = abandoned.ToList();
 
             if (abandonedList.Count == 0) return;

@@ -59,10 +59,13 @@ namespace Sahnem.Business.Services
 
             var now = DateTime.UtcNow;
 
-            // Kaydolup e-posta doğrulamasını hiç bitirmeden yarım bırakılan hesaplar
-            // "gerçek" bir kullanıcı sayılmamalı — toplam kullanıcı sayısı bunları
-            // içermiyor (RegistrationCleanupService ile ayrıca periyodik temizleniyor).
-            var realUsers = users.Where(u => u.IsEmailConfirmed).ToList();
+            // Kaydolup e-posta doğrulamasını hiç bitirmeden VE profilini hiç
+            // oluşturmadan yarım bırakılan hesaplar "gerçek" bir kullanıcı
+            // sayılmamalı (RegistrationCleanupService bunları ayrıca periyodik
+            // temizliyor). Sadece e-posta doğrulanmamış ama profili tamamlanmış
+            // hesaplar (bu özellik eklenmeden önce kayıt olmuş gerçek kullanıcılar)
+            // hâlâ gerçek kullanıcı sayılır.
+            var realUsers = users.Where(u => u.IsEmailConfirmed || u.IsProfileCompleted).ToList();
             var abandonedSignups = users.Count - realUsers.Count;
 
             return new AdminStatsDto
