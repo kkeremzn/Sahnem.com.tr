@@ -1,4 +1,5 @@
 using AutoMapper;
+using Sahnem.Business.DTOs;
 using Sahnem.Business.DTOs.Admin;
 using Sahnem.Business.DTOs.User;
 using Sahnem.Business.Interfaces;
@@ -23,6 +24,7 @@ namespace Sahnem.Business.Services
         private readonly IGenericRepository<Message> _messageRepository;
         private readonly IGenericRepository<Conversation> _conversationRepository;
         private readonly IGenericRepository<Favorite> _favoriteRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
         public AdminService(
@@ -35,6 +37,7 @@ namespace Sahnem.Business.Services
             IGenericRepository<Message> messageRepository,
             IGenericRepository<Conversation> conversationRepository,
             IGenericRepository<Favorite> favoriteRepository,
+            IUnitOfWork unitOfWork,
             IMapper mapper)
         {
             _musicianProfileRepository = musicianProfileRepository;
@@ -46,6 +49,7 @@ namespace Sahnem.Business.Services
             _messageRepository = messageRepository;
             _conversationRepository = conversationRepository;
             _favoriteRepository = favoriteRepository;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
 
@@ -168,6 +172,82 @@ namespace Sahnem.Business.Services
                 FavoriteCount = favoriteCount,
                 ProfileSummary = profileSummary,
             };
+        }
+
+        public async Task<PagedResultDto<AdminConversationDto>> GetConversations(int page = 1, int pageSize = 20, string? search = null)
+        {
+            if (page < 1) page = 1;
+            if (pageSize < 1 || pageSize > 100) pageSize = 20;
+
+            var conversations = (await _conversationRepository.GetAllAsync()).ToList();
+            var userIds = conversations.Select(c => c.UserAId).Concat(conversations.Select(c => c.UserBId)).Distinct().ToList();
+            var users = await _userRepository.WhereAsync(u => userIds.Contains(u.Id));
+            var messageCounts = (await _messageRepository.GetAllAsync())
+                .GroupBy(m => m.ConversationId)
+                .ToDictionary(g => g.Key, g => g.Count());
+
+            var dtos = conversations.Select(c =>
+            {
+                var userA = users.FirstOrDefault(u => u.Id == c.UserAId);
+                var userB = users.FirstOrDefault(u => u.Id == c.UserBId);
+                return new AdminConversationDto
+                {
+                    Id = c.Id,
+                    UserAId = c.UserAId,
+                    UserAName = userA == null ? "" : $"{userA.FirstName} {userA.LastName}",
+                    UserBId = c.UserBId,
+                    UserBName = userB == null ? "" : $"{userB.FirstName} {userB.LastName}",
+                    LastMessage = c.LastMessage,
+                    LastMessageAt = c.LastMessageAt,
+                    MessageCount = messageCounts.TryGetValue(c.Id, out var count) ? count : 0,
+                    CreatedDate = c.CreatedDate,
+                };
+            });
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var term = search.Trim().ToLowerInvariant();
+                dtos = dtos.Where(d => d.UserAName.ToLowerInvariant().Contains(term) || d.UserBName.ToLowerInvariant().Contains(term));
+            }
+
+            var filtered = dtos.OrderByDescending(d => d.LastMessageAt).ToList();
+            var paged = filtered.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            return new PagedResultDto<AdminConversationDto>
+            {
+                Items = paged,
+                Page = page,
+                PageSize = pageSize,
+                TotalCount = filtered.Count,
+            };
+        }
+
+        public async Task<IEnumerable<AdminMessageDto>> GetConversationMessages(int conversationId)
+        {
+            var messages = await _messageRepository.WhereAsync(m => m.ConversationId == conversationId);
+            var senderIds = messages.Select(m => m.SenderId).Distinct().ToList();
+            var senders = await _userRepository.WhereAsync(u => senderIds.Contains(u.Id));
+
+            return messages.OrderBy(m => m.CreatedDate).Select(m =>
+            {
+                var sender = senders.FirstOrDefault(u => u.Id == m.SenderId);
+                return new AdminMessageDto
+                {
+                    Id = m.Id,
+                    SenderId = m.SenderId,
+                    SenderName = sender == null ? "" : $"{sender.FirstName} {sender.LastName}",
+                    Body = m.Body,
+                    CreatedDate = m.CreatedDate,
+                };
+            });
+        }
+
+        public async Task DeleteMessage(int messageId)
+        {
+            var message = await _messageRepository.GetByIdAsync(messageId);
+            if (message == null) throw new Exception("Message not found");
+            _messageRepository.Delete(message);
+            await _unitOfWork.SaveChanges();
         }
     }
 }

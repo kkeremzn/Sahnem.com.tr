@@ -1,9 +1,11 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, Outlet } from 'react-router-dom';
 import { PublicLayout } from '@/components/layout/PublicLayout';
 import { AuthLayout } from '@/components/layout/AuthLayout';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ProfileSetupLayout } from '@/components/layout/ProfileSetupLayout';
 import { VerifyEmailLayout } from '@/components/layout/VerifyEmailLayout';
+import { AdminShell } from '@/components/admin/AdminShell';
+import { AdminAuthProvider } from '@/context/AdminAuthContext';
 
 import { Home } from '@/pages/Home';
 import { Explore } from '@/pages/Explore';
@@ -32,7 +34,15 @@ import { Messages } from '@/pages/app/Messages';
 import { Favorites } from '@/pages/app/Favorites';
 import { Notifications } from '@/pages/app/Notifications';
 import { Settings } from '@/pages/app/Settings';
-import { AdminPanel } from '@/pages/app/AdminPanel';
+
+import { AdminLogin } from '@/pages/admin/AdminLogin';
+import { AdminDashboard } from '@/pages/admin/AdminDashboard';
+import { AdminUsers } from '@/pages/admin/AdminUsers';
+import { AdminUserDetail } from '@/pages/admin/AdminUserDetail';
+import { AdminAdverts } from '@/pages/admin/AdminAdverts';
+import { AdminAdvertDetail } from '@/pages/admin/AdminAdvertDetail';
+import { AdminConversations } from '@/pages/admin/AdminConversations';
+import { AdminConversationDetail } from '@/pages/admin/AdminConversationDetail';
 
 export const router = createBrowserRouter([
   {
@@ -79,7 +89,31 @@ export const router = createBrowserRouter([
       { path: '/favorites', element: <Favorites /> },
       { path: '/notifications', element: <Notifications /> },
       { path: '/settings', element: <Settings /> },
-      { path: '/admin', element: <AdminPanel /> },
+    ],
+  },
+  // Yönetim paneli — bilinçli olarak tüketici uygulamasının hiçbir layout'unu
+  // (Navbar/AppSidebar/AuthProvider) paylaşmıyor, tamamen ayrı bir kimlik
+  // doğrulama bağlamı (AdminAuthProvider) içinde yaşıyor.
+  {
+    element: (
+      <AdminAuthProvider>
+        <Outlet />
+      </AdminAuthProvider>
+    ),
+    children: [
+      { path: '/backstage/login', element: <AdminLogin /> },
+      {
+        element: <AdminShell />,
+        children: [
+          { path: '/backstage', element: <AdminDashboard /> },
+          { path: '/backstage/users', element: <AdminUsers /> },
+          { path: '/backstage/users/:id', element: <AdminUserDetail /> },
+          { path: '/backstage/adverts', element: <AdminAdverts /> },
+          { path: '/backstage/adverts/:id', element: <AdminAdvertDetail /> },
+          { path: '/backstage/conversations', element: <AdminConversations /> },
+          { path: '/backstage/conversations/:id', element: <AdminConversationDetail /> },
+        ],
+      },
     ],
   },
   { path: '*', element: <NotFound /> },

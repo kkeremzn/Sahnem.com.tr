@@ -15,12 +15,14 @@ namespace Sahnem.API.Controllers
         private readonly IAdminService _adminService;
         private readonly IUserService _userService;
         private readonly IAdvertService _advertService;
+        private readonly IOfferService _offerService;
 
-        public AdminController(IAdminService adminService, IUserService userService, IAdvertService advertService)
+        public AdminController(IAdminService adminService, IUserService userService, IAdvertService advertService, IOfferService offerService)
         {
             _adminService = adminService;
             _userService = userService;
             _advertService = advertService;
+            _offerService = offerService;
         }
 
         [HttpGet("stats")]
@@ -81,10 +83,38 @@ namespace Sahnem.API.Controllers
             return Ok(result);
         }
 
+        [HttpGet("adverts/{id:int}/offers")]
+        public async Task<IActionResult> GetAdvertOffers(int id)
+        {
+            var result = await _offerService.GetOffersByAdvert(id, asAdmin: true);
+            return Ok(result);
+        }
+
         [HttpPut("adverts/{id:int}/cancel")]
         public async Task<IActionResult> CancelAdvert(int id)
         {
             await _advertService.CancelAdvert(id, asAdmin: true);
+            return Ok();
+        }
+
+        [HttpGet("conversations")]
+        public async Task<IActionResult> GetConversations([FromQuery] int page = 1, [FromQuery] int pageSize = 20, [FromQuery] string? search = null)
+        {
+            var result = await _adminService.GetConversations(page, pageSize, search);
+            return Ok(result);
+        }
+
+        [HttpGet("conversations/{id:int}/messages")]
+        public async Task<IActionResult> GetConversationMessages(int id)
+        {
+            var result = await _adminService.GetConversationMessages(id);
+            return Ok(result);
+        }
+
+        [HttpDelete("messages/{id:int}")]
+        public async Task<IActionResult> DeleteMessage(int id)
+        {
+            await _adminService.DeleteMessage(id);
             return Ok();
         }
     }

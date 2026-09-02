@@ -7,7 +7,6 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { AdvertCard } from '@/components/advert/AdvertCard';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { VerificationBadge } from '@/components/ui/StatusBadge';
 import { useAuth } from '@/context/AuthContext';
 import * as profileService from '@/services/profileService';
 import * as advertService from '@/services/advertService';
@@ -60,7 +59,6 @@ export function EmployerProfile() {
             <div className="pb-1">
               <div className="flex items-center gap-2">
                 <h1 className="font-display text-2xl font-bold sm:text-3xl">{name}</h1>
-                <VerificationBadge status={employer.verificationStatus} />
               </div>
               <p className="mt-1 text-sm text-text-dim">{typeLabel}</p>
               <div className="mt-2 flex items-center gap-1 text-xs text-text-faint">

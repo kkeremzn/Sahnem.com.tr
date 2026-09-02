@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { Bell, LayoutDashboard, LogOut, Menu, Settings, User, X } from 'lucide-react';
+import { Bell, LogOut, Menu, Settings, User, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { LogoMark } from '@/components/brand/LogoMark';
 import { Avatar } from '@/components/ui/Avatar';
@@ -17,7 +17,7 @@ const PUBLIC_LINKS = [
 ];
 
 export function Navbar() {
-  const { user, logout, isAdmin } = useAuth();
+  const { user, logout } = useAuth();
   const { unreadCount } = useNotifications();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -99,16 +99,9 @@ export function Navbar() {
                         <p className="truncate text-sm font-semibold">{user.firstName} {user.lastName}</p>
                         <p className="truncate text-xs text-text-dim">{user.email}</p>
                       </div>
-                      {isAdmin && (
-                        <Link to="/admin" onClick={() => setMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-dim hover:bg-card-hover hover:text-text">
-                          <LayoutDashboard size={16} /> Yönetim Paneli
-                        </Link>
-                      )}
-                      {!isAdmin && (
-                        <Link to="/profile/edit" onClick={() => setMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-dim hover:bg-card-hover hover:text-text">
-                          <User size={16} /> Profilim
-                        </Link>
-                      )}
+                      <Link to="/profile/edit" onClick={() => setMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-dim hover:bg-card-hover hover:text-text">
+                        <User size={16} /> Profilim
+                      </Link>
                       <Link to="/settings" onClick={() => setMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-dim hover:bg-card-hover hover:text-text">
                         <Settings size={16} /> Ayarlar
                       </Link>

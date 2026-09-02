@@ -123,14 +123,14 @@ namespace Sahnem.Business.Services
             return await BuildResponses(offers);
         }
 
-        public async Task<IEnumerable<OfferResponseDto>> GetOffersByAdvert(int advertId)
+        public async Task<IEnumerable<OfferResponseDto>> GetOffersByAdvert(int advertId, bool asAdmin = false)
         {
             var advert = await _advertRepository.GetByIdAsync(advertId);
             if (advert == null)
             {
                 throw new Exception("Advert not found");
             }
-            if (advert.CreatorId != _currentUserService.UserId)
+            if (advert.CreatorId != _currentUserService.UserId && !asAdmin)
             {
                 throw new Exception("You are not authorized to view offers for this advert");
             }

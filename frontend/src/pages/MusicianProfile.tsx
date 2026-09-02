@@ -8,7 +8,6 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { StarRating } from '@/components/ui/StarRating';
-import { VerificationBadge } from '@/components/ui/StatusBadge';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import * as profileService from '@/services/profileService';
@@ -79,7 +78,6 @@ export function MusicianProfile() {
             <div className="pb-1">
               <div className="flex items-center gap-2">
                 <h1 className="font-display text-2xl font-bold sm:text-3xl">{musician.firstName} {musician.lastName}</h1>
-                <VerificationBadge status={musician.verificationStatus} />
               </div>
               <p className="mt-1 text-sm text-text-dim">{MUSIC_BRANCH_LABELS[musician.branch]} · {musician.genres}</p>
               <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-text-faint">

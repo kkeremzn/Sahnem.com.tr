@@ -1,3 +1,4 @@
+using Sahnem.Business.DTOs;
 using Sahnem.Business.DTOs.Admin;
 
 namespace Sahnem.Business.Interfaces
@@ -9,5 +10,8 @@ namespace Sahnem.Business.Interfaces
     {
         Task<AdminStatsDto> GetStats();
         Task<AdminUserDetailDto> GetUserDetail(int userId);
+        Task<PagedResultDto<AdminConversationDto>> GetConversations(int page = 1, int pageSize = 20, string? search = null);
+        Task<IEnumerable<AdminMessageDto>> GetConversationMessages(int conversationId);
+        Task DeleteMessage(int messageId);
     }
 }

@@ -1,16 +1,5 @@
 import type { AppUser } from './user';
-import type { UserType, VerificationStatus } from './enums';
-
-// Sahnem.Business/DTOs/Admin/PendingVerificationDto.cs — Musician/Organizer/Venue
-// profillerinden onay bekleyenlerin tek bir listede birleştirilmiş hali.
-export interface PendingVerification {
-  kind: 'Musician' | 'Organizer' | 'Venue';
-  profileId: number;
-  appUserId: number;
-  name: string;
-  email: string;
-  createdDate: string;
-}
+import type { UserType } from './enums';
 
 // Sahnem.Business/DTOs/Admin/AdminStatsDto.cs
 export interface AdminRecentUser {
@@ -34,9 +23,8 @@ export interface AdminStats {
   totalMusicians: number;
   totalOrganizers: number;
   totalVenues: number;
-  unverifiedEmailUsers: number;
+  abandonedSignups: number;
   suspendedUsers: number;
-  pendingVerifications: number;
   newUsersLast7Days: number;
   newUsersLast30Days: number;
 
@@ -66,7 +54,6 @@ export interface AdminUserDetail {
   conversationCount: number;
   favoriteCount: number;
   profileSummary?: string;
-  verificationStatus?: VerificationStatus;
 }
 
 export interface AdminUserFilter {

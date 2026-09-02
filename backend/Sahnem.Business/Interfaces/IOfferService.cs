@@ -7,7 +7,7 @@ namespace Sahnem.Business.Interfaces
         Task<OfferResponseDto> CreateOffer(OfferCreateDto dto);
         Task<OfferResponseDto> GetOfferById(int offerId);
         Task<IEnumerable<OfferResponseDto>> GetMyOffers();
-        Task<IEnumerable<OfferResponseDto>> GetOffersByAdvert(int advertId);
+        Task<IEnumerable<OfferResponseDto>> GetOffersByAdvert(int advertId, bool asAdmin = false);
         Task UpdateOfferStatus(int offerId, Core.Enums.OfferStatus status);
     }
 }
