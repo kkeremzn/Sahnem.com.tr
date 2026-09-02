@@ -1,3 +1,4 @@
+using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Microsoft.Extensions.Options;
@@ -37,6 +38,12 @@ namespace Sahnem.API.Services
             {
                 ServiceURL = $"https://{_settings.AccountId}.r2.cloudflarestorage.com",
                 ForcePathStyle = true,
+                AuthenticationRegion = "auto",
+                // AWS SDK v4, R2'nin desteklemediği bir trailing checksum'ı varsayılan
+                // olarak her istekte gönderiyor — bu R2'ye giden PutObject'leri
+                // sessizce başarısız ediyor, bu yüzden explicit olarak kapatıyoruz.
+                RequestChecksumCalculation = RequestChecksumCalculation.WHEN_REQUIRED,
+                ResponseChecksumValidation = ResponseChecksumValidation.WHEN_REQUIRED,
             };
             using var client = new AmazonS3Client(_settings.AccessKey, _settings.SecretKey, config);
 
