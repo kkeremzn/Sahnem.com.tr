@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { Camera, Link2, PlayCircle } from 'lucide-react';
 import { LogoMark } from '@/components/brand/LogoMark';
 import { Container } from '@/components/ui/Container';
 import { useAuth } from '@/context/AuthContext';
@@ -29,7 +28,7 @@ export function Footer() {
   // görünmez (daha önce burada oturum açıkken bile "Giriş Yap/Kayıt Ol" gösteriliyordu).
   const accountLinks = user
     ? [
-        { label: 'Panel', to: '/dashboard' },
+        { label: 'Anasayfam', to: '/dashboard' },
         { label: 'Profilim', to: '/profile/edit' },
         { label: 'Ayarlar', to: '/settings' },
       ]
@@ -55,17 +54,6 @@ export function Footer() {
           <p className="mt-4 max-w-xs text-sm text-text-dim">
             Müzisyenleri organizatör ve mekanlarla buluşturan müzik profesyonelleri ağı.
           </p>
-          <div className="mt-5 flex gap-2">
-            {[Camera, PlayCircle, Link2].map((Icon, i) => (
-              <a
-                key={i}
-                href="#"
-                className="focus-ring flex h-9 w-9 items-center justify-center rounded-full border border-border text-text-dim transition-colors hover:border-gold hover:text-gold"
-              >
-                <Icon size={16} />
-              </a>
-            ))}
-          </div>
         </div>
         {columns.map((col) => (
           <div key={col.title}>

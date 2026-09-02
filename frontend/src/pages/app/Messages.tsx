@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, MessageCircle, Send } from 'lucide-react';
+import { ArrowLeft, Loader2, MessageCircle, Send } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useAuth } from '@/context/AuthContext';
@@ -87,7 +87,13 @@ export function Messages() {
     }
   }
 
-  if (conversations === null) return null;
+  if (conversations === null) {
+    return (
+      <div className="flex h-[calc(100vh-220px)] min-h-[480px] items-center justify-center">
+        <Loader2 className="animate-spin text-gold" size={28} />
+      </div>
+    );
+  }
 
   if (conversations.length === 0 && !startingNew) {
     return <EmptyState icon={<MessageCircle size={22} />} title="Henüz mesajın yok" description="Teklif alışverişi başladığında sohbetlerin burada görünecek." />;

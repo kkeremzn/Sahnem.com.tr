@@ -73,19 +73,9 @@ export function Home() {
                 Müzisyenleri Keşfet
               </Button>
             </div>
-            <div className="mt-10 grid grid-cols-3 gap-6 border-t border-border pt-6">
-              <div>
-                <p className="font-display text-2xl font-bold text-text">1.200+</p>
-                <p className="text-xs text-text-dim">Kayıtlı müzisyen</p>
-              </div>
-              <div>
-                <p className="font-display text-2xl font-bold text-text">340+</p>
-                <p className="text-xs text-text-dim">Aktif ilan</p>
-              </div>
-              <div>
-                <p className="font-display text-2xl font-bold text-text">81 il</p>
-                <p className="text-xs text-text-dim">Kapsama alanı</p>
-              </div>
+            <div className="mt-10 flex items-center gap-3 border-t border-border pt-6">
+              <p className="font-display text-2xl font-bold text-text">81 il</p>
+              <p className="text-sm text-text-dim">Türkiye genelinde kapsama alanı</p>
             </div>
           </motion.div>
 

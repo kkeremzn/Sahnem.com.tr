@@ -22,6 +22,7 @@ export function MyAdvertDetail() {
   const [busyId, setBusyId] = useState<number | null>(null);
   const [cancelOpen, setCancelOpen] = useState(false);
   const [cancelling, setCancelling] = useState(false);
+  const [pendingOfferAction, setPendingOfferAction] = useState<{ offerId: number; status: 'Accepted' | 'Rejected'; musicianName: string } | null>(null);
 
   async function load() {
     const a = await advertService.getAdvertById(Number(id));
@@ -31,11 +32,14 @@ export function MyAdvertDetail() {
 
   useEffect(() => { load(); }, [id]);
 
-  async function handleOfferAction(offerId: number, status: 'Accepted' | 'Rejected') {
+  async function handleOfferAction() {
+    if (!pendingOfferAction) return;
+    const { offerId, status } = pendingOfferAction;
     setBusyId(offerId);
     try {
       await offerService.updateOfferStatus(offerId, status);
       toast(status === 'Accepted' ? 'Teklif kabul edildi.' : 'Teklif reddedildi.', 'success');
+      setPendingOfferAction(null);
       await load();
     } finally {
       setBusyId(null);
@@ -110,8 +114,8 @@ export function MyAdvertDetail() {
                   <p className="mt-3 text-sm text-text-dim">{o.message}</p>
                   {o.offerStatus === 'Pending' && (
                     <div className="mt-4 flex gap-2 border-t border-border pt-4">
-                      <Button size="sm" onClick={() => handleOfferAction(o.id, 'Accepted')} loading={busyId === o.id}>Kabul Et</Button>
-                      <Button size="sm" variant="secondary" onClick={() => handleOfferAction(o.id, 'Rejected')} loading={busyId === o.id}>Reddet</Button>
+                      <Button size="sm" onClick={() => setPendingOfferAction({ offerId: o.id, status: 'Accepted', musicianName: o.musicianName })} loading={busyId === o.id}>Kabul Et</Button>
+                      <Button size="sm" variant="secondary" onClick={() => setPendingOfferAction({ offerId: o.id, status: 'Rejected', musicianName: o.musicianName })} loading={busyId === o.id}>Reddet</Button>
                     </div>
                   )}
                 </Card>
@@ -147,6 +151,21 @@ export function MyAdvertDetail() {
         loading={cancelling}
         onConfirm={handleCancel}
         onClose={() => setCancelOpen(false)}
+      />
+
+      <ConfirmDialog
+        open={!!pendingOfferAction}
+        title={pendingOfferAction?.status === 'Accepted' ? 'Teklifi kabul et' : 'Teklifi reddet'}
+        description={
+          pendingOfferAction
+            ? `${pendingOfferAction.musicianName} adlı müzisyenin teklifini ${pendingOfferAction.status === 'Accepted' ? 'kabul etmek' : 'reddetmek'} istediğine emin misin?`
+            : undefined
+        }
+        confirmLabel={pendingOfferAction?.status === 'Accepted' ? 'Kabul Et' : 'Reddet'}
+        danger={pendingOfferAction?.status === 'Rejected'}
+        loading={busyId === pendingOfferAction?.offerId}
+        onConfirm={handleOfferAction}
+        onClose={() => setPendingOfferAction(null)}
       />
     </div>
   );

@@ -7,7 +7,7 @@ import { cn } from '@/lib/cn';
 const FAQS = [
   { q: 'Sahnem\'e nasıl kayıt olabilirim?', a: 'Kayıt Ol sayfasından e-posta adresin ile hızlıca hesap oluşturabilir, ardından müzisyen ya da organizatör/mekan profilini tamamlayabilirsin.' },
   { q: 'Müzisyen olarak nasıl ilana teklif verebilirim?', a: 'İlanlar sayfasından sana uygun bir ilan bul, detay sayfasındaki teklif formunu doldurarak mesaj ve fiyat teklifini gönder.' },
-  { q: 'Organizatör olarak nasıl ilan açarım?', a: 'Panelinden "İlan Ver" butonuna tıklayarak etkinlik detaylarını, bütçeni ve tarihini içeren bir ilan oluşturabilirsin.' },
+  { q: 'Organizatör olarak nasıl ilan açarım?', a: 'Menüdeki "İlan Ver" butonuna tıklayarak etkinlik detaylarını, bütçeni ve tarihini içeren bir ilan oluşturabilirsin.' },
   { q: 'Profilim ne zaman doğrulanır?', a: 'Profil doğrulama süreci ekibimiz tarafından manuel olarak yürütülür; genellikle 1-2 iş günü içinde tamamlanır.' },
   { q: 'Ödeme süreci platform üzerinden mi yürüyor?', a: 'Şu an için ödeme koordinasyonu taraflar arasında doğrudan yürütülüyor; platform üzerinden ödeme entegrasyonu yol haritamızda.' },
   { q: 'Hesabımı nasıl silebilirim?', a: 'Ayarlar sayfasındaki Hesap sekmesinden hesabını kalıcı olarak silebilirsin.' },
@@ -45,8 +45,11 @@ export function Help() {
         <h2 className="mb-4 font-display text-lg font-bold">Yasal Belgeler</h2>
         <div className="grid gap-4 sm:grid-cols-3">
           {LEGAL.map((item) => (
-            <Card key={item.title} hover className="cursor-pointer">
-              <item.icon size={18} className="text-gold-soft" />
+            <Card key={item.title}>
+              <div className="flex items-start justify-between">
+                <item.icon size={18} className="text-gold-soft" />
+                <span className="rounded-full bg-card-hover px-2 py-0.5 text-[10px] font-medium text-text-faint">Yakında</span>
+              </div>
               <h3 className="mt-2.5 text-sm font-semibold">{item.title}</h3>
               <p className="mt-1 text-xs text-text-dim">{item.desc}</p>
             </Card>

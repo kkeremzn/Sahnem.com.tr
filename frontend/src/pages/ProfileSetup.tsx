@@ -357,7 +357,7 @@ export function ProfileSetup() {
                   onChange={(e) => (isMusician ? setMForm((f) => ({ ...f, instagramUrl: e.target.value })) : setEForm((f) => ({ ...f, instagramUrl: e.target.value })))}
                 />
               </Field>
-              <Field label="Youtube" hint="Opsiyonel">
+              <Field label="YouTube" hint="Opsiyonel">
                 <Input
                   value={isMusician ? mForm.youtubeUrl : eForm.youtubeUrl}
                   onChange={(e) => (isMusician ? setMForm((f) => ({ ...f, youtubeUrl: e.target.value })) : setEForm((f) => ({ ...f, youtubeUrl: e.target.value })))}

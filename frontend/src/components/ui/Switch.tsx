@@ -5,11 +5,12 @@ interface SwitchProps {
   onChange: (checked: boolean) => void;
   label?: string;
   description?: string;
+  disabled?: boolean;
 }
 
-export function Switch({ checked, onChange, label, description }: SwitchProps) {
+export function Switch({ checked, onChange, label, description, disabled }: SwitchProps) {
   return (
-    <label className="flex cursor-pointer items-center justify-between gap-4 py-1">
+    <label className={cn('flex items-center justify-between gap-4 py-1', disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer')}>
       {(label || description) && (
         <span>
           {label && <span className="block text-sm font-medium text-text">{label}</span>}
@@ -20,9 +21,11 @@ export function Switch({ checked, onChange, label, description }: SwitchProps) {
         type="button"
         role="switch"
         aria-checked={checked}
+        disabled={disabled}
         onClick={() => onChange(!checked)}
         className={cn(
           'focus-ring relative h-6 w-11 shrink-0 rounded-full transition-colors',
+          disabled ? 'cursor-not-allowed' : '',
           checked ? 'bg-gold' : 'bg-muted',
         )}
       >

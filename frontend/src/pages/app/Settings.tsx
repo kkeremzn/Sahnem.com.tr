@@ -72,28 +72,34 @@ export function Settings() {
       <Tabs items={TAB_ITEMS} active={tab} onChange={setTab} className="mb-6" />
 
       {tab === 'notifications' && (
-        <Card className="max-w-xl divide-y divide-border">
-          <div className="pb-4">
-            <Switch checked={notifPrefs.offers} onChange={(v) => setNotifPrefs((p) => ({ ...p, offers: v }))} label="Teklif bildirimleri" description="Yeni teklif ve durum değişikliklerinde bildirim al." />
-          </div>
-          <div className="py-4">
-            <Switch checked={notifPrefs.messages} onChange={(v) => setNotifPrefs((p) => ({ ...p, messages: v }))} label="Mesaj bildirimleri" description="Yeni mesaj geldiğinde bildirim al." />
-          </div>
-          <div className="pt-4">
-            <Switch checked={notifPrefs.marketing} onChange={(v) => setNotifPrefs((p) => ({ ...p, marketing: v }))} label="Kampanya & duyurular" description="Sahnem'den kampanya ve ürün duyuruları al." />
-          </div>
-        </Card>
+        <div className="max-w-xl space-y-3">
+          <p className="text-xs text-text-faint">Bu tercihler yakında aktif olacak, şu an uygulama tüm bildirimleri gönderiyor.</p>
+          <Card className="divide-y divide-border">
+            <div className="pb-4">
+              <Switch disabled checked={notifPrefs.offers} onChange={(v) => setNotifPrefs((p) => ({ ...p, offers: v }))} label="Teklif bildirimleri" description="Yeni teklif ve durum değişikliklerinde bildirim al." />
+            </div>
+            <div className="py-4">
+              <Switch disabled checked={notifPrefs.messages} onChange={(v) => setNotifPrefs((p) => ({ ...p, messages: v }))} label="Mesaj bildirimleri" description="Yeni mesaj geldiğinde bildirim al." />
+            </div>
+            <div className="pt-4">
+              <Switch disabled checked={notifPrefs.marketing} onChange={(v) => setNotifPrefs((p) => ({ ...p, marketing: v }))} label="Kampanya & duyurular" description="Sahnem'den kampanya ve ürün duyuruları al." />
+            </div>
+          </Card>
+        </div>
       )}
 
       {tab === 'privacy' && (
-        <Card className="max-w-xl divide-y divide-border">
-          <div className="pb-4">
-            <Switch checked={privacyPrefs.showProfile} onChange={(v) => setPrivacyPrefs((p) => ({ ...p, showProfile: v }))} label="Profilimi herkese açık göster" description="Kapatırsan profilin arama sonuçlarında görünmez." />
-          </div>
-          <div className="pt-4">
-            <Switch checked={privacyPrefs.showContact} onChange={(v) => setPrivacyPrefs((p) => ({ ...p, showContact: v }))} label="İletişim bilgilerimi paylaş" description="Telefon numaran doğrulanmış işverenlerle paylaşılsın." />
-          </div>
-        </Card>
+        <div className="max-w-xl space-y-3">
+          <p className="text-xs text-text-faint">Bu tercihler yakında aktif olacak, şu an profilin varsayılan ayarlarla görünür.</p>
+          <Card className="divide-y divide-border">
+            <div className="pb-4">
+              <Switch disabled checked={privacyPrefs.showProfile} onChange={(v) => setPrivacyPrefs((p) => ({ ...p, showProfile: v }))} label="Profilimi herkese açık göster" description="Kapatırsan profilin arama sonuçlarında görünmez." />
+            </div>
+            <div className="pt-4">
+              <Switch disabled checked={privacyPrefs.showContact} onChange={(v) => setPrivacyPrefs((p) => ({ ...p, showContact: v }))} label="İletişim bilgilerimi paylaş" description="Telefon numaran doğrulanmış işverenlerle paylaşılsın." />
+            </div>
+          </Card>
+        </div>
       )}
 
       {tab === 'account' && (

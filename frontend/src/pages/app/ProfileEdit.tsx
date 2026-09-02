@@ -164,7 +164,7 @@ export function ProfileEdit() {
               <Field label="Biyografi"><Textarea rows={5} value={musician.bio} onChange={(e) => setMusician({ ...musician, bio: e.target.value })} /></Field>
               <div className="mt-4 grid gap-4 sm:grid-cols-3">
                 <Field label="Instagram"><Input value={musician.instagramUrl ?? ''} onChange={(e) => setMusician({ ...musician, instagramUrl: e.target.value })} /></Field>
-                <Field label="Youtube"><Input value={musician.youtubeUrl ?? ''} onChange={(e) => setMusician({ ...musician, youtubeUrl: e.target.value })} /></Field>
+                <Field label="YouTube"><Input value={musician.youtubeUrl ?? ''} onChange={(e) => setMusician({ ...musician, youtubeUrl: e.target.value })} /></Field>
                 <Field label="LinkedIn"><Input value={musician.linkedinUrl ?? ''} onChange={(e) => setMusician({ ...musician, linkedinUrl: e.target.value })} /></Field>
               </div>
             </Card>

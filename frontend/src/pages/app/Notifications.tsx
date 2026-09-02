@@ -5,6 +5,7 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { CardSkeleton } from '@/components/ui/Skeleton';
 import * as notificationService from '@/services/notificationService';
 import { useNotifications } from '@/context/NotificationContext';
 import type { AppNotification, NotificationType } from '@/types';
@@ -43,7 +44,9 @@ export function Notifications() {
         action={unreadCount > 0 && <Button variant="secondary" size="sm" icon={<CheckCheck size={15} />} onClick={handleReadAll}>Tümünü okundu işaretle</Button>}
       />
 
-      {notifications === null ? null : notifications.length === 0 ? (
+      {notifications === null ? (
+        <div className="space-y-2.5">{Array.from({ length: 4 }, (_, i) => <CardSkeleton key={i} />)}</div>
+      ) : notifications.length === 0 ? (
         <EmptyState icon={<Bell size={22} />} title="Bildirim yok" description="Yeni gelişmeler burada görünecek." />
       ) : (
         <div className="space-y-2.5">
