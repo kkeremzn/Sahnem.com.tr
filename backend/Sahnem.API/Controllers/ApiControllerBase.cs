@@ -33,21 +33,19 @@ namespace Sahnem.API.Controllers
         }
 
         private CookieOptions BuildCookieOptions(DateTimeOffset expires)
-        {
-            return new CookieOptions
-            {
-                HttpOnly = true,
-                // Prod'da mutlaka HTTPS üzerinden gitsin; yerelde http://localhost
-                // ile test edilebilsin diye sadece Development'ta false.
-                Secure = !HttpContext.RequestServices.GetRequiredService<IHostEnvironment>().IsDevelopment(),
-                // Bu cookie sadece frontend'in kendi fetch çağrılarıyla gönderilecek,
-                // üçüncü bir sitenin tetiklediği cross-site bir istekle asla
-                // taşınmamalı — CSRF'e karşı ana savunma satırı bu.
-                SameSite = SameSiteMode.Strict,
-                // Sadece refresh/logout uçlarına gitsin, gereksiz yere her istekte taşınmasın.
-                Path = "/api/user",
-                Expires = expires,
-            };
-        }
+{
+    return new CookieOptions
+    {
+        HttpOnly = true,
+        Secure = !HttpContext.RequestServices
+            .GetRequiredService<IHostEnvironment>()
+            .IsDevelopment(),
+
+        SameSite = SameSiteMode.Lax,
+
+        Path = "/api/user",
+        Expires = expires
+    };
+}
     }
 }
