@@ -33,19 +33,24 @@ namespace Sahnem.API.Controllers
         }
 
         private CookieOptions BuildCookieOptions(DateTimeOffset expires)
-{
-    return new CookieOptions
-    {
-        HttpOnly = true,
-        Secure = !HttpContext.RequestServices
-            .GetRequiredService<IHostEnvironment>()
-            .IsDevelopment(),
-
-        SameSite = SameSiteMode.Lax,
-
-        Path = "/api/user",
-        Expires = expires
-    };
-}
+        {
+            return new CookieOptions
+            {
+                HttpOnly = true,
+                // Prod'da mutlaka HTTPS üzerinden gitsin; yerelde http://localhost
+                // ile test edilebilsin diye sadece Development'ta false.
+                Secure = !HttpContext.RequestServices.GetRequiredService<IHostEnvironment>().IsDevelopment(),
+                // frontend (sahnem.com.tr) ve API (api.sahnem.com.tr) ayrı subdomain'ler
+                // olduğu için tarayıcı bunu "cross-site" sayabiliyor — Strict bu durumda
+                // cookie'yi bazı senaryolarda hiç göndermeyebiliyordu. Lax, sadece
+                // POST/fetch gibi cross-site isteklerde korumayı sürdürürken (asıl CSRF
+                // riski buydu, refresh endpoint'i zaten POST) subdomain'ler arası normal
+                // kullanımı bozmuyor.
+                SameSite = SameSiteMode.Lax,
+                // Sadece refresh/logout uçlarına gitsin, gereksiz yere her istekte taşınmasın.
+                Path = "/api/user",
+                Expires = expires,
+            };
+        }
     }
 }
