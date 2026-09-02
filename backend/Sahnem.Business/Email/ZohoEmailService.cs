@@ -41,11 +41,21 @@ namespace Sahnem.Business.Email
                 message.Subject = subject;
                 message.Body = new BodyBuilder { HtmlBody = htmlBody }.ToMessageBody();
 
+                // MailKit'in varsayılan timeout'u 100 saniye — SMTP bağlantısı
+                // tıkanırsa kayıt/doğrulama isteği kullanıcı için askıda kalıyordu.
+                // Kısa bir timeout ile hızlı başarısız olup akışı bloklamıyoruz.
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
                 using var client = new SmtpClient();
-                await client.ConnectAsync(_settings.Host, _settings.Port, SecureSocketOptions.StartTls);
-                await client.AuthenticateAsync(_settings.Username, _settings.Password);
-                await client.SendAsync(message);
-                await client.DisconnectAsync(true);
+                await client.ConnectAsync(_settings.Host, _settings.Port, SecureSocketOptions.StartTls, cts.Token);
+                await client.AuthenticateAsync(_settings.Username, _settings.Password, cts.Token);
+                await client.SendAsync(message, cts.Token);
+                await client.DisconnectAsync(true, cts.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogError(
+                    "Zoho SMTP bağlantısı zaman aşımına uğradı ({ToEmail} adresine '{Subject}' gönderilemedi).",
+                    toEmail, subject);
             }
             catch (Exception ex)
             {
