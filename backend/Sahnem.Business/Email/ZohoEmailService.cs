@@ -1,77 +1,110 @@
-using MailKit.Net.Smtp;
-using MailKit.Security;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MimeKit;
 using Sahnem.Business.Interfaces;
 
 namespace Sahnem.Business.Email
 {
-    // Zoho Mail'in SMTP sunucusu üzerinden gönderir. Kimlik bilgileri (SMTP
-    // uygulama şifresi dahil) appsettings/user-secrets'ten `Zoho:*` ile okunuyor.
-    // Host/kullanıcı adı ayarlanmamışsa gönderim sessizce atlanır ve uyarı
-    // loglanır — bu sayede yerel geliştirmede Zoho hesabı olmadan da kayıt/
-    // doğrulama akışı bozulmaz.
+    // Zoho Mail'in HTTPS REST API'si üzerinden gönderir (SMTP DEĞİL — Render'ın
+    // container'ından SMTP portlarına (465/587) çıkış tamamen engelli olduğu
+    // canlıda doğrulandı: HTTPS/443 anında bağlanırken tüm SMTP portları 8
+    // saniyede zaman aşımına uğruyordu). OAuth2 refresh token appsettings/
+    // user-secrets'ten `Zoho:*` ile okunuyor; erişim tokenı (1 saatlik) burada
+    // bellekte cache'lenip süresi dolunca otomatik yenileniyor.
     public class ZohoEmailService : IEmailService
     {
-        private readonly ZohoSmtpSettings _settings;
+        private const string AccountsDomain = "https://accounts.zoho.eu";
+        private const string ApiDomain = "https://mail.zoho.eu";
+
+        private readonly ZohoApiSettings _settings;
+        private readonly HttpClient _httpClient;
         private readonly ILogger<ZohoEmailService> _logger;
 
-        public ZohoEmailService(IOptions<ZohoSmtpSettings> settings, ILogger<ZohoEmailService> logger)
+        private static string? _cachedAccessToken;
+        private static DateTime _cachedAccessTokenExpiresAt = DateTime.MinValue;
+        private static readonly SemaphoreSlim TokenLock = new(1, 1);
+
+        public ZohoEmailService(IOptions<ZohoApiSettings> settings, HttpClient httpClient, ILogger<ZohoEmailService> logger)
         {
             _settings = settings.Value;
+            _httpClient = httpClient;
             _logger = logger;
         }
 
         public async Task SendAsync(string toEmail, string subject, string htmlBody)
         {
-            if (string.IsNullOrWhiteSpace(_settings.Host) || string.IsNullOrWhiteSpace(_settings.Username))
+            if (string.IsNullOrWhiteSpace(_settings.RefreshToken) || string.IsNullOrWhiteSpace(_settings.ClientId))
             {
                 _logger.LogWarning(
-                    "Zoho SMTP ayarlanmamış, '{Subject}' e-postası {ToEmail} adresine gönderilmedi.",
+                    "Zoho API ayarlanmamış, '{Subject}' e-postası {ToEmail} adresine gönderilmedi.",
                     subject, toEmail);
                 return;
             }
 
             try
             {
-                var message = new MimeMessage();
-                message.From.Add(new MailboxAddress(_settings.FromName, _settings.FromEmail));
-                message.To.Add(MailboxAddress.Parse(toEmail));
-                message.Subject = subject;
-                message.Body = new BodyBuilder { HtmlBody = htmlBody }.ToMessageBody();
+                var accessToken = await GetAccessTokenAsync();
 
-                // MailKit'in varsayılan timeout'u 100 saniye — SMTP bağlantısı
-                // tıkanırsa kayıt/doğrulama isteği kullanıcı için askıda kalıyordu.
-                // Kısa bir timeout ile hızlı başarısız olup akışı bloklamıyoruz.
-                // 587/STARTTLS Render'ın ağında takıldığı için doğrudan TLS (465/SSL)
-                // kullanıyoruz — STARTTLS'in "düz metinden TLS'e yükseltme" adımına
-                // müdahale eden ağ ekipmanlarına karşı daha güvenilir.
-                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-                using var client = new SmtpClient();
+                var request = new HttpRequestMessage(HttpMethod.Post, $"{ApiDomain}/api/accounts/{_settings.AccountId}/messages")
+                {
+                    Content = JsonContent.Create(new
+                    {
+                        fromAddress = _settings.FromEmail,
+                        toAddress = toEmail,
+                        subject,
+                        content = htmlBody,
+                        askReceipt = "no",
+                    }),
+                };
+                request.Headers.Authorization = new AuthenticationHeaderValue("Zoho-oauthtoken", accessToken);
 
-                _logger.LogInformation("Zoho SMTP: {Host}:{Port} adresine bağlanılıyor...", _settings.Host, _settings.Port);
-                await client.ConnectAsync(_settings.Host, _settings.Port, SecureSocketOptions.SslOnConnect, cts.Token);
-
-                _logger.LogInformation("Zoho SMTP: bağlanıldı, kimlik doğrulanıyor...");
-                await client.AuthenticateAsync(_settings.Username, _settings.Password, cts.Token);
-
-                _logger.LogInformation("Zoho SMTP: kimlik doğrulandı, '{Subject}' {ToEmail} adresine gönderiliyor...", subject, toEmail);
-                await client.SendAsync(message, cts.Token);
-
-                await client.DisconnectAsync(true, cts.Token);
-                _logger.LogInformation("Zoho SMTP: gönderim tamamlandı ({ToEmail}).", toEmail);
-            }
-            catch (OperationCanceledException)
-            {
-                _logger.LogError(
-                    "Zoho SMTP bağlantısı zaman aşımına uğradı ({ToEmail} adresine '{Subject}' gönderilemedi).",
-                    toEmail, subject);
+                var response = await _httpClient.SendAsync(request);
+                if (!response.IsSuccessStatusCode)
+                {
+                    var body = await response.Content.ReadAsStringAsync();
+                    _logger.LogError("Zoho Mail API gönderimi başarısız ({Status}): {Body}", response.StatusCode, body);
+                }
             }
             catch (Exception ex)
             {
                 // E-posta gönderiminin başarısız olması iş akışını (kayıt, teklif vb.) kesmemeli.
-                _logger.LogError(ex, "Zoho SMTP e-posta gönderimi sırasında beklenmeyen hata.");
+                _logger.LogError(ex, "Zoho Mail API gönderimi sırasında beklenmeyen hata.");
+            }
+        }
+
+        private async Task<string> GetAccessTokenAsync()
+        {
+            await TokenLock.WaitAsync();
+            try
+            {
+                if (_cachedAccessToken != null && DateTime.UtcNow < _cachedAccessTokenExpiresAt)
+                {
+                    return _cachedAccessToken;
+                }
+
+                var query = $"?refresh_token={Uri.EscapeDataString(_settings.RefreshToken)}" +
+                            $"&client_id={Uri.EscapeDataString(_settings.ClientId)}" +
+                            $"&client_secret={Uri.EscapeDataString(_settings.ClientSecret)}" +
+                            "&grant_type=refresh_token";
+
+                var response = await _httpClient.PostAsync($"{AccountsDomain}/oauth/v2/token{query}", content: null);
+                response.EnsureSuccessStatusCode();
+
+                var json = await response.Content.ReadFromJsonAsync<JsonElement>();
+                var accessToken = json.GetProperty("access_token").GetString()!;
+                var expiresInSeconds = json.GetProperty("expires_in").GetInt32();
+
+                _cachedAccessToken = accessToken;
+                // Tam sınırda süresi dolmuş bir token'la isteğe çıkmamak için erken yenileme payı.
+                _cachedAccessTokenExpiresAt = DateTime.UtcNow.AddSeconds(expiresInSeconds - 60);
+
+                return accessToken;
+            }
+            finally
+            {
+                TokenLock.Release();
             }
         }
     }

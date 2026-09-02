@@ -89,8 +89,8 @@ var jwtSettings = builder.Configuration
     .GetSection("Jwt")
     .Get<JwtSettings>();
 
-builder.Services.Configure<ZohoSmtpSettings>(builder.Configuration.GetSection("Zoho"));
-builder.Services.AddScoped<IEmailService, ZohoEmailService>();
+builder.Services.Configure<ZohoApiSettings>(builder.Configuration.GetSection("Zoho"));
+builder.Services.AddHttpClient<IEmailService, ZohoEmailService>();
 
 
 builder.Services.AddAuthentication(options =>
