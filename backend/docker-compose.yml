@@ -3,7 +3,7 @@ services:
     image: postgres:17-alpine
     environment:
       POSTGRES_USER: sahnem
-      POSTGRES_PASSWORD: Keremuzun-1
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: SahnemDb
     ports:
       - "5432:5432"
