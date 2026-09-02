@@ -42,19 +42,29 @@ Tüm bu değişiklikler `dotnet build` ile hatasız derlendi, tek bir migration'
 
 ## Kalan işler (öncelik sırasına göre)
 
-### P3 — production olgunluğu (tek kalan kategori)
-1. Health check endpoint'i (`/health`).
-2. Structured logging (Serilog vb.) — şu an sadece varsayılan ASP.NET logging var.
-3. Rate limiting.
-4. API versioning (`/api/v1/...`).
-5. Unit/Integration test projesi — hâlâ hiç yok.
-6. Response compression, distributed/memory cache.
-7. Postgres `sahnem` kullanıcısı şu an DB sahibi — prod için sadece gereken tablolara erişimi olan dedicated, düşük yetkili bir kullanıcıya geçilmeli.
-8. Prod ortamında `Jwt:Key`/`ConnectionStrings`/`Resend:ApiKey` için ortam değişkeni veya Key Vault (user-secrets sadece dev'de çalışır).
-9. `LocalFileStorageService` MVP için yerel disk kullanıyor — çoklu instance/deploy senaryosunda Azure Blob/S3'e taşınmalı (arayüz zaten hazır, sadece yeni implementasyon + DI kaydı değişecek).
-10. Telefon doğrulama (`IsPhoneNumberConfirmed`) — bilinçli olarak bu turda ertelendi, SMS sağlayıcısı seçilince eklenebilir.
-11. Mesajlaşmada gerçek zamanlılık (SignalR) — şu an REST + polling'e uygun; istemci tarafı polling ile idare edebilir, gerçek zamanlı bildirim isteniyorsa SignalR hub eklenebilir.
-12. Resend gönderimleri şu an "fire and forget" değil ama başarısızlıkları sadece logluyor — kritik e-postalar için retry/kuyruk (ör. Hangfire) düşünülebilir.
+## ✅ 2026-09-02 turunda tamamlananlar (production'a çıkış + güvenlik/altyapı sertleştirme)
+
+- PostgreSQL'e geçiş (Render managed Postgres), Render (backend) + Vercel (frontend) canlıya alındı, custom domain'ler bağlandı.
+- Health check endpoint'i (`/health`), rate limiting (`Microsoft.AspNetCore.RateLimiting`, auth uçlarında), güvenlik başlıkları (CSP/HSTS/X-Frame-Options vb.), dosya yükleme extension spoofing açığı kapatıldı (magic-byte doğrulama).
+- Dosya depolama Cloudflare R2'ye taşındı (Render'ın diski deploy'da sıfırlanıyordu) — madde 9 tamamlandı.
+- E-posta Resend'den Zoho'ya taşındı — ama SMTP değil, **Zoho Mail'in HTTPS API'si** üzerinden (Render'ın SMTP portlarını (465/587) tamamen engellediği canlıda TCP testiyle doğrulandı; OAuth2 refresh token ile çalışıyor, `support@sahnem.com.tr`'den gönderiyor).
+- E-posta doğrulama artık kayıt akışına gerçekten entegre (`/verify-email` sayfası, profil kurulumundan önce zorunlu), 60sn resend cooldown + rate limit.
+- Şifremi unuttum akışı sıfırdan gerçek backend'e bağlandı (e-posta kontrolü → kod → doğrulama → yeni şifre, eski şifreyle aynı olamaz kontrolü, reset sonrası tüm refresh token'lar iptal).
+- Migration'lar artık deploy'da otomatik uygulanıyor (`db.Database.Migrate()` startup'ta) — elle `dotnet ef database update` gerekmiyor.
+- `DeleteUser` düzeltildi — daha önce ilişkili kayıtları (teklif/ilan/mesaj/favori/bildirim/refresh token) temizlemediği için her zaman 500 veriyordu.
+
+## Kalan işler (öncelik sırasına göre)
+
+### P3 — production olgunluğu
+1. Structured logging (Serilog vb.) — şu an sadece varsayılan ASP.NET logging var.
+2. API versioning (`/api/v1/...`).
+3. Unit/Integration test projesi — hâlâ hiç yok.
+4. Response compression, distributed/memory cache.
+5. Postgres kullanıcısı şu an DB sahibi — prod için sadece gereken tablolara erişimi olan dedicated, düşük yetkili bir kullanıcıya geçilmeli.
+6. Telefon doğrulama (`IsPhoneNumberConfirmed`) — kullanıcı şu an için sadece e-posta doğrulaması istedi, SMS bilinçli olarak ertelendi.
+7. Mesajlaşmada gerçek zamanlılık (SignalR) — şu an REST + polling'e uygun; istemci tarafı polling ile idare edebilir, gerçek zamanlı bildirim isteniyorsa SignalR hub eklenebilir.
+8. Zoho Mail API gönderimleri "fire and forget" değil ama başarısızlıkları sadece logluyor — kritik e-postalar için retry/kuyruk (ör. Hangfire) düşünülebilir.
+9. Render/GitHub'a özel: JWT key'in production'da güçlü/rastgele olduğu teyit edilmeli, Postgres backup/retention ayarı kontrol edilmeli, GitHub reposu şu an public — bilinçli bir tercih değilse private'a alınmalı.
 
 ---
 
