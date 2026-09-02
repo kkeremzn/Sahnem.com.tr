@@ -140,6 +140,16 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
+app.MapControllers();
+
+app.MapGet("/health", () => Results.Ok(new
+{
+    status = "ok",
+    service = "Sahnem API"
+}));
+
+app.Run();
+
 
 
 app.Run();
