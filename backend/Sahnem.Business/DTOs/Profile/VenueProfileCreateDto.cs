@@ -17,5 +17,6 @@ namespace Sahnem.Business.DTOs
         public string? InstagramUrl {get; set;}
         public string? YoutubeUrl {get; set;}
         public string? LinkedinUrl {get; set;}
+        public string? SpotifyUrl {get; set;}
     }
 }

@@ -12,13 +12,14 @@ import { useToast } from '@/context/ToastContext';
 import { USER_TYPE_LABELS, type UserType } from '@/types';
 import { cn } from '@/lib/cn';
 import { formatApiError } from '@/lib/apiClient';
+import { isValidTurkishPhone, normalizePhoneNumber } from '@/lib/phone';
 
 const schema = z
   .object({
     firstName: z.string().min(2, 'Ad gerekli.'),
     lastName: z.string().min(2, 'Soyad gerekli.'),
     email: z.string().email('Geçerli bir e-posta gir.'),
-    phoneNumber: z.string().min(10, 'Geçerli bir telefon numarası gir.'),
+    phoneNumber: z.string().refine(isValidTurkishPhone, 'Geçerli bir telefon numarası gir (5xx xxx xx xx).'),
     password: z.string().min(6, 'Şifre en az 6 karakter olmalı.'),
     confirmPassword: z.string(),
     terms: z.boolean().refine((v) => v === true, { message: 'Devam etmek için koşulları kabul etmelisin.' }),
@@ -50,6 +51,7 @@ export function Register() {
       // oluşturulunca atanıyor. Buradaki seçim sadece profil kurulum
       // sihirbazına hangi formun gösterileceğini söylemek için taşınıyor.
       const { confirmPassword: _confirmPassword, terms: _terms, ...registerInput } = data;
+      registerInput.phoneNumber = normalizePhoneNumber(registerInput.phoneNumber);
       // Not: registerUser() sonrası AuthContext'teki user state'i değişince
       // AuthLayout kendi Navigate guard'ı ile /profile-setup'a state'siz olarak
       // ZATEN yönlendiriyor (bkz. AuthLayout.tsx) — bu yüzden aşağıdaki navigate

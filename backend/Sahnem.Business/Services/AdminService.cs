@@ -2,6 +2,7 @@ using AutoMapper;
 using Sahnem.Business.DTOs;
 using Sahnem.Business.DTOs.Admin;
 using Sahnem.Business.DTOs.User;
+using Sahnem.Business.Helpers;
 using Sahnem.Business.Interfaces;
 using Sahnem.Core.Entities;
 using Sahnem.Core.Enums;
@@ -143,7 +144,8 @@ namespace Sahnem.Business.Services
                     var musician = await _musicianProfileRepository.FirstOrDefaultAsync(m => m.AppUserId == userId);
                     if (musician != null)
                     {
-                        profileSummary = $"{musician.Branch} · {musician.City} · {musician.ExperienceYears} yıl deneyim";
+                        var branches = string.Join(", ", MultiEnumField.Parse<MusicBranch>(musician.Branch));
+                        profileSummary = $"{branches} · {musician.City} · {musician.ExperienceYears} yıl deneyim";
                     }
                     break;
                 case UserType.Organizer:

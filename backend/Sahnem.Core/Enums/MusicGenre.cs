@@ -1,0 +1,43 @@
+namespace Sahnem.Core.Enums
+{
+    public enum MusicGenre
+    {
+        None = 0,
+        Pop = 1,
+        Rock = 2,
+        Jazz = 3,
+        Blues = 4,
+        Classical = 5,
+        Electronic = 6,
+        HipHop = 7,
+        RnB = 8,
+        Reggae = 9,
+        Country = 10,
+        Folk = 11,
+        TurkishFolk = 12,
+        TurkishClassical = 13,
+        Arabesque = 14,
+        Latin = 15,
+        Funk = 16,
+        Soul = 17,
+        Metal = 18,
+        Punk = 19,
+        Indie = 20,
+        Alternative = 21,
+        Disco = 22,
+        House = 23,
+        Techno = 24,
+        Ambient = 25,
+        WorldMusic = 26,
+        Flamenco = 27,
+        Tango = 28,
+        Salsa = 29,
+        Gospel = 30,
+        Opera = 31,
+        Swing = 32,
+        Ska = 33,
+        Acoustic = 34,
+        Instrumental = 35,
+        Cover = 36
+    }
+}

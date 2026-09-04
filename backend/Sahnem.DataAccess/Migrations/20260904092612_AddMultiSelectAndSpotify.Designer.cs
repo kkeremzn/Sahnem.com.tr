@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Sahnem.DataAccess.Contexts;
@@ -11,9 +12,11 @@ using Sahnem.DataAccess.Contexts;
 namespace Sahnem.DataAccess.Migrations
 {
     [DbContext(typeof(SahnemDbContext))]
-    partial class SahnemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260904092612_AddMultiSelectAndSpotify")]
+    partial class AddMultiSelectAndSpotify
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

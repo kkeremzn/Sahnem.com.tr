@@ -183,6 +183,10 @@ namespace Sahnem.Business.Services
 
             var user = _mapper.Map<AppUser>(userRegisterDto);
             user.Email = user.Email.Trim().ToLower();
+            // "0" ile ya da "0"sız girilebiliyor (validator ikisini de kabul ediyor) —
+            // aynı numaranın iki farklı yazımla iki hesap açmasını önlemek ve
+            // depolamayı tutarlı tutmak için hep başındaki 0 atılarak saklanıyor.
+            user.PhoneNumber = NormalizePhoneNumber(user.PhoneNumber);
 
             if (await EmailExists(user.Email))
             {
@@ -345,7 +349,14 @@ namespace Sahnem.Business.Services
             }
 
             _mapper.Map(dto, user);
+            user.PhoneNumber = NormalizePhoneNumber(user.PhoneNumber);
             await _unitOfWork.SaveChanges();
+        }
+
+        private static string NormalizePhoneNumber(string phoneNumber)
+        {
+            var trimmed = phoneNumber.Trim();
+            return trimmed.StartsWith("0") ? trimmed[1..] : trimmed;
         }
 
         public async Task ChangePassword(ChangePasswordDto dto)

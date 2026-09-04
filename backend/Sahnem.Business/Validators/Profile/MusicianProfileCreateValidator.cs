@@ -15,27 +15,29 @@ namespace Sahnem.Business.Validators.Profile
             .WithMessage("Bio can not be empty")
             .MinimumLength(20)
             .WithMessage("Bio must be at least 20 characters long")
-            .MaximumLength(100)
-            .WithMessage("Bio must not exceed 100 characters");
+            .MaximumLength(200)
+            .WithMessage("Bio must not exceed 200 characters");
 
 
 
             RuleFor(x => x.Branch)
             .Cascade(CascadeMode.Stop)
-            .NotEqual(MusicBranch.None)
-            .WithMessage("Please select a branch")
-            .IsInEnum()
+            .NotEmpty()
+            .WithMessage("Please select at least one branch")
+            .Must(b => b.Count <= 6)
+            .WithMessage("You can select at most 6 branches")
+            .Must(b => b.All(v => v != MusicBranch.None && Enum.IsDefined(v)))
             .WithMessage("Invalid branch");
 
 
             RuleFor(x => x.Genres)
             .Cascade(CascadeMode.Stop)
             .NotEmpty()
-            .WithMessage("Genres can not be empty")
-            .MinimumLength(2)
-            .WithMessage("Genres must be at least 2 characters long")
-            .MaximumLength(50)
-            .WithMessage("Genres must not exceed 50 characters");
+            .WithMessage("Please select at least one genre")
+            .Must(g => g.Count <= 5)
+            .WithMessage("You can select at most 5 genres")
+            .Must(g => g.All(v => v != MusicGenre.None && Enum.IsDefined(v)))
+            .WithMessage("Invalid genre");
 
 
             RuleFor(x => x.ExperienceYears)
@@ -60,6 +62,13 @@ namespace Sahnem.Business.Validators.Profile
             .WithMessage("Districtmust be at least 1 characters long")
             .MaximumLength(17)
             .WithMessage("District must not exceed 17 characters");
+
+            RuleFor(x => x.AdditionalCities)
+            .Cascade(CascadeMode.Stop)
+            .Must(c => c.Count <= 5)
+            .WithMessage("You can select at most 5 additional cities")
+            .Must(c => c.All(v => v != City.None && Enum.IsDefined(v)))
+            .WithMessage("Invalid city");
 
 
             RuleFor(x => x.IsAvailableToTravel)
@@ -91,9 +100,10 @@ namespace Sahnem.Business.Validators.Profile
             .Must(url =>
             string.IsNullOrWhiteSpace(url) || url.Contains("linkedin.com"))
             .WithMessage("Please enter a valid LinkedIn profile URL.");
-            
 
-        
+            RuleFor(x => x.SpotifyUrl)
+            .Must(url => string.IsNullOrWhiteSpace(url) || url.Contains("spotify.com"))
+            .WithMessage("Please enter a valid Spotify profile URL.");
 
         }
     }

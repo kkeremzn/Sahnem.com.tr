@@ -19,7 +19,7 @@ export const MUSIC_BRANCHES = [
   'Vocal', 'Guitar', 'BassGuitar', 'Drums', 'Piano', 'Keyboard', 'Violin',
   'Cello', 'Saxophone', 'Clarinet', 'Trumpet', 'Flute', 'DJ', 'Producer',
   'Percussion', 'Oud', 'Baglama', 'Kanun', 'Trombone', 'Tuba', 'FrenchHorn',
-  'Ney', 'Zurna', 'Mey',
+  'Ney', 'Zurna', 'Mey', 'Kemenche', 'Tulum', 'Harmonica',
 ] as const;
 export type MusicBranch = (typeof MUSIC_BRANCHES)[number];
 
@@ -30,6 +30,29 @@ export const MUSIC_BRANCH_LABELS: Record<MusicBranch, string> = {
   DJ: 'DJ', Producer: 'Prodüktör', Percussion: 'Perküsyon', Oud: 'Ud',
   Baglama: 'Bağlama', Kanun: 'Kanun', Trombone: 'Trombon', Tuba: 'Tuba',
   FrenchHorn: 'Korno', Ney: 'Ney', Zurna: 'Zurna', Mey: 'Mey',
+  Kemenche: 'Kemençe', Tulum: 'Tulum', Harmonica: 'Armonika',
+};
+
+export const MUSIC_GENRES = [
+  'Pop', 'Rock', 'Jazz', 'Blues', 'Classical', 'Electronic', 'HipHop', 'RnB',
+  'Reggae', 'Country', 'Folk', 'TurkishFolk', 'TurkishClassical', 'Arabesque',
+  'Latin', 'Funk', 'Soul', 'Metal', 'Punk', 'Indie', 'Alternative', 'Disco',
+  'House', 'Techno', 'Ambient', 'WorldMusic', 'Flamenco', 'Tango', 'Salsa',
+  'Gospel', 'Opera', 'Swing', 'Ska', 'Acoustic', 'Instrumental', 'Cover',
+] as const;
+export type MusicGenre = (typeof MUSIC_GENRES)[number];
+
+export const MUSIC_GENRE_LABELS: Record<MusicGenre, string> = {
+  Pop: 'Pop', Rock: 'Rock', Jazz: 'Caz', Blues: 'Blues', Classical: 'Klasik',
+  Electronic: 'Elektronik', HipHop: 'Hip Hop', RnB: 'R&B', Reggae: 'Reggae',
+  Country: 'Country', Folk: 'Folk', TurkishFolk: 'Türk Halk Müziği',
+  TurkishClassical: 'Türk Sanat Müziği', Arabesque: 'Arabesk', Latin: 'Latin',
+  Funk: 'Funk', Soul: 'Soul', Metal: 'Metal', Punk: 'Punk', Indie: 'Indie',
+  Alternative: 'Alternatif', Disco: 'Disko', House: 'House', Techno: 'Techno',
+  Ambient: 'Ambient', WorldMusic: 'Dünya Müziği', Flamenco: 'Flamenko',
+  Tango: 'Tango', Salsa: 'Salsa', Gospel: 'Gospel', Opera: 'Opera',
+  Swing: 'Swing', Ska: 'Ska', Acoustic: 'Akustik', Instrumental: 'Enstrümantal',
+  Cover: 'Cover',
 };
 
 export const VENUE_TYPES = [

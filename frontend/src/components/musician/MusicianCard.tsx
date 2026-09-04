@@ -3,8 +3,7 @@ import { Heart, MapPin, Plane } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
 import { StarRating } from '@/components/ui/StarRating';
-import { Badge } from '@/components/ui/Badge';
-import { CITY_LABELS, MUSIC_BRANCH_LABELS, type MusicianProfile } from '@/types';
+import { CITY_LABELS, MUSIC_BRANCH_LABELS, MUSIC_GENRE_LABELS, type MusicianProfile } from '@/types';
 import { formatPrice } from '@/lib/format';
 import { cn } from '@/lib/cn';
 import { resolveAssetUrl } from '@/lib/apiClient';
@@ -20,16 +19,13 @@ export function MusicianCard({ musician, favorite, onToggleFavorite }: MusicianC
   return (
     <Card hover className="group relative flex flex-col p-0 overflow-hidden">
       <Link to={`/musicians/${musician.appUserId}`} className="flex flex-1 flex-col p-5">
-        <div className="flex items-start justify-between">
-          <Avatar name={`${musician.firstName} ${musician.lastName}`} src={resolveAssetUrl(musician.avatarUrl)} size={56} />
-          {musician.verificationStatus === 'Approved' && (
-            <Badge variant="accent">Doğrulanmış</Badge>
-          )}
-        </div>
+        <Avatar name={`${musician.firstName} ${musician.lastName}`} src={resolveAssetUrl(musician.avatarUrl)} size={56} />
         <h3 className="mt-3.5 font-display text-base font-bold text-text group-hover:text-gold-soft">
           {musician.firstName} {musician.lastName}
         </h3>
-        <p className="text-sm text-text-dim">{MUSIC_BRANCH_LABELS[musician.branch]} · {musician.genres}</p>
+        <p className="truncate text-sm text-text-dim">
+          {musician.branch.map((b) => MUSIC_BRANCH_LABELS[b]).join(', ')} · {musician.genres.map((g) => MUSIC_GENRE_LABELS[g]).join(', ')}
+        </p>
 
         <div className="mt-2.5 flex items-center gap-3 text-xs text-text-faint">
           <span className="inline-flex items-center gap-1">

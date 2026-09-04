@@ -32,7 +32,7 @@ namespace Sahnem.Business.Validators.User
             .Cascade(CascadeMode.Stop)
             .NotEmpty()
             .WithMessage("Phone number is required")
-                .Matches(@"^05\d{9}$")
+                .Matches(@"^0?5\d{9}$")
                 .WithMessage("Invalid phone number format");
             
         }

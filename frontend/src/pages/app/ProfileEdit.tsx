@@ -9,16 +9,20 @@ import { Textarea } from '@/components/ui/Textarea';
 import { Switch } from '@/components/ui/Switch';
 import { Button } from '@/components/ui/Button';
 import { FileDropzone } from '@/components/ui/FileDropzone';
+import { MultiSelectChips } from '@/components/ui/MultiSelectChips';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import * as authService from '@/services/authService';
 import * as profileService from '@/services/profileService';
 import { uploadAvatar } from '@/services/uploadService';
 import { formatApiError } from '@/lib/apiClient';
+import { normalizePhoneNumber } from '@/lib/phone';
+import { DISTRICTS } from '@/data/districts';
 import {
-  CITIES, CITY_LABELS, MUSIC_BRANCHES, MUSIC_BRANCH_LABELS, ORGANIZER_TYPES, ORGANIZER_TYPE_LABELS,
+  CITIES, CITY_LABELS, MUSIC_BRANCHES, MUSIC_BRANCH_LABELS, MUSIC_GENRES, MUSIC_GENRE_LABELS,
+  ORGANIZER_TYPES, ORGANIZER_TYPE_LABELS,
   VENUE_TYPES, VENUE_TYPE_LABELS, WORK_STATUSES, WORK_STATUS_LABELS, optionsFrom,
-  type City, type EmployerProfile, type IsAvailableToTravel, type MusicBranch, type MusicianProfile,
+  type City, type EmployerProfile, type IsAvailableToTravel, type MusicianProfile,
   type OrganizerProfile, type OrganizerType, type VenueProfile, type VenueType,
 } from '@/types';
 import { cn } from '@/lib/cn';
@@ -63,7 +67,7 @@ export function ProfileEdit() {
     if (!user) return;
     setSaving(true);
     try {
-      await authService.updateUser({ firstName, lastName, phoneNumber, avatarUrl });
+      await authService.updateUser({ firstName, lastName, phoneNumber: normalizePhoneNumber(phoneNumber), avatarUrl });
       if (isMusician && musician) {
         const updated = await profileService.updateMusicianProfile(musician);
         setMusician(updated);
@@ -116,17 +120,25 @@ export function ProfileEdit() {
           <>
             <Card>
               <h3 className="mb-4 font-display text-base font-bold">Uzmanlık</h3>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Branş">
-                  <Select value={musician.branch} onChange={(e) => setMusician({ ...musician, branch: e.target.value as MusicBranch })}>
-                    {optionsFrom(MUSIC_BRANCHES, MUSIC_BRANCH_LABELS).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-                  </Select>
+              <div className="space-y-4">
+                <Field label="Branş" hint="En fazla 6">
+                  <MultiSelectChips
+                    options={optionsFrom(MUSIC_BRANCHES, MUSIC_BRANCH_LABELS)}
+                    selected={musician.branch}
+                    onChange={(branch) => setMusician({ ...musician, branch })}
+                    max={6}
+                  />
                 </Field>
                 <Field label="Deneyim (yıl)">
                   <Input type="number" min={1} max={50} value={musician.experienceYears} onChange={(e) => setMusician({ ...musician, experienceYears: Number(e.target.value) })} />
                 </Field>
-                <Field label="Türler" className="sm:col-span-2">
-                  <Input value={musician.genres} onChange={(e) => setMusician({ ...musician, genres: e.target.value })} />
+                <Field label="Türler" hint="En fazla 5">
+                  <MultiSelectChips
+                    options={optionsFrom(MUSIC_GENRES, MUSIC_GENRE_LABELS)}
+                    selected={musician.genres}
+                    onChange={(genres) => setMusician({ ...musician, genres })}
+                    max={5}
+                  />
                 </Field>
                 <Field label="Çalışma şekli">
                   <div className="flex gap-2">
@@ -145,12 +157,25 @@ export function ProfileEdit() {
               <h3 className="mb-4 font-display text-base font-bold">Konum & seyahat</h3>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Şehir">
-                  <Select value={musician.city} onChange={(e) => setMusician({ ...musician, city: e.target.value as City })}>
+                  <Select value={musician.city} onChange={(e) => setMusician({ ...musician, city: e.target.value as City, district: '' })}>
                     {optionsFrom(CITIES, CITY_LABELS).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                   </Select>
                 </Field>
-                <Field label="İlçe">
-                  <Input value={musician.district ?? ''} onChange={(e) => setMusician({ ...musician, district: e.target.value })} />
+                <Field label="İlçe" hint="Opsiyonel">
+                  <Select value={musician.district ?? ''} onChange={(e) => setMusician({ ...musician, district: e.target.value })}>
+                    <option value="">Seç</option>
+                    {DISTRICTS[musician.city].map((d) => <option key={d} value={d}>{d}</option>)}
+                  </Select>
+                </Field>
+              </div>
+              <div className="mt-4">
+                <Field label="Diğer hizmet verdiğin şehirler" hint="Opsiyonel, en fazla 5">
+                  <MultiSelectChips
+                    options={optionsFrom(CITIES, CITY_LABELS).filter((o) => o.value !== musician.city)}
+                    selected={musician.additionalCities}
+                    onChange={(additionalCities) => setMusician({ ...musician, additionalCities })}
+                    max={5}
+                  />
                 </Field>
               </div>
               <div className="mt-4 space-y-1">
@@ -161,11 +186,12 @@ export function ProfileEdit() {
 
             <Card>
               <h3 className="mb-4 font-display text-base font-bold">Biyografi & sosyal</h3>
-              <Field label="Biyografi"><Textarea rows={5} value={musician.bio} onChange={(e) => setMusician({ ...musician, bio: e.target.value })} /></Field>
-              <div className="mt-4 grid gap-4 sm:grid-cols-3">
-                <Field label="Instagram"><Input value={musician.instagramUrl ?? ''} onChange={(e) => setMusician({ ...musician, instagramUrl: e.target.value })} /></Field>
-                <Field label="YouTube"><Input value={musician.youtubeUrl ?? ''} onChange={(e) => setMusician({ ...musician, youtubeUrl: e.target.value })} /></Field>
-                <Field label="LinkedIn"><Input value={musician.linkedinUrl ?? ''} onChange={(e) => setMusician({ ...musician, linkedinUrl: e.target.value })} /></Field>
+              <Field label="Biyografi" hint="20-200 karakter"><Textarea rows={5} value={musician.bio} onChange={(e) => setMusician({ ...musician, bio: e.target.value })} /></Field>
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                <Field label="Instagram"><Input placeholder="https://instagram.com/kullaniciadi" value={musician.instagramUrl ?? ''} onChange={(e) => setMusician({ ...musician, instagramUrl: e.target.value })} /></Field>
+                <Field label="YouTube"><Input placeholder="https://youtube.com/@kanaladi" value={musician.youtubeUrl ?? ''} onChange={(e) => setMusician({ ...musician, youtubeUrl: e.target.value })} /></Field>
+                <Field label="LinkedIn"><Input placeholder="https://linkedin.com/in/kullaniciadi" value={musician.linkedinUrl ?? ''} onChange={(e) => setMusician({ ...musician, linkedinUrl: e.target.value })} /></Field>
+                <Field label="Spotify"><Input placeholder="https://open.spotify.com/artist/..." value={musician.spotifyUrl ?? ''} onChange={(e) => setMusician({ ...musician, spotifyUrl: e.target.value })} /></Field>
               </div>
             </Card>
           </>
@@ -212,25 +238,43 @@ export function ProfileEdit() {
               <h3 className="mb-4 font-display text-base font-bold">Konum</h3>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Şehir">
-                  <Select value={employer.city} onChange={(e) => setEmployer({ ...employer, city: e.target.value as City })}>
+                  <Select value={employer.city} onChange={(e) => setEmployer({ ...employer, city: e.target.value as City, district: '' })}>
                     {optionsFrom(CITIES, CITY_LABELS).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                   </Select>
                 </Field>
                 <Field label="İlçe" required>
-                  <Input value={employer.district ?? ''} onChange={(e) => setEmployer({ ...employer, district: e.target.value })} />
+                  <Select value={employer.district ?? ''} onChange={(e) => setEmployer({ ...employer, district: e.target.value })}>
+                    <option value="">Seç</option>
+                    {DISTRICTS[employer.city].map((d) => <option key={d} value={d}>{d}</option>)}
+                  </Select>
                 </Field>
                 <Field label="Adres" required hint="En az 15 karakter" className="sm:col-span-2">
                   <Input value={employer.address} onChange={(e) => setEmployer({ ...employer, address: e.target.value })} />
                 </Field>
               </div>
+              {employer.kind === 'Organizer' && (
+                <div className="mt-4">
+                  <Field label="Diğer hizmet verdiğin şehirler" hint="Opsiyonel, en fazla 5">
+                    <MultiSelectChips
+                      options={optionsFrom(CITIES, CITY_LABELS).filter((o) => o.value !== employer.city)}
+                      selected={employer.additionalCities}
+                      onChange={(additionalCities) => setEmployer({ ...employer, additionalCities })}
+                      max={5}
+                    />
+                  </Field>
+                </div>
+              )}
             </Card>
 
             <Card>
               <h3 className="mb-4 font-display text-base font-bold">Hakkında & bağlantılar</h3>
               <Field label="Açıklama"><Textarea rows={5} value={employer.bio} onChange={(e) => setEmployer({ ...employer, bio: e.target.value })} /></Field>
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                <Field label="Website"><Input value={employer.websiteUrl ?? ''} onChange={(e) => setEmployer({ ...employer, websiteUrl: e.target.value })} /></Field>
-                <Field label="Instagram"><Input value={employer.instagramUrl ?? ''} onChange={(e) => setEmployer({ ...employer, instagramUrl: e.target.value })} /></Field>
+                <Field label="Website"><Input placeholder="https://siteniz.com" value={employer.websiteUrl ?? ''} onChange={(e) => setEmployer({ ...employer, websiteUrl: e.target.value })} /></Field>
+                <Field label="Instagram"><Input placeholder="https://instagram.com/kullaniciadi" value={employer.instagramUrl ?? ''} onChange={(e) => setEmployer({ ...employer, instagramUrl: e.target.value })} /></Field>
+                <Field label="YouTube"><Input placeholder="https://youtube.com/@kanaladi" value={employer.youtubeUrl ?? ''} onChange={(e) => setEmployer({ ...employer, youtubeUrl: e.target.value })} /></Field>
+                <Field label="LinkedIn"><Input placeholder="https://linkedin.com/in/kullaniciadi" value={employer.linkedinUrl ?? ''} onChange={(e) => setEmployer({ ...employer, linkedinUrl: e.target.value })} /></Field>
+                <Field label="Spotify"><Input placeholder="https://open.spotify.com/artist/..." value={employer.spotifyUrl ?? ''} onChange={(e) => setEmployer({ ...employer, spotifyUrl: e.target.value })} /></Field>
               </div>
             </Card>
           </>

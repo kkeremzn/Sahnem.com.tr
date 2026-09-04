@@ -26,7 +26,10 @@ namespace Sahnem.Core.Enums
         FrenchHorn = 21,
         Ney = 22,
         Zurna = 23,
-        Mey = 24
+        Mey = 24,
+        Kemenche = 25,
+        Tulum = 26,
+        Harmonica = 27
     }
 }
 

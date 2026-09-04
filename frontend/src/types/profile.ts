@@ -1,5 +1,5 @@
 import type {
-  City, IsAvailableToTravel, MusicBranch, OrganizerType, VenueType,
+  City, IsAvailableToTravel, MusicBranch, MusicGenre, OrganizerType, VenueType,
   VerificationStatus, WorkStatus,
 } from './enums';
 
@@ -10,17 +10,19 @@ export interface MusicianProfile {
   firstName: string;
   lastName: string;
   bio: string;
-  branch: MusicBranch;
-  genres: string;
+  branch: MusicBranch[];
+  genres: MusicGenre[];
   experienceYears: number;
   city: City;
   district?: string;
+  additionalCities: City[];
   isAvailableToTravel: IsAvailableToTravel;
   hasOwnEquipment: boolean;
   workStatus: WorkStatus;
   instagramUrl?: string;
   youtubeUrl?: string;
   linkedinUrl?: string;
+  spotifyUrl?: string;
   verificationStatus: VerificationStatus;
   avatarUrl?: string;
   // Backend'de puanlama/fiyatlandırma sistemi henüz yok — bu alanlar sadece
@@ -32,17 +34,19 @@ export interface MusicianProfile {
 
 export interface MusicianProfileInput {
   bio: string;
-  branch: MusicBranch;
-  genres: string;
+  branch: MusicBranch[];
+  genres: MusicGenre[];
   experienceYears: number;
   city: City;
   district?: string;
+  additionalCities: City[];
   isAvailableToTravel: IsAvailableToTravel;
   hasOwnEquipment: boolean;
   workStatus: WorkStatus;
   instagramUrl?: string;
   youtubeUrl?: string;
   linkedinUrl?: string;
+  spotifyUrl?: string;
 }
 
 // Sahnem.Core/Entities/OrganizerProfile.cs
@@ -55,11 +59,13 @@ export interface OrganizerProfile {
   city: City;
   district?: string;
   address: string;
+  additionalCities: City[];
   verificationStatus: VerificationStatus;
   websiteUrl?: string;
   instagramUrl?: string;
   youtubeUrl?: string;
   linkedinUrl?: string;
+  spotifyUrl?: string;
   avatarUrl?: string;
 }
 
@@ -70,10 +76,12 @@ export interface OrganizerProfileInput {
   city: City;
   district?: string;
   address: string;
+  additionalCities: City[];
   websiteUrl?: string;
   instagramUrl?: string;
   youtubeUrl?: string;
   linkedinUrl?: string;
+  spotifyUrl?: string;
 }
 
 // Sahnem.Core/Entities/VenueProfile.cs
@@ -93,6 +101,7 @@ export interface VenueProfile {
   instagramUrl?: string;
   youtubeUrl?: string;
   linkedinUrl?: string;
+  spotifyUrl?: string;
   avatarUrl?: string;
 }
 
@@ -109,6 +118,7 @@ export interface VenueProfileInput {
   instagramUrl?: string;
   youtubeUrl?: string;
   linkedinUrl?: string;
+  spotifyUrl?: string;
 }
 
 export type EmployerProfile =

@@ -66,7 +66,7 @@ export function About() {
       <section className="py-16">
         <Container className="text-center">
           <h2 className="font-display text-2xl font-bold">Bize katıl</h2>
-          <p className="mx-auto mt-2 max-w-md text-sm text-text-dim">Müzisyen ya da organizatör olarak Sahnem ailesine katılmak sadece bir dakika sürer.</p>
+          <p className="mx-auto mt-2 max-w-md text-sm text-text-dim">Müzisyen, organizatör ya da mekan olarak Sahnem ailesine katılmak sadece bir dakika sürer.</p>
           <Button size="lg" className="mt-6" onClick={() => navigate('/register')}>Ücretsiz Kayıt Ol</Button>
         </Container>
       </section>

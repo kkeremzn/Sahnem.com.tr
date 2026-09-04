@@ -1,5 +1,6 @@
 using FluentValidation;
 using Sahnem.Business.DTOs;
+using Sahnem.Core.Enums;
 
 namespace Sahnem.Business.Validators.Profile
 {
@@ -57,6 +58,13 @@ namespace Sahnem.Business.Validators.Profile
             .WithMessage("District must not exceed 50 characters");
             
 
+            RuleFor(x => x.AdditionalCities)
+            .Cascade(CascadeMode.Stop)
+            .Must(c => c.Count <= 5)
+            .WithMessage("You can select at most 5 additional cities")
+            .Must(c => c.All(v => v != City.None && Enum.IsDefined(v)))
+            .WithMessage("Invalid city");
+
             RuleFor(x => x.InstagramUrl)
             .Must(url => string.IsNullOrWhiteSpace(url) || url.Contains("instagram.com"))
             .WithMessage("Please enter a valid Instagram profile URL.");
@@ -71,6 +79,10 @@ namespace Sahnem.Business.Validators.Profile
             .Must(url =>
             string.IsNullOrWhiteSpace(url) || url.Contains("linkedin.com"))
             .WithMessage("Please enter a valid LinkedIn profile URL.");
+
+            RuleFor(x => x.SpotifyUrl)
+            .Must(url => string.IsNullOrWhiteSpace(url) || url.Contains("spotify.com"))
+            .WithMessage("Please enter a valid Spotify profile URL.");
 
 
         }

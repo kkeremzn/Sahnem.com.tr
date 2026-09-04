@@ -12,6 +12,8 @@ namespace Sahnem.Core.Entities
         public City City {get; set;}
         public string? District{get; set;}
         public string Address {get; set;}
+        // Ana City gibi virgülle ayrılmış City enum adları — hizmet verdiği ek şehirler.
+        public string? AdditionalCities {get; set;}
 
         public VerificationStatus VerificationStatus {get; set;} = VerificationStatus.Pending;
 
@@ -19,6 +21,7 @@ namespace Sahnem.Core.Entities
         public string? InstagramUrl {get; set;}
         public string? YoutubeUrl {get; set;}
         public string? LinkedinUrl {get; set;}
+        public string? SpotifyUrl {get; set;}
 
         public virtual AppUser AppUser {get; set;}
 

@@ -2,6 +2,7 @@ using AutoMapper;
 using FluentValidation;
 using Sahnem.Business.DTOs;
 using Sahnem.Business.DTOs.Profile;
+using Sahnem.Business.Helpers;
 using Sahnem.Business.Interfaces;
 using Sahnem.Business.Security;
 using Sahnem.Business.Validators;
@@ -224,11 +225,14 @@ namespace Sahnem.Business.Services
                 }
                 if (filter.Branch.HasValue)
                 {
-                    musicians = musicians.Where(m => m.Branch == filter.Branch.Value.ToString());
+                    musicians = musicians.Where(m => MultiEnumField.Parse<MusicBranch>(m.Branch).Contains(filter.Branch.Value));
                 }
                 if (filter.City.HasValue)
                 {
-                    musicians = musicians.Where(m => m.City == filter.City.Value);
+                    // Ana şehri ya da hizmet verdiği ek şehirlerden biri eşleşiyorsa bulunabilir.
+                    musicians = musicians.Where(m =>
+                        m.City == filter.City.Value ||
+                        MultiEnumField.Parse<City>(m.AdditionalCities).Contains(filter.City.Value));
                 }
                 if (filter.TravelOnly == true)
                 {

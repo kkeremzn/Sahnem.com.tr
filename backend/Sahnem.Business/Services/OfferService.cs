@@ -1,6 +1,7 @@
 using AutoMapper;
 using FluentValidation;
 using Sahnem.Business.DTOs.Offer;
+using Sahnem.Business.Helpers;
 using Sahnem.Business.Interfaces;
 using Sahnem.Business.Security;
 using Sahnem.Core.Entities;
@@ -196,7 +197,7 @@ namespace Sahnem.Business.Services
             var musician = await _musicianProfileRepository.FirstOrDefaultAsync(m => m.AppUserId == offer.MusicianId);
             var musicianUser = await _userRepository.GetByIdAsync(offer.MusicianId);
             dto.MusicianName = musicianUser == null ? null : $"{musicianUser.FirstName} {musicianUser.LastName}";
-            dto.MusicianBranch = musician == null ? null : Enum.TryParse<MusicBranch>(musician.Branch, out var branch) ? branch : null;
+            dto.MusicianBranch = musician == null ? null : MultiEnumField.ParseFirst<MusicBranch>(musician.Branch);
 
             return dto;
         }
@@ -221,9 +222,7 @@ namespace Sahnem.Business.Services
             {
                 dto.AdvertTitle = adverts.FirstOrDefault(a => a.Id == dto.AdvertId)?.Title;
                 var musician = musicians.FirstOrDefault(m => m.AppUserId == dto.MusicianId);
-                dto.MusicianBranch = musician != null && Enum.TryParse<MusicBranch>(musician.Branch, out var branch)
-                    ? branch
-                    : null;
+                dto.MusicianBranch = musician == null ? null : MultiEnumField.ParseFirst<MusicBranch>(musician.Branch);
                 var musicianUser = musicianUsers.FirstOrDefault(u => u.Id == dto.MusicianId);
                 dto.MusicianName = musicianUser == null ? null : $"{musicianUser.FirstName} {musicianUser.LastName}";
             }

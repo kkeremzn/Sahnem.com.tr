@@ -9,16 +9,19 @@ import { Textarea } from '@/components/ui/Textarea';
 import { Button } from '@/components/ui/Button';
 import { Switch } from '@/components/ui/Switch';
 import { FileDropzone } from '@/components/ui/FileDropzone';
+import { MultiSelectChips } from '@/components/ui/MultiSelectChips';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { formatApiError } from '@/lib/apiClient';
 import * as authService from '@/services/authService';
 import * as profileService from '@/services/profileService';
 import { uploadAvatar } from '@/services/uploadService';
+import { DISTRICTS } from '@/data/districts';
 import {
-  CITIES, CITY_LABELS, MUSIC_BRANCHES, MUSIC_BRANCH_LABELS, ORGANIZER_TYPES, ORGANIZER_TYPE_LABELS,
+  CITIES, CITY_LABELS, MUSIC_BRANCHES, MUSIC_BRANCH_LABELS, MUSIC_GENRES, MUSIC_GENRE_LABELS,
+  ORGANIZER_TYPES, ORGANIZER_TYPE_LABELS,
   USER_TYPE_LABELS, VENUE_TYPES, VENUE_TYPE_LABELS, WORK_STATUSES, WORK_STATUS_LABELS, optionsFrom,
-  type City, type IsAvailableToTravel, type MusicBranch, type OrganizerType, type VenueType, type WorkStatus,
+  type City, type IsAvailableToTravel, type MusicBranch, type MusicGenre, type OrganizerType, type VenueType, type WorkStatus,
 } from '@/types';
 import { cn } from '@/lib/cn';
 
@@ -35,14 +38,14 @@ const ROLE_OPTIONS: { value: Role; icon: typeof Mic2 }[] = [
 ];
 
 interface MusicianForm {
-  avatarUrl?: string; branch: MusicBranch | ''; genres: string; experienceYears: string;
-  workStatus: WorkStatus; city: City | ''; district: string; isAvailableToTravel: IsAvailableToTravel;
-  hasOwnEquipment: boolean; bio: string; instagramUrl: string; youtubeUrl: string; linkedinUrl: string;
+  avatarUrl?: string; branch: MusicBranch[]; genres: MusicGenre[]; experienceYears: string;
+  workStatus: WorkStatus; city: City | ''; district: string; additionalCities: City[]; isAvailableToTravel: IsAvailableToTravel;
+  hasOwnEquipment: boolean; bio: string; instagramUrl: string; youtubeUrl: string; linkedinUrl: string; spotifyUrl: string;
 }
 interface EmployerForm {
   avatarUrl?: string; name: string; organizerType: OrganizerType | ''; venueType: VenueType | '';
-  city: City | ''; district: string; address: string; capacity: string; hasSoundSystem: boolean;
-  bio: string; websiteUrl: string; instagramUrl: string; youtubeUrl: string; linkedinUrl: string;
+  city: City | ''; district: string; additionalCities: City[]; address: string; capacity: string; hasSoundSystem: boolean;
+  bio: string; websiteUrl: string; instagramUrl: string; youtubeUrl: string; linkedinUrl: string; spotifyUrl: string;
 }
 
 export function ProfileSetup() {
@@ -64,21 +67,21 @@ export function ProfileSetup() {
   const isMusician = role === 'Musician';
 
   const [mForm, setMForm] = useState<MusicianForm>({
-    branch: '', genres: '', experienceYears: '', workStatus: 'Solo', city: '', district: '',
-    isAvailableToTravel: 'Yes', hasOwnEquipment: false, bio: '', instagramUrl: '', youtubeUrl: '', linkedinUrl: '',
+    branch: [], genres: [], experienceYears: '', workStatus: 'Solo', city: '', district: '', additionalCities: [],
+    isAvailableToTravel: 'Yes', hasOwnEquipment: false, bio: '', instagramUrl: '', youtubeUrl: '', linkedinUrl: '', spotifyUrl: '',
   });
   const [eForm, setEForm] = useState<EmployerForm>({
-    name: '', organizerType: '', venueType: '', city: '', district: '', address: '', capacity: '',
-    hasSoundSystem: false, bio: '', websiteUrl: '', instagramUrl: '', youtubeUrl: '', linkedinUrl: '',
+    name: '', organizerType: '', venueType: '', city: '', district: '', additionalCities: [], address: '', capacity: '',
+    hasSoundSystem: false, bio: '', websiteUrl: '', instagramUrl: '', youtubeUrl: '', linkedinUrl: '', spotifyUrl: '',
   });
 
   const steps = ['Görsel', isMusician ? 'Uzmanlık' : 'İşletme', 'Konum', isMusician ? 'Biyografi' : 'Hakkında', 'Onay'];
 
   function validateStep(): string | null {
     if (step === 1) {
-      if (isMusician && !mForm.branch) return 'Lütfen bir branş seç.';
+      if (isMusician && mForm.branch.length === 0) return 'Lütfen en az bir branş seç.';
       if (isMusician && (!mForm.experienceYears || Number(mForm.experienceYears) < 1)) return 'Deneyim en az 1 yıl olmalı.';
-      if (isMusician && mForm.genres.trim().length < 2) return 'En az bir tür yaz (ör. Caz, Pop).';
+      if (isMusician && mForm.genres.length === 0) return 'Lütfen en az bir tür seç.';
       if (!isMusician && !eForm.name.trim()) return 'İsim alanı zorunlu.';
       if (!isMusician && role === 'Organizer' && !eForm.organizerType) return 'Lütfen organizatör tipini seç.';
       if (!isMusician && role === 'Venue' && !eForm.venueType) return 'Lütfen mekan tipini seç.';
@@ -94,7 +97,7 @@ export function ProfileSetup() {
     }
     if (step === 3) {
       if (isMusician && mForm.bio.trim().length < 20) return 'Biyografi en az 20 karakter olmalı.';
-      if (isMusician && mForm.bio.trim().length > 100) return 'Biyografi en fazla 100 karakter olabilir.';
+      if (isMusician && mForm.bio.trim().length > 200) return 'Biyografi en fazla 200 karakter olabilir.';
       if (!isMusician && eForm.bio.trim().length < 30) return 'Açıklama en az 30 karakter olmalı.';
       if (!isMusician && eForm.bio.trim().length > 300) return 'Açıklama en fazla 300 karakter olabilir.';
     }
@@ -118,19 +121,22 @@ export function ProfileSetup() {
     try {
       if (isMusician) {
         await profileService.createMusicianProfile({
-          bio: mForm.bio, branch: mForm.branch as MusicBranch, genres: mForm.genres,
+          bio: mForm.bio, branch: mForm.branch, genres: mForm.genres,
           experienceYears: Number(mForm.experienceYears) || 0, city: mForm.city as City,
-          district: mForm.district || undefined, isAvailableToTravel: mForm.isAvailableToTravel,
+          district: mForm.district || undefined, additionalCities: mForm.additionalCities,
+          isAvailableToTravel: mForm.isAvailableToTravel,
           hasOwnEquipment: mForm.hasOwnEquipment, workStatus: mForm.workStatus,
           instagramUrl: mForm.instagramUrl || undefined, youtubeUrl: mForm.youtubeUrl || undefined,
-          linkedinUrl: mForm.linkedinUrl || undefined,
+          linkedinUrl: mForm.linkedinUrl || undefined, spotifyUrl: mForm.spotifyUrl || undefined,
         });
       } else if (role === 'Organizer') {
         await profileService.createOrganizerProfile({
           organizerName: eForm.name, organizerType: eForm.organizerType as OrganizerType, bio: eForm.bio,
           city: eForm.city as City, district: eForm.district || undefined, address: eForm.address,
+          additionalCities: eForm.additionalCities,
           websiteUrl: eForm.websiteUrl || undefined, instagramUrl: eForm.instagramUrl || undefined,
           youtubeUrl: eForm.youtubeUrl || undefined, linkedinUrl: eForm.linkedinUrl || undefined,
+          spotifyUrl: eForm.spotifyUrl || undefined,
         });
       } else {
         await profileService.createVenueProfile({
@@ -138,7 +144,7 @@ export function ProfileSetup() {
           city: eForm.city as City, district: eForm.district || undefined, capacity: Number(eForm.capacity) || 0,
           address: eForm.address, hasSoundSystem: eForm.hasSoundSystem, websiteUrl: eForm.websiteUrl || undefined,
           instagramUrl: eForm.instagramUrl || undefined, youtubeUrl: eForm.youtubeUrl || undefined,
-          linkedinUrl: eForm.linkedinUrl || undefined,
+          linkedinUrl: eForm.linkedinUrl || undefined, spotifyUrl: eForm.spotifyUrl || undefined,
         });
       }
       // Profil oluşturma uçları Role + IsProfileCompleted=true claim'lerini
@@ -237,19 +243,24 @@ export function ProfileSetup() {
         {step === 1 && isMusician && (
           <div className="space-y-4">
             <h2 className="font-display text-xl font-bold">Uzmanlık alanın</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <Field label="Branş" required>
-                <Select value={mForm.branch} onChange={(e) => setMForm((f) => ({ ...f, branch: e.target.value as MusicBranch }))}>
-                  <option value="">Seç</option>
-                  {optionsFrom(MUSIC_BRANCHES, MUSIC_BRANCH_LABELS).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-                </Select>
-              </Field>
-              <Field label="Deneyim (yıl)" required>
-                <Input type="number" min={1} max={50} value={mForm.experienceYears} onChange={(e) => setMForm((f) => ({ ...f, experienceYears: e.target.value }))} />
-              </Field>
-            </div>
-            <Field label="Türler / Genre" required hint="Virgülle ayırarak yaz (ör. Caz, Soul, Pop)">
-              <Input value={mForm.genres} onChange={(e) => setMForm((f) => ({ ...f, genres: e.target.value }))} />
+            <Field label="Branş" required hint="Birden fazla seçebilirsin, en fazla 6">
+              <MultiSelectChips
+                options={optionsFrom(MUSIC_BRANCHES, MUSIC_BRANCH_LABELS)}
+                selected={mForm.branch}
+                onChange={(branch) => setMForm((f) => ({ ...f, branch }))}
+                max={6}
+              />
+            </Field>
+            <Field label="Deneyim (yıl)" required>
+              <Input type="number" min={1} max={50} value={mForm.experienceYears} onChange={(e) => setMForm((f) => ({ ...f, experienceYears: e.target.value }))} />
+            </Field>
+            <Field label="Türler / Genre" required hint="Birden fazla seçebilirsin, en fazla 5">
+              <MultiSelectChips
+                options={optionsFrom(MUSIC_GENRES, MUSIC_GENRE_LABELS)}
+                selected={mForm.genres}
+                onChange={(genres) => setMForm((f) => ({ ...f, genres }))}
+                max={5}
+              />
             </Field>
             <Field label="Çalışma şekli">
               <div className="flex gap-2">
@@ -301,15 +312,33 @@ export function ProfileSetup() {
             <h2 className="font-display text-xl font-bold">Konum & seyahat</h2>
             <div className="grid grid-cols-2 gap-4">
               <Field label="Şehir" required>
-                <Select value={mForm.city} onChange={(e) => setMForm((f) => ({ ...f, city: e.target.value as City }))}>
+                <Select
+                  value={mForm.city}
+                  onChange={(e) => setMForm((f) => ({ ...f, city: e.target.value as City, district: '' }))}
+                >
                   <option value="">Seç</option>
                   {optionsFrom(CITIES, CITY_LABELS).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </Select>
               </Field>
-              <Field label="İlçe">
-                <Input value={mForm.district} onChange={(e) => setMForm((f) => ({ ...f, district: e.target.value }))} />
+              <Field label="İlçe" hint="Opsiyonel">
+                <Select
+                  value={mForm.district}
+                  onChange={(e) => setMForm((f) => ({ ...f, district: e.target.value }))}
+                  disabled={!mForm.city}
+                >
+                  <option value="">{mForm.city ? 'Seç' : 'Önce şehir seç'}</option>
+                  {mForm.city && DISTRICTS[mForm.city].map((d) => <option key={d} value={d}>{d}</option>)}
+                </Select>
               </Field>
             </div>
+            <Field label="Diğer hizmet verdiğin şehirler" hint="Opsiyonel, en fazla 5">
+              <MultiSelectChips
+                options={optionsFrom(CITIES, CITY_LABELS).filter((o) => o.value !== mForm.city)}
+                selected={mForm.additionalCities}
+                onChange={(additionalCities) => setMForm((f) => ({ ...f, additionalCities }))}
+                max={5}
+              />
+            </Field>
             <Switch checked={mForm.isAvailableToTravel === 'Yes'} onChange={(v) => setMForm((f) => ({ ...f, isAvailableToTravel: v ? 'Yes' : 'No' }))} label="Şehir dışına seyahat edebilirim" />
             <Switch checked={mForm.hasOwnEquipment} onChange={(v) => setMForm((f) => ({ ...f, hasOwnEquipment: v }))} label="Kendi ekipmanım var" />
           </div>
@@ -320,25 +349,45 @@ export function ProfileSetup() {
             <h2 className="font-display text-xl font-bold">Konum</h2>
             <div className="grid grid-cols-2 gap-4">
               <Field label="Şehir" required>
-                <Select value={eForm.city} onChange={(e) => setEForm((f) => ({ ...f, city: e.target.value as City }))}>
+                <Select
+                  value={eForm.city}
+                  onChange={(e) => setEForm((f) => ({ ...f, city: e.target.value as City, district: '' }))}
+                >
                   <option value="">Seç</option>
                   {optionsFrom(CITIES, CITY_LABELS).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </Select>
               </Field>
               <Field label="İlçe" required>
-                <Input value={eForm.district} onChange={(e) => setEForm((f) => ({ ...f, district: e.target.value }))} />
+                <Select
+                  value={eForm.district}
+                  onChange={(e) => setEForm((f) => ({ ...f, district: e.target.value }))}
+                  disabled={!eForm.city}
+                >
+                  <option value="">{eForm.city ? 'Seç' : 'Önce şehir seç'}</option>
+                  {eForm.city && DISTRICTS[eForm.city].map((d) => <option key={d} value={d}>{d}</option>)}
+                </Select>
               </Field>
             </div>
             <Field label="Açık adres" required hint="En az 15 karakter">
               <Input value={eForm.address} onChange={(e) => setEForm((f) => ({ ...f, address: e.target.value }))} />
             </Field>
+            {role === 'Organizer' && (
+              <Field label="Diğer hizmet verdiğin şehirler" hint="Opsiyonel, en fazla 5">
+                <MultiSelectChips
+                  options={optionsFrom(CITIES, CITY_LABELS).filter((o) => o.value !== eForm.city)}
+                  selected={eForm.additionalCities}
+                  onChange={(additionalCities) => setEForm((f) => ({ ...f, additionalCities }))}
+                  max={5}
+                />
+              </Field>
+            )}
           </div>
         )}
 
         {step === 3 && (
           <div className="space-y-4">
             <h2 className="font-display text-xl font-bold">{isMusician ? 'Biyografin' : 'Hakkında'}</h2>
-            <Field label="Açıklama" required hint={isMusician ? '20-100 karakter' : '30-300 karakter'}>
+            <Field label="Açıklama" required hint={isMusician ? '20-200 karakter' : '30-300 karakter'}>
               <Textarea
                 rows={5}
                 value={isMusician ? mForm.bio : eForm.bio}
@@ -347,26 +396,36 @@ export function ProfileSetup() {
             </Field>
             {!isMusician && (
               <Field label="Website" hint="Opsiyonel">
-                <Input value={eForm.websiteUrl} onChange={(e) => setEForm((f) => ({ ...f, websiteUrl: e.target.value }))} placeholder="https://" />
+                <Input value={eForm.websiteUrl} onChange={(e) => setEForm((f) => ({ ...f, websiteUrl: e.target.value }))} placeholder="https://siteniz.com" />
               </Field>
             )}
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               <Field label="Instagram" hint="Opsiyonel">
                 <Input
+                  placeholder="https://instagram.com/kullaniciadi"
                   value={isMusician ? mForm.instagramUrl : eForm.instagramUrl}
                   onChange={(e) => (isMusician ? setMForm((f) => ({ ...f, instagramUrl: e.target.value })) : setEForm((f) => ({ ...f, instagramUrl: e.target.value })))}
                 />
               </Field>
               <Field label="YouTube" hint="Opsiyonel">
                 <Input
+                  placeholder="https://youtube.com/@kanaladi"
                   value={isMusician ? mForm.youtubeUrl : eForm.youtubeUrl}
                   onChange={(e) => (isMusician ? setMForm((f) => ({ ...f, youtubeUrl: e.target.value })) : setEForm((f) => ({ ...f, youtubeUrl: e.target.value })))}
                 />
               </Field>
               <Field label="LinkedIn" hint="Opsiyonel">
                 <Input
+                  placeholder="https://linkedin.com/in/kullaniciadi"
                   value={isMusician ? mForm.linkedinUrl : eForm.linkedinUrl}
                   onChange={(e) => (isMusician ? setMForm((f) => ({ ...f, linkedinUrl: e.target.value })) : setEForm((f) => ({ ...f, linkedinUrl: e.target.value })))}
+                />
+              </Field>
+              <Field label="Spotify" hint="Opsiyonel">
+                <Input
+                  placeholder="https://open.spotify.com/artist/..."
+                  value={isMusician ? mForm.spotifyUrl : eForm.spotifyUrl}
+                  onChange={(e) => (isMusician ? setMForm((f) => ({ ...f, spotifyUrl: e.target.value })) : setEForm((f) => ({ ...f, spotifyUrl: e.target.value })))}
                 />
               </Field>
             </div>

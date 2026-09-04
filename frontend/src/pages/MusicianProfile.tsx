@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Loader2, MapPin, MessageCircle, Music2, Plane, Star, Wrench } from 'lucide-react';
+import { Disc3, Loader2, MapPin, MessageCircle, Music2, Plane, Star, Wrench } from 'lucide-react';
 import { Camera, Link2, PlayCircle } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
 import { Avatar } from '@/components/ui/Avatar';
@@ -12,7 +12,10 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import * as profileService from '@/services/profileService';
 import * as favoriteService from '@/services/favoriteService';
-import { CITY_LABELS, MUSIC_BRANCH_LABELS, TRAVEL_LABELS, WORK_STATUS_LABELS, type MusicianProfile as MusicianProfileType } from '@/types';
+import {
+  CITY_LABELS, MUSIC_BRANCH_LABELS, MUSIC_GENRE_LABELS, TRAVEL_LABELS, WORK_STATUS_LABELS,
+  type MusicianProfile as MusicianProfileType,
+} from '@/types';
 import { formatPrice } from '@/lib/format';
 import { resolveAssetUrl } from '@/lib/apiClient';
 
@@ -66,6 +69,7 @@ export function MusicianProfile() {
     { url: musician.instagramUrl, Icon: Camera },
     { url: musician.youtubeUrl, Icon: PlayCircle },
     { url: musician.linkedinUrl, Icon: Link2 },
+    { url: musician.spotifyUrl, Icon: Disc3 },
   ].filter((s) => s.url);
 
   return (
@@ -79,9 +83,14 @@ export function MusicianProfile() {
               <div className="flex items-center gap-2">
                 <h1 className="font-display text-2xl font-bold sm:text-3xl">{musician.firstName} {musician.lastName}</h1>
               </div>
-              <p className="mt-1 text-sm text-text-dim">{MUSIC_BRANCH_LABELS[musician.branch]} · {musician.genres}</p>
+              <p className="mt-1 text-sm text-text-dim">
+                {musician.branch.map((b) => MUSIC_BRANCH_LABELS[b]).join(', ')} · {musician.genres.map((g) => MUSIC_GENRE_LABELS[g]).join(', ')}
+              </p>
               <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-text-faint">
-                <span className="inline-flex items-center gap-1"><MapPin size={12} /> {CITY_LABELS[musician.city]}{musician.district ? `, ${musician.district}` : ''}</span>
+                <span className="inline-flex items-center gap-1">
+                  <MapPin size={12} /> {CITY_LABELS[musician.city]}{musician.district ? `, ${musician.district}` : ''}
+                  {musician.additionalCities.length > 0 && ` (+${musician.additionalCities.map((c) => CITY_LABELS[c]).join(', ')})`}
+                </span>
                 {musician.ratingAvg !== undefined && (
                   <StarRating rating={musician.ratingAvg} count={musician.ratingCount} showValue />
                 )}
@@ -155,8 +164,8 @@ export function MusicianProfile() {
             <Card>
               <h4 className="mb-2 text-sm font-semibold">Genre etiketleri</h4>
               <div className="flex flex-wrap gap-1.5">
-                {musician.genres.split(',').map((g) => (
-                  <Badge key={g} variant="neutral">{g.trim()}</Badge>
+                {musician.genres.map((g) => (
+                  <Badge key={g} variant="neutral">{MUSIC_GENRE_LABELS[g]}</Badge>
                 ))}
               </div>
             </Card>

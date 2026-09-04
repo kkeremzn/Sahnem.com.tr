@@ -77,6 +77,10 @@ namespace Sahnem.Business.Validators.Profile
             .Must(url =>
             string.IsNullOrWhiteSpace(url) || url.Contains("linkedin.com"))
             .WithMessage("Please enter a valid LinkedIn profile URL.");
+
+            RuleFor(x => x.SpotifyUrl)
+            .Must(url => string.IsNullOrWhiteSpace(url) || url.Contains("spotify.com"))
+            .WithMessage("Please enter a valid Spotify profile URL.");
         }
     }
 }
