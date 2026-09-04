@@ -2,6 +2,7 @@ import { useRef, useState, type DragEvent } from 'react';
 import { ImagePlus, Loader2, X } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { resolveAssetUrl } from '@/lib/apiClient';
+import { AvatarCropper } from './AvatarCropper';
 
 interface FileDropzoneProps {
   value?: string;
@@ -19,9 +20,9 @@ export function FileDropzone({ value, onChange, onUpload, shape = 'rect', classN
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
 
-  async function handleFile(file?: File) {
-    if (!file || !file.type.startsWith('image/')) return;
+  async function doUpload(file: File) {
     setError(null);
     setUploading(true);
     try {
@@ -32,6 +33,19 @@ export function FileDropzone({ value, onChange, onUpload, shape = 'rect', classN
     } finally {
       setUploading(false);
     }
+  }
+
+  function handleFile(file?: File) {
+    if (!file || !file.type.startsWith('image/')) return;
+    // Dairesel (avatar) yüklemelerde önce kırpma/konumlandırma adımı gösteriliyor —
+    // hem kullanıcının istediği net çerçevelemeyi sağlıyor hem de yüklenen dosyayı
+    // sabit küçük bir boyuta indirip (telefon fotoğrafı 5-8 MB'a karşı ~200 KB)
+    // yükleme süresini büyük ölçüde kısaltıyor.
+    if (shape === 'circle') {
+      setPendingFile(file);
+      return;
+    }
+    void doUpload(file);
   }
 
   function onDrop(e: DragEvent<HTMLDivElement>) {
@@ -64,7 +78,7 @@ export function FileDropzone({ value, onChange, onUpload, shape = 'rect', classN
             type="file"
             accept="image/*"
             className="hidden"
-            onChange={(e) => void handleFile(e.target.files?.[0])}
+            onChange={(e) => { handleFile(e.target.files?.[0]); e.target.value = ''; }}
           />
           {uploading ? (
             <Loader2 className="animate-spin text-gold" size={20} />
@@ -88,6 +102,16 @@ export function FileDropzone({ value, onChange, onUpload, shape = 'rect', classN
         )}
       </div>
       {error && <p className="mt-1.5 text-xs text-danger">{error}</p>}
+      {shape === 'circle' && (
+        <AvatarCropper
+          file={pendingFile}
+          onCancel={() => setPendingFile(null)}
+          onConfirm={(blob) => {
+            setPendingFile(null);
+            void doUpload(new File([blob], 'avatar.jpg', { type: 'image/jpeg' }));
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -76,7 +76,10 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.Configure<R2Settings>(builder.Configuration.GetSection("R2"));
-builder.Services.AddScoped<IFileStorageService, R2FileStorageService>();
+// Singleton: AmazonS3Client kendi HTTP bağlantı havuzunu tutuyor. Scoped (istek
+// başına yeni instance) olsaydı her yüklemede R2'ye sıfırdan TCP/TLS el sıkışması
+// gerekirdi — yavaşlığın asıl kaynağı buydu.
+builder.Services.AddSingleton<IFileStorageService, R2FileStorageService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<IAdminAuthService, AdminAuthService>();

@@ -23,18 +23,16 @@ namespace Sahnem.API.Services
         };
 
         private readonly R2Settings _settings;
+        private readonly AmazonS3Client _client;
 
+        // AmazonS3Client her istekte YENİDEN oluşturuluyordu — bu pahalı bir işlem
+        // (HTTP handler/credential/endpoint kurulumu) ve yüklemelerin gereksiz yere
+        // yavaş hissettirmesinin asıl sebebiydi. Client artık DI ile tek seferlik
+        // (singleton) kayıtlı, tüm yüklemeler aynı örneği paylaşıyor.
         public R2FileStorageService(IOptions<R2Settings> options)
         {
             _settings = options.Value;
-        }
-
-        public async Task<string> SaveFileAsync(Stream content, string fileName, string subFolder)
-        {
-            var extension = Path.GetExtension(fileName);
-            var key = $"{subFolder}/{Guid.NewGuid():N}{extension}";
-
-            var config = new AmazonS3Config
+            _client = new AmazonS3Client(_settings.AccessKey, _settings.SecretKey, new AmazonS3Config
             {
                 ServiceURL = $"https://{_settings.AccountId}.r2.cloudflarestorage.com",
                 ForcePathStyle = true,
@@ -44,8 +42,13 @@ namespace Sahnem.API.Services
                 // sessizce başarısız ediyor, bu yüzden explicit olarak kapatıyoruz.
                 RequestChecksumCalculation = RequestChecksumCalculation.WHEN_REQUIRED,
                 ResponseChecksumValidation = ResponseChecksumValidation.WHEN_REQUIRED,
-            };
-            using var client = new AmazonS3Client(_settings.AccessKey, _settings.SecretKey, config);
+            });
+        }
+
+        public async Task<string> SaveFileAsync(Stream content, string fileName, string subFolder)
+        {
+            var extension = Path.GetExtension(fileName);
+            var key = $"{subFolder}/{Guid.NewGuid():N}{extension}";
 
             var request = new PutObjectRequest
             {
@@ -60,7 +63,7 @@ namespace Sahnem.API.Services
                 // imzalamayı kapatmak güvenli, standart tek-parça imzalamaya düşüyor.
                 DisablePayloadSigning = true,
             };
-            await client.PutObjectAsync(request);
+            await _client.PutObjectAsync(request);
 
             return $"{_settings.PublicUrlBase.TrimEnd('/')}/{key}";
         }
