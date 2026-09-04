@@ -26,6 +26,7 @@ export interface AppUserRegisterInput {
   email: string;
   password: string;
   phoneNumber: string;
+  allowCityAdvertAlerts?: boolean;
 }
 
 // Sahnem.Business/DTOs/User/AppUserLoginDto.cs

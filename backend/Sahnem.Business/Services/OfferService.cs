@@ -21,6 +21,7 @@ namespace Sahnem.Business.Services
         private readonly IValidator<OfferCreateDto> _offerCreateDtoValidator;
         private readonly ICurrentUserService _currentUserService;
         private readonly INotificationService _notificationService;
+        private readonly IEmailService _emailService;
 
         public OfferService(
             IUnitOfWork unitOfWork,
@@ -31,7 +32,8 @@ namespace Sahnem.Business.Services
             IMapper mapper,
             IValidator<OfferCreateDto> offerCreateDtoValidator,
             ICurrentUserService currentUserService,
-            INotificationService notificationService)
+            INotificationService notificationService,
+            IEmailService emailService)
         {
             _unitOfWork = unitOfWork;
             _offerRepository = offerRepository;
@@ -42,6 +44,7 @@ namespace Sahnem.Business.Services
             _offerCreateDtoValidator = offerCreateDtoValidator;
             _currentUserService = currentUserService;
             _notificationService = notificationService;
+            _emailService = emailService;
         }
 
         public async Task<OfferResponseDto> CreateOffer(OfferCreateDto dto)
@@ -95,6 +98,17 @@ namespace Sahnem.Business.Services
                 "İlanınıza yeni teklif geldi",
                 $"{musicianName}, \"{advert.Title}\" ilanınıza teklif gönderdi.",
                 $"/my-adverts/{advert.Id}");
+
+            var advertOwner = await _userRepository.GetByIdAsync(advert.CreatorId);
+            if (advertOwner != null)
+            {
+                await _emailService.SendAsync(
+                    advertOwner.Email,
+                    "İlanınıza yeni teklif geldi — Sahnem",
+                    $"<p>Merhaba {advertOwner.FirstName},</p>" +
+                    $"<p><strong>{musicianName}</strong>, <strong>\"{advert.Title}\"</strong> ilanınıza teklif gönderdi.</p>" +
+                    $"<p><a href=\"https://sahnem.com.tr/my-adverts/{advert.Id}\">Teklifi görüntüle</a></p>");
+            }
 
             return await BuildResponse(offer, advert);
         }
@@ -198,6 +212,19 @@ namespace Sahnem.Business.Services
                     ? $"\"{advert.Title}\" ilanına gönderdiğiniz teklif kabul edildi."
                     : $"\"{advert.Title}\" ilanına gönderdiğiniz teklif reddedildi.",
                 $"/offers/{offer.Id}");
+
+            var offerMusicianUser = await _userRepository.GetByIdAsync(offer.MusicianId);
+            if (offerMusicianUser != null)
+            {
+                await _emailService.SendAsync(
+                    offerMusicianUser.Email,
+                    accepted ? "Teklifiniz kabul edildi — Sahnem" : "Teklifiniz reddedildi — Sahnem",
+                    $"<p>Merhaba {offerMusicianUser.FirstName},</p>" +
+                    (accepted
+                        ? $"<p><strong>\"{advert.Title}\"</strong> ilanına gönderdiğiniz teklif kabul edildi. Tebrikler!</p>"
+                        : $"<p><strong>\"{advert.Title}\"</strong> ilanına gönderdiğiniz teklif reddedildi.</p>") +
+                    $"<p><a href=\"https://sahnem.com.tr/offers/{offer.Id}\">Teklifi görüntüle</a></p>");
+            }
 
             foreach (var other in autoRejected)
             {

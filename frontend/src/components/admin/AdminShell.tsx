@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Navigate, NavLink, Outlet } from 'react-router-dom';
-import { KeyRound, LayoutDashboard, Loader2, Lock, LogOut, MessageSquare, Megaphone, Users } from 'lucide-react';
+import { Bell, KeyRound, LayoutDashboard, Loader2, Lock, LogOut, MessageSquare, Megaphone, Users } from 'lucide-react';
 import { LogoMark } from '@/components/brand/LogoMark';
 import { Modal } from '@/components/ui/Modal';
 import { Field } from '@/components/ui/Field';
@@ -17,6 +17,7 @@ const NAV_ITEMS = [
   { to: '/backstage/users', label: 'Kullanıcılar', icon: Users },
   { to: '/backstage/adverts', label: 'İlanlar', icon: Megaphone },
   { to: '/backstage/conversations', label: 'Sohbetler', icon: MessageSquare },
+  { to: '/backstage/notify', label: 'Bildirim & Mail', icon: Bell },
 ];
 
 // Bilinçli olarak Navbar/Footer/AppSidebar'ı (tüketici tarafı bileşenleri)

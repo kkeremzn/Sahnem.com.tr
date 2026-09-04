@@ -25,8 +25,10 @@ namespace Sahnem.Business.Services
         private readonly IGenericRepository<Message> _messageRepository;
         private readonly IGenericRepository<Conversation> _conversationRepository;
         private readonly IGenericRepository<Favorite> _favoriteRepository;
+        private readonly IGenericRepository<Notification> _notificationRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IEmailService _emailService;
 
         public AdminService(
             IGenericRepository<MusicianProfile> musicianProfileRepository,
@@ -38,8 +40,10 @@ namespace Sahnem.Business.Services
             IGenericRepository<Message> messageRepository,
             IGenericRepository<Conversation> conversationRepository,
             IGenericRepository<Favorite> favoriteRepository,
+            IGenericRepository<Notification> notificationRepository,
             IUnitOfWork unitOfWork,
-            IMapper mapper)
+            IMapper mapper,
+            IEmailService emailService)
         {
             _musicianProfileRepository = musicianProfileRepository;
             _organizerProfileRepository = organizerProfileRepository;
@@ -50,8 +54,10 @@ namespace Sahnem.Business.Services
             _messageRepository = messageRepository;
             _conversationRepository = conversationRepository;
             _favoriteRepository = favoriteRepository;
+            _notificationRepository = notificationRepository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _emailService = emailService;
         }
 
         public async Task<AdminStatsDto> GetStats()
@@ -250,6 +256,44 @@ namespace Sahnem.Business.Services
             if (message == null) throw new Exception("Message not found");
             _messageRepository.Delete(message);
             await _unitOfWork.SaveChanges();
+        }
+
+        private async Task<List<AppUser>> ResolveTargets(List<int>? userIds)
+        {
+            if (userIds is { Count: > 0 })
+            {
+                var idSet = userIds.ToHashSet();
+                return (await _userRepository.WhereAsync(u => idSet.Contains(u.Id) && u.IsActive)).ToList();
+            }
+            return (await _userRepository.WhereAsync(u => u.IsActive)).ToList();
+        }
+
+        public async Task<AdminBroadcastResultDto> BroadcastNotification(AdminBroadcastNotificationDto dto)
+        {
+            var targets = await ResolveTargets(dto.UserIds);
+            foreach (var user in targets)
+            {
+                await _notificationRepository.AddAsync(new Notification
+                {
+                    UserId = user.Id,
+                    Type = "system",
+                    Title = dto.Title,
+                    Body = dto.Body,
+                    LinkTo = dto.LinkTo,
+                });
+            }
+            await _unitOfWork.SaveChanges();
+            return new AdminBroadcastResultDto { RecipientCount = targets.Count };
+        }
+
+        public async Task<AdminBroadcastResultDto> SendBulkEmail(AdminSendEmailDto dto)
+        {
+            var targets = await ResolveTargets(dto.UserIds);
+            foreach (var user in targets)
+            {
+                await _emailService.SendAsync(user.Email, dto.Subject, dto.Body);
+            }
+            return new AdminBroadcastResultDto { RecipientCount = targets.Count };
         }
     }
 }

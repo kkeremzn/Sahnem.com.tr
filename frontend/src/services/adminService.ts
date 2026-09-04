@@ -82,3 +82,15 @@ export async function getConversationMessages(id: number): Promise<AdminMessage[
 export async function deleteMessage(id: number): Promise<void> {
   await adminApi.delete(`/admin/messages/${id}`);
 }
+
+export interface BroadcastResult {
+  recipientCount: number;
+}
+
+export async function broadcastNotification(input: { title: string; body: string; linkTo?: string; userIds?: number[] }): Promise<BroadcastResult> {
+  return adminApi.post<BroadcastResult>('/admin/notifications/broadcast', input);
+}
+
+export async function sendBulkEmail(input: { subject: string; body: string; userIds?: number[] }): Promise<BroadcastResult> {
+  return adminApi.post<BroadcastResult>('/admin/emails/send', input);
+}

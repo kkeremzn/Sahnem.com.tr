@@ -18,10 +18,13 @@ namespace Sahnem.Business.Services
         private readonly IGenericRepository<AppUser> _userRepository;
         private readonly IGenericRepository<OrganizerProfile> _organizerProfileRepository;
         private readonly IGenericRepository<VenueProfile> _venueProfileRepository;
+        private readonly IGenericRepository<MusicianProfile> _musicianProfileRepository;
+        private readonly IGenericRepository<Notification> _notificationRepository;
         private readonly IMapper _mapper;
         private readonly IValidator<AdvertCreateDto> _advertCreateDtoValidator;
         private readonly IValidator<AdvertUpdateDto> _advertUpdateDtoValidator;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IEmailService _emailService;
 
 
         public AdvertService(
@@ -31,10 +34,13 @@ namespace Sahnem.Business.Services
             IGenericRepository<AppUser> userRepository,
             IGenericRepository<OrganizerProfile> organizerProfileRepository,
             IGenericRepository<VenueProfile> venueProfileRepository,
+            IGenericRepository<MusicianProfile> musicianProfileRepository,
+            IGenericRepository<Notification> notificationRepository,
             IMapper mapper,
             IValidator<AdvertCreateDto> advertCreateDtoValidator,
             IValidator<AdvertUpdateDto> advertUpdateDtoValidator,
-            ICurrentUserService currentUserService)
+            ICurrentUserService currentUserService,
+            IEmailService emailService)
         {
             _unitOfWork = unitOfWork;
             _advertRepository = advertRepository;
@@ -42,10 +48,13 @@ namespace Sahnem.Business.Services
             _userRepository = userRepository;
             _organizerProfileRepository = organizerProfileRepository;
             _venueProfileRepository = venueProfileRepository;
+            _musicianProfileRepository = musicianProfileRepository;
+            _notificationRepository = notificationRepository;
             _mapper = mapper;
             _advertCreateDtoValidator = advertCreateDtoValidator;
             _advertUpdateDtoValidator = advertUpdateDtoValidator;
             _currentUserService = currentUserService;
+            _emailService = emailService;
         }
 
 
@@ -74,8 +83,47 @@ namespace Sahnem.Business.Services
 
             await _advertRepository.AddAsync(advert);
             await _unitOfWork.SaveChanges();
+
+            await NotifyMatchingMusicians(advert);
+
             return await BuildResponse(advert);
 
+        }
+
+        // İletişim izni veren ve ilanın şehrinde olan müzisyenlere yeni ilan
+        // bildirimi + e-postası gönderir. E-posta gönderimi tek tek Zoho API
+        // çağrısı gerektirdiği için kullanıcı sayısı arttıkça bu akış bir kuyruğa
+        // taşınmalı — şu ölçekte (birkaç düzine kullanıcı) senkron döngü yeterli.
+        private async Task NotifyMatchingMusicians(Advert advert)
+        {
+            var matchingProfiles = await _musicianProfileRepository.WhereAsync(m => m.City == advert.City);
+            if (!matchingProfiles.Any()) return;
+
+            var musicianUserIds = matchingProfiles.Select(m => m.AppUserId).ToList();
+            var eligibleUsers = await _userRepository.WhereAsync(
+                u => musicianUserIds.Contains(u.Id) && u.AllowCityAdvertAlerts);
+
+            foreach (var user in eligibleUsers)
+            {
+                await _notificationRepository.AddAsync(new Notification
+                {
+                    UserId = user.Id,
+                    Type = "advert",
+                    Title = "Şehrinde yeni bir ilan var",
+                    Body = $"\"{advert.Title}\" ilanı {advert.City} için yayınlandı.",
+                    LinkTo = $"/jobs/{advert.Id}",
+                });
+
+                await _emailService.SendAsync(
+                    user.Email,
+                    "Şehrinde yeni bir ilan var — Sahnem",
+                    $"<p>Merhaba {user.FirstName},</p>" +
+                    $"<p><strong>{advert.City}</strong> için yeni bir ilan yayınlandı: <strong>{advert.Title}</strong></p>" +
+                    $"<p><a href=\"https://sahnem.com.tr/jobs/{advert.Id}\">İlanı görüntüle</a></p>" +
+                    "<p style=\"color:#888;font-size:12px\">Bu bildirimleri profil ayarlarından kapatabilirsin.</p>");
+            }
+
+            await _unitOfWork.SaveChanges();
         }
 
         public async Task CancelAdvert(int advertId, bool asAdmin = false)

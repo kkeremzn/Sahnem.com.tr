@@ -43,6 +43,7 @@ import { AdminAdverts } from '@/pages/admin/AdminAdverts';
 import { AdminAdvertDetail } from '@/pages/admin/AdminAdvertDetail';
 import { AdminConversations } from '@/pages/admin/AdminConversations';
 import { AdminConversationDetail } from '@/pages/admin/AdminConversationDetail';
+import { AdminNotify } from '@/pages/admin/AdminNotify';
 
 export const router = createBrowserRouter([
   {
@@ -112,6 +113,7 @@ export const router = createBrowserRouter([
           { path: '/backstage/adverts/:id', element: <AdminAdvertDetail /> },
           { path: '/backstage/conversations', element: <AdminConversations /> },
           { path: '/backstage/conversations/:id', element: <AdminConversationDetail /> },
+          { path: '/backstage/notify', element: <AdminNotify /> },
         ],
       },
     ],

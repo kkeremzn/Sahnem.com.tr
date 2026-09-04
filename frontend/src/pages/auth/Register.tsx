@@ -23,6 +23,7 @@ const schema = z
     password: z.string().min(6, 'Şifre en az 6 karakter olmalı.'),
     confirmPassword: z.string(),
     terms: z.boolean().refine((v) => v === true, { message: 'Devam etmek için koşulları kabul etmelisin.' }),
+    allowCityAdvertAlerts: z.boolean(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Şifreler eşleşmiyor.',
@@ -43,6 +44,7 @@ export function Register() {
   const [role, setRole] = useState<UserType>('Musician');
   const { register, handleSubmit, formState: { errors, isSubmitting }, setError } = useForm<FormData>({
     resolver: zodResolver(schema),
+    defaultValues: { allowCityAdvertAlerts: false },
   });
 
   async function onSubmit(data: FormData) {
@@ -119,6 +121,12 @@ export function Register() {
           </span>
         </label>
         {errors.terms && <p className="-mt-2 text-xs text-danger">{errors.terms.message}</p>}
+        {role === 'Musician' && (
+          <label className="flex items-start gap-2.5 text-xs text-text-dim">
+            <input type="checkbox" className="mt-0.5 h-4 w-4 accent-gold" {...register('allowCityAdvertAlerts')} />
+            <span>Şehrimde yeni bir ilan açıldığında bana bildirim/e-posta gönderilsin.</span>
+          </label>
+        )}
         {errors.root && <p className="text-sm text-danger">{errors.root.message}</p>}
         <Button type="submit" full size="lg" icon={<UserPlus size={16} />} loading={isSubmitting}>
           Kayıt Ol

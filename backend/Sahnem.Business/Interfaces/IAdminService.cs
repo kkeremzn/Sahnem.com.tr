@@ -13,5 +13,7 @@ namespace Sahnem.Business.Interfaces
         Task<PagedResultDto<AdminConversationDto>> GetConversations(int page = 1, int pageSize = 20, string? search = null);
         Task<IEnumerable<AdminMessageDto>> GetConversationMessages(int conversationId);
         Task DeleteMessage(int messageId);
+        Task<AdminBroadcastResultDto> BroadcastNotification(AdminBroadcastNotificationDto dto);
+        Task<AdminBroadcastResultDto> SendBulkEmail(AdminSendEmailDto dto);
     }
 }

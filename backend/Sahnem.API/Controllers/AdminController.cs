@@ -117,5 +117,19 @@ namespace Sahnem.API.Controllers
             await _adminService.DeleteMessage(id);
             return Ok();
         }
+
+        [HttpPost("notifications/broadcast")]
+        public async Task<IActionResult> BroadcastNotification([FromBody] AdminBroadcastNotificationDto dto)
+        {
+            var result = await _adminService.BroadcastNotification(dto);
+            return Ok(result);
+        }
+
+        [HttpPost("emails/send")]
+        public async Task<IActionResult> SendBulkEmail([FromBody] AdminSendEmailDto dto)
+        {
+            var result = await _adminService.SendBulkEmail(dto);
+            return Ok(result);
+        }
     }
 }

@@ -14,6 +14,9 @@ namespace Sahnem.Core.Entities
         public bool IsEmailConfirmed {get; set;} = false;
         public bool IsPhoneNumberConfirmed {get; set;} = false;
         public bool IsProfileCompleted {get; set;} = false;
+        // Kayıt sırasında verilen iletişim izni — açıksa ve rolü Musician ise,
+        // kendi şehrinde yeni bir ilan açıldığında bildirim/e-posta alır.
+        public bool AllowCityAdvertAlerts {get; set;} = false;
 
         public string? EmailVerificationCode {get; set;}
         public DateTime? EmailVerificationCodeExpiresAt {get; set;}

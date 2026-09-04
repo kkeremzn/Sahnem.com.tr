@@ -205,6 +205,16 @@ namespace Sahnem.Business.Services
 
             await SendVerificationEmail(user);
 
+            await _notificationRepository.AddAsync(new Notification
+            {
+                UserId = user.Id,
+                Type = "system",
+                Title = "Sahnem'e hoş geldin!",
+                Body = "Aramıza katıldığın için teşekkürler. E-postanı doğrulayıp profilini tamamlayarak başlayabilirsin.",
+                LinkTo = "/dashboard",
+            });
+            await _unitOfWork.SaveChanges();
+
             // Kayıt anında da token üretiliyor: kullanıcı hesap oluşturur oluşturmaz
             // giriş yapmış sayılır ve profil kurulum sihirbazına bu token ile devam
             // eder. Profilini tamamladığında (CreateMusicianProfile vb.) Role ve

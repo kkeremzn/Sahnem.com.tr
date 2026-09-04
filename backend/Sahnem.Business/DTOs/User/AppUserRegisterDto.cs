@@ -9,5 +9,6 @@ namespace Sahnem.Business.DTOs.User
         public string Email { get; set; }
         public string Password { get; set; } //Sonradan Hashlenecek şifre
         public string PhoneNumber { get; set; }
+        public bool AllowCityAdvertAlerts { get; set; }
     }
 }
