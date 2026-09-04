@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { CalendarClock, CalendarDays, Loader2, MapPin, Send, Wrench } from 'lucide-react';
+import { CalendarClock, CalendarDays, Loader2, MapPin, Send } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
@@ -108,23 +108,25 @@ export function JobDetail() {
 
           <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3">
             {advert.branch && (
-              <Card className="text-center">
-                <Badge variant="gold">{MUSIC_BRANCH_LABELS[advert.branch]}</Badge>
-                <p className="mt-2 text-xs text-text-faint">Aranan branş</p>
+              <Card>
+                <p className="text-xs text-text-faint">Aranan branş</p>
+                <p className="mt-1.5"><Badge variant="gold">{MUSIC_BRANCH_LABELS[advert.branch]}</Badge></p>
               </Card>
             )}
-            <Card className="text-center">
-              <Wrench size={18} className="mx-auto text-gold-soft" />
-              <p className="mt-2 text-sm font-semibold">{advert.equipmentProvided ? 'Sağlanıyor' : 'Sağlanmıyor'}</p>
+            <Card>
               <p className="text-xs text-text-faint">Ekipman</p>
+              <p className="mt-1.5 text-sm font-semibold">{advert.equipmentProvided ? 'Sağlanıyor' : 'Sağlanmıyor'}</p>
             </Card>
             {!!advert.minimumExperienceYears && (
-              <Card className="text-center">
-                <p className="mt-1 text-sm font-semibold">{advert.minimumExperienceYears}+ yıl</p>
+              <Card>
                 <p className="text-xs text-text-faint">Min. deneyim</p>
+                <p className="mt-1.5 text-sm font-semibold">{advert.minimumExperienceYears}+ yıl</p>
               </Card>
             )}
           </div>
+          {advert.equipmentNote && (
+            <p className="mt-2.5 text-xs text-text-faint">Ekipman notu: {advert.equipmentNote}</p>
+          )}
         </div>
 
         <aside>

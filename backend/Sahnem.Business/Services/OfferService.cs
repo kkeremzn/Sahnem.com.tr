@@ -169,16 +169,27 @@ namespace Sahnem.Business.Services
 
             offer.OfferStatus = status;
 
-            // Teklif kabul edildiğinde ilan otomatik olarak kapanır — frontend'in
-            // mock katmanındaki aynı iş kuralı burada da uygulanıyor.
-            if (status == OfferStatus.Accepted)
+            var accepted = status == OfferStatus.Accepted;
+            List<Offer> autoRejected = new();
+
+            // Teklif kabul edildiğinde ilan otomatik olarak kapanır — o ilana
+            // gelen diğer bekleyen teklifler de otomatik reddedilir, aksi halde
+            // ilan kapandığı halde "Bekliyor" görünen, cevapsız kalan teklifler
+            // birikirdi.
+            if (accepted)
             {
                 advert.Status = AdvertStatus.Closed;
+                var otherOffers = await _offerRepository.WhereAsync(
+                    o => o.AdvertId == advert.Id && o.Id != offer.Id && o.OfferStatus == OfferStatus.Pending);
+                foreach (var other in otherOffers)
+                {
+                    other.OfferStatus = OfferStatus.Rejected;
+                    autoRejected.Add(other);
+                }
             }
 
             await _unitOfWork.SaveChanges();
 
-            var accepted = status == OfferStatus.Accepted;
             await _notificationService.CreateNotification(
                 offer.MusicianId,
                 "offer",
@@ -187,6 +198,16 @@ namespace Sahnem.Business.Services
                     ? $"\"{advert.Title}\" ilanına gönderdiğiniz teklif kabul edildi."
                     : $"\"{advert.Title}\" ilanına gönderdiğiniz teklif reddedildi.",
                 $"/offers/{offer.Id}");
+
+            foreach (var other in autoRejected)
+            {
+                await _notificationService.CreateNotification(
+                    other.MusicianId,
+                    "offer",
+                    "Teklifiniz reddedildi",
+                    $"\"{advert.Title}\" ilanı başka bir müzisyenle anlaştığı için teklifiniz otomatik olarak reddedildi.",
+                    $"/offers/{other.Id}");
+            }
         }
 
         private async Task<OfferResponseDto> BuildResponse(Offer offer, Advert? advert)
@@ -197,6 +218,7 @@ namespace Sahnem.Business.Services
             var musician = await _musicianProfileRepository.FirstOrDefaultAsync(m => m.AppUserId == offer.MusicianId);
             var musicianUser = await _userRepository.GetByIdAsync(offer.MusicianId);
             dto.MusicianName = musicianUser == null ? null : $"{musicianUser.FirstName} {musicianUser.LastName}";
+            dto.MusicianAvatarUrl = musicianUser?.AvatarUrl;
             dto.MusicianBranch = musician == null ? null : MultiEnumField.ParseFirst<MusicBranch>(musician.Branch);
 
             return dto;
@@ -225,6 +247,7 @@ namespace Sahnem.Business.Services
                 dto.MusicianBranch = musician == null ? null : MultiEnumField.ParseFirst<MusicBranch>(musician.Branch);
                 var musicianUser = musicianUsers.FirstOrDefault(u => u.Id == dto.MusicianId);
                 dto.MusicianName = musicianUser == null ? null : $"{musicianUser.FirstName} {musicianUser.LastName}";
+                dto.MusicianAvatarUrl = musicianUser?.AvatarUrl;
             }
 
             return dtos;

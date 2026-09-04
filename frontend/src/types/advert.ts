@@ -12,6 +12,7 @@ export interface Advert {
   district?: string;
   address: string;
   equipmentProvided: boolean;
+  equipmentNote?: string;
   eventTime: string;
   budget: number;
   minimumExperienceYears?: number;
@@ -30,6 +31,7 @@ export interface AdvertCreateInput {
   district?: string;
   address: string;
   equipmentProvided: boolean;
+  equipmentNote?: string;
   eventTime: string;
   budget: number;
   minimumExperienceYears?: number;

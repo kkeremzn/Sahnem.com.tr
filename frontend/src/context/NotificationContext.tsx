@@ -27,6 +27,10 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     refresh();
+    // Yeni bir bildirim geldiğinde (teklif, ilan başvurusu vb.) sayfa
+    // yenilenmeden zil rozeti güncellenmiyordu — periyodik yoklama ekliyoruz.
+    const interval = setInterval(refresh, 30000);
+    return () => clearInterval(interval);
   }, [refresh]);
 
   return <NotificationContext.Provider value={{ unreadCount, refresh }}>{children}</NotificationContext.Provider>;

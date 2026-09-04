@@ -11,6 +11,10 @@ export function Card({ hover, className, children, ...props }: CardProps) {
       className={cn(
         'rounded-md border border-border bg-card p-5',
         hover && 'transition-all duration-200 hover:-translate-y-0.5 hover:border-gold/50 hover:shadow-glow-sm',
+        // onClick alan bir Card için imleç otomatik "pointer" olsun — tek tek
+        // sayfalarda unutulup tıklanabilirliği belirsizleştirmesin diye burada
+        // merkezi olarak ayarlanıyor.
+        props.onClick && 'cursor-pointer',
         className,
       )}
       {...props}

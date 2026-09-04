@@ -7,6 +7,7 @@ namespace Sahnem.Business.DTOs.Offer
         public int Id {get; set;}
         public int MusicianId {get; set;}
         public string? MusicianName {get; set;}
+        public string? MusicianAvatarUrl {get; set;}
         public MusicBranch? MusicianBranch {get; set;}
         public int AdvertId {get; set;}
         public string? AdvertTitle {get; set;}

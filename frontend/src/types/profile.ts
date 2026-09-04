@@ -18,6 +18,7 @@ export interface MusicianProfile {
   additionalCities: City[];
   isAvailableToTravel: IsAvailableToTravel;
   hasOwnEquipment: boolean;
+  equipmentNote?: string;
   workStatus: WorkStatus;
   instagramUrl?: string;
   youtubeUrl?: string;
@@ -42,6 +43,7 @@ export interface MusicianProfileInput {
   additionalCities: City[];
   isAvailableToTravel: IsAvailableToTravel;
   hasOwnEquipment: boolean;
+  equipmentNote?: string;
   workStatus: WorkStatus;
   instagramUrl?: string;
   youtubeUrl?: string;

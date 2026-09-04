@@ -6,6 +6,7 @@ export interface Offer {
   id: number;
   musicianId: number;
   musicianName: string;
+  musicianAvatarUrl?: string;
   musicianBranch?: MusicBranch;
   advertId: number;
   advertTitle: string;

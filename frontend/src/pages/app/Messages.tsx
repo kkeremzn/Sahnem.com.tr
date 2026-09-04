@@ -58,6 +58,31 @@ export function Messages() {
     });
   }, [activeId, user]);
 
+  // Karşı taraf mesaj gönderdiğinde WebSocket olmadığı için sayfayı yenilemeden
+  // görünmüyordu — açık sohbeti kısa aralıklarla yoklayarak canlıya yakın
+  // güncelleme sağlıyoruz.
+  useEffect(() => {
+    if (!activeId || !user) return;
+    const interval = setInterval(() => {
+      messageService.listMessages(activeId).then((fresh) => {
+        setMessages((prev) => (prev.length !== fresh.length ? fresh : prev));
+      });
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [activeId, user]);
+
+  // Sohbet listesindeki son mesaj/okunmamış sayacı da aynı sebeple periyodik
+  // tazeleniyor (aktif sohbetin kendisi hariç, onu okundu işaretliyoruz zaten).
+  useEffect(() => {
+    if (!user) return;
+    const interval = setInterval(() => {
+      messageService.listConversations().then((fresh) => {
+        setConversations((prev) => (prev ? fresh.map((c) => (c.id === activeId ? { ...c, unreadCount: 0 } : c)) : fresh));
+      });
+    }, 8000);
+    return () => clearInterval(interval);
+  }, [user, activeId]);
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);

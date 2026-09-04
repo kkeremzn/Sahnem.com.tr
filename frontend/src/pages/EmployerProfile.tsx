@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Camera, Link2, Loader2, MapPin, MessageCircle, PlayCircle } from 'lucide-react';
+import { Loader2, MapPin, MessageCircle } from 'lucide-react';
+import { InstagramIcon, LinkedinIcon, SpotifyIcon, YoutubeIcon } from '@/components/ui/SocialIcons';
 import { Container } from '@/components/ui/Container';
 import { Avatar } from '@/components/ui/Avatar';
 import { Card } from '@/components/ui/Card';
@@ -44,9 +45,10 @@ export function EmployerProfile() {
   const name = employer.kind === 'Organizer' ? employer.organizerName : employer.venueName;
   const typeLabel = employer.kind === 'Organizer' ? ORGANIZER_TYPE_LABELS[employer.organizerType] : VENUE_TYPE_LABELS[employer.venueType];
   const socials = [
-    { url: employer.instagramUrl, Icon: Camera },
-    { url: employer.youtubeUrl, Icon: PlayCircle },
-    { url: employer.linkedinUrl, Icon: Link2 },
+    { url: employer.instagramUrl, Icon: InstagramIcon },
+    { url: employer.youtubeUrl, Icon: YoutubeIcon },
+    { url: employer.linkedinUrl, Icon: LinkedinIcon },
+    { url: employer.spotifyUrl, Icon: SpotifyIcon },
   ].filter((s) => s.url);
 
   return (

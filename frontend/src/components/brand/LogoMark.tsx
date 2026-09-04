@@ -6,12 +6,15 @@ interface LogoMarkProps {
   className?: string;
 }
 
+// Yükseklikler artık ortadaki çubuğa göre tam ayna simetrik (24/60/85/60/24) —
+// önceki değerler (23/60/85/52/27) neredeyse simetrikti ama birkaç birim
+// kayıktı, bu da logoyu gözle fark edilir şekilde "acemi/hizasız" gösteriyordu.
 const BARS = [
-  { x: -43, y: -11.5, h: 23 },
+  { x: -43, y: -12, h: 24 },
   { x: -26, y: -30, h: 60 },
   { x: -5.5, y: -42.5, h: 85 },
-  { x: 15, y: -26, h: 52 },
-  { x: 32, y: -13.5, h: 27 },
+  { x: 15, y: -30, h: 60 },
+  { x: 32, y: -12, h: 24 },
 ];
 
 export function LogoMark({ size = 28, withWordmark = false, className }: LogoMarkProps) {

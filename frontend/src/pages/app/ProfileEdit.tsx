@@ -181,6 +181,13 @@ export function ProfileEdit() {
               <div className="mt-4 space-y-1">
                 <Switch checked={musician.isAvailableToTravel === 'Yes'} onChange={(v) => setMusician({ ...musician, isAvailableToTravel: (v ? 'Yes' : 'No') as IsAvailableToTravel })} label="Şehir dışına seyahat edebilirim" />
                 <Switch checked={musician.hasOwnEquipment} onChange={(v) => setMusician({ ...musician, hasOwnEquipment: v })} label="Kendi ekipmanım var" />
+                <Input
+                  className="mt-2"
+                  placeholder="Detay ekle (opsiyonel), ör. Amfi var, gitar yok"
+                  value={musician.equipmentNote ?? ''}
+                  onChange={(e) => setMusician({ ...musician, equipmentNote: e.target.value })}
+                  maxLength={300}
+                />
               </div>
             </Card>
 

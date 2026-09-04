@@ -16,6 +16,7 @@ namespace Sahnem.Core.Entities
         public string? AdditionalCities {get; set;}
         public IsAvailableToTravel IsAvailableToTravel {get; set;}
         public bool HasOwnEquipment {get; set;}
+        public string? EquipmentNote {get; set;}
         public WorkStatus WorkStatus {get; set;}
 
         public string? InstagramUrl {get; set;}

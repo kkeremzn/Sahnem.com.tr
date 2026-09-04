@@ -40,7 +40,7 @@ const ROLE_OPTIONS: { value: Role; icon: typeof Mic2 }[] = [
 interface MusicianForm {
   avatarUrl?: string; branch: MusicBranch[]; genres: MusicGenre[]; experienceYears: string;
   workStatus: WorkStatus; city: City | ''; district: string; additionalCities: City[]; isAvailableToTravel: IsAvailableToTravel;
-  hasOwnEquipment: boolean; bio: string; instagramUrl: string; youtubeUrl: string; linkedinUrl: string; spotifyUrl: string;
+  hasOwnEquipment: boolean; equipmentNote: string; bio: string; instagramUrl: string; youtubeUrl: string; linkedinUrl: string; spotifyUrl: string;
 }
 interface EmployerForm {
   avatarUrl?: string; name: string; organizerType: OrganizerType | ''; venueType: VenueType | '';
@@ -68,7 +68,7 @@ export function ProfileSetup() {
 
   const [mForm, setMForm] = useState<MusicianForm>({
     branch: [], genres: [], experienceYears: '', workStatus: 'Solo', city: '', district: '', additionalCities: [],
-    isAvailableToTravel: 'Yes', hasOwnEquipment: false, bio: '', instagramUrl: '', youtubeUrl: '', linkedinUrl: '', spotifyUrl: '',
+    isAvailableToTravel: 'Yes', hasOwnEquipment: false, equipmentNote: '', bio: '', instagramUrl: '', youtubeUrl: '', linkedinUrl: '', spotifyUrl: '',
   });
   const [eForm, setEForm] = useState<EmployerForm>({
     name: '', organizerType: '', venueType: '', city: '', district: '', additionalCities: [], address: '', capacity: '',
@@ -125,7 +125,7 @@ export function ProfileSetup() {
           experienceYears: Number(mForm.experienceYears) || 0, city: mForm.city as City,
           district: mForm.district || undefined, additionalCities: mForm.additionalCities,
           isAvailableToTravel: mForm.isAvailableToTravel,
-          hasOwnEquipment: mForm.hasOwnEquipment, workStatus: mForm.workStatus,
+          hasOwnEquipment: mForm.hasOwnEquipment, equipmentNote: mForm.equipmentNote || undefined, workStatus: mForm.workStatus,
           instagramUrl: mForm.instagramUrl || undefined, youtubeUrl: mForm.youtubeUrl || undefined,
           linkedinUrl: mForm.linkedinUrl || undefined, spotifyUrl: mForm.spotifyUrl || undefined,
         });
@@ -341,6 +341,12 @@ export function ProfileSetup() {
             </Field>
             <Switch checked={mForm.isAvailableToTravel === 'Yes'} onChange={(v) => setMForm((f) => ({ ...f, isAvailableToTravel: v ? 'Yes' : 'No' }))} label="Şehir dışına seyahat edebilirim" />
             <Switch checked={mForm.hasOwnEquipment} onChange={(v) => setMForm((f) => ({ ...f, hasOwnEquipment: v }))} label="Kendi ekipmanım var" />
+            <Input
+              placeholder="Detay ekle (opsiyonel), ör. Amfi var, gitar yok"
+              value={mForm.equipmentNote}
+              onChange={(e) => setMForm((f) => ({ ...f, equipmentNote: e.target.value }))}
+              maxLength={300}
+            />
           </div>
         )}
 

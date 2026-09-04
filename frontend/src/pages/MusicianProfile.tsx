@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Disc3, Loader2, MapPin, MessageCircle, Music2, Plane, Star, Wrench } from 'lucide-react';
-import { Camera, Link2, PlayCircle } from 'lucide-react';
+import { Loader2, MapPin, MessageCircle, Music2, Plane, Star, Wrench } from 'lucide-react';
+import { InstagramIcon, LinkedinIcon, SpotifyIcon, YoutubeIcon } from '@/components/ui/SocialIcons';
 import { Container } from '@/components/ui/Container';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
@@ -66,10 +66,10 @@ export function MusicianProfile() {
   }
 
   const socials = [
-    { url: musician.instagramUrl, Icon: Camera },
-    { url: musician.youtubeUrl, Icon: PlayCircle },
-    { url: musician.linkedinUrl, Icon: Link2 },
-    { url: musician.spotifyUrl, Icon: Disc3 },
+    { url: musician.instagramUrl, Icon: InstagramIcon },
+    { url: musician.youtubeUrl, Icon: YoutubeIcon },
+    { url: musician.linkedinUrl, Icon: LinkedinIcon },
+    { url: musician.spotifyUrl, Icon: SpotifyIcon },
   ].filter((s) => s.url);
 
   return (
@@ -125,6 +125,7 @@ export function MusicianProfile() {
                   <Wrench size={18} className="mx-auto text-gold-soft" />
                   <p className="mt-2 text-sm font-semibold">{musician.hasOwnEquipment ? 'Var' : 'Yok'}</p>
                   <p className="text-xs text-text-faint">Kendi ekipmanı</p>
+                  {musician.equipmentNote && <p className="mt-1 text-[11px] text-text-faint">{musician.equipmentNote}</p>}
                 </Card>
                 <Card className="text-center">
                   <Plane size={18} className="mx-auto text-gold-soft" />

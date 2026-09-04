@@ -26,8 +26,8 @@ namespace Sahnem.Business.Validators.Profile
             .WithMessage("Bio can not be empty and whitespace")
             .MinimumLength(30)
             .WithMessage("Bio must be at least 30 characters long")
-            .MaximumLength(300)
-            .WithMessage("Bio must not exceed 300 characters");
+            .MaximumLength(500)
+            .WithMessage("Bio must not exceed 500 characters");
 
 
             RuleFor(x=> x.organizerType)
@@ -44,18 +44,18 @@ namespace Sahnem.Business.Validators.Profile
             .WithMessage("District can not be empty")
             .MinimumLength(1)
             .WithMessage("District must be at least 1 characters long")
-            .MaximumLength(17)
-            .WithMessage("District must not exceed 17 characters");
+            .MaximumLength(50)
+            .WithMessage("District must not exceed 50 characters");
 
 
             RuleFor(x=> x.Address)
             .Cascade(CascadeMode.Stop)
             .NotEmpty()
-            .WithMessage("Adsress can not be empty")
+            .WithMessage("Address can not be empty")
             .MinimumLength(15)
-            .WithMessage("Address be at least 15 characters long")
-            .MaximumLength(50)
-            .WithMessage("District must not exceed 50 characters");
+            .WithMessage("Address must be at least 15 characters long")
+            .MaximumLength(200)
+            .WithMessage("Address must not exceed 200 characters");
             
 
             RuleFor(x => x.AdditionalCities)

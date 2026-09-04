@@ -26,8 +26,8 @@ namespace Sahnem.Business.Validators.Advert
             .WithMessage("Description can not be empty")
             .MinimumLength(30)
             .WithMessage("Description must be at least 30 characters long")
-            .MaximumLength(100)
-            .WithMessage("Description must not exceed 100 characters");
+            .MaximumLength(1000)
+            .WithMessage("Description must not exceed 1000 characters");
 
             RuleFor(x=> x.City)
             .Cascade(CascadeMode.Stop)
@@ -40,14 +40,18 @@ namespace Sahnem.Business.Validators.Advert
             RuleFor(x=> x.District)
             .Cascade(CascadeMode.Stop)
             .MinimumLength(1)
-            .WithMessage("Districtmust be at least 1 characters long")
-            .MaximumLength(17)
-            .WithMessage("District must not exceed 17 characters");
+            .WithMessage("District must be at least 1 characters long")
+            .MaximumLength(50)
+            .WithMessage("District must not exceed 50 characters");
 
 
             RuleFor(x=> x.Address)
             .NotEmpty()
             .WithMessage("Address can not be empty");
+
+            RuleFor(x=> x.EquipmentNote)
+            .MaximumLength(300)
+            .WithMessage("Equipment note must not exceed 300 characters");
 
             RuleFor(x=> x.EventTime)
             .Cascade(CascadeMode.Stop)

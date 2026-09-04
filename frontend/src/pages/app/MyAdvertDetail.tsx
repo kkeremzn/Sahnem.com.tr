@@ -11,8 +11,9 @@ import { AdvertStatusBadge, OfferStatusBadge } from '@/components/ui/StatusBadge
 import { useToast } from '@/context/ToastContext';
 import * as advertService from '@/services/advertService';
 import * as offerService from '@/services/offerService';
-import { CITY_LABELS, type Advert, type Offer } from '@/types';
+import { CITY_LABELS, MUSIC_BRANCH_LABELS, type Advert, type Offer } from '@/types';
 import { formatDate, formatPrice } from '@/lib/format';
+import { resolveAssetUrl } from '@/lib/apiClient';
 
 export function MyAdvertDetail() {
   const { id } = useParams();
@@ -100,10 +101,10 @@ export function MyAdvertDetail() {
                 <Card key={o.id}>
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <Avatar name={o.musicianName} size={44} />
+                      <Avatar name={o.musicianName} src={resolveAssetUrl(o.musicianAvatarUrl)} size={44} />
                       <div>
                         <Link to={`/musicians/${o.musicianId}`} className="text-sm font-semibold text-text hover:text-gold-soft">{o.musicianName}</Link>
-                        <p className="text-xs text-text-faint">{o.musicianBranch}</p>
+                        <p className="text-xs text-text-faint">{o.musicianBranch ? MUSIC_BRANCH_LABELS[o.musicianBranch] : ''}</p>
                       </div>
                     </div>
                     <div className="text-right">
@@ -137,6 +138,11 @@ export function MyAdvertDetail() {
             <div className="border-t border-border pt-3">
               <p className="text-xs text-text-faint">Adres</p>
               <p className="text-text-dim">{advert.address}</p>
+            </div>
+            <div className="border-t border-border pt-3">
+              <p className="text-xs text-text-faint">Ekipman</p>
+              <p className="text-text-dim">{advert.equipmentProvided ? 'Sağlanıyor' : 'Sağlanmıyor'}</p>
+              {advert.equipmentNote && <p className="mt-0.5 text-xs text-text-faint">{advert.equipmentNote}</p>}
             </div>
           </Card>
         </aside>

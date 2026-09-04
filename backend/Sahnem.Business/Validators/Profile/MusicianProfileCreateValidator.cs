@@ -15,8 +15,8 @@ namespace Sahnem.Business.Validators.Profile
             .WithMessage("Bio can not be empty")
             .MinimumLength(20)
             .WithMessage("Bio must be at least 20 characters long")
-            .MaximumLength(200)
-            .WithMessage("Bio must not exceed 200 characters");
+            .MaximumLength(500)
+            .WithMessage("Bio must not exceed 500 characters");
 
 
 
@@ -85,6 +85,10 @@ namespace Sahnem.Business.Validators.Profile
             .WithMessage("Please select a WorkStatus")
             .IsInEnum()
             .WithMessage("Invalid WorkStatus");
+
+            RuleFor(x => x.EquipmentNote)
+            .MaximumLength(300)
+            .WithMessage("Equipment note must not exceed 300 characters");
 
             RuleFor(x => x.InstagramUrl)
             .Must(url => string.IsNullOrWhiteSpace(url) || url.Contains("instagram.com"))

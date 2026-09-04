@@ -14,6 +14,7 @@ namespace Sahnem.Business.DTOs.Advert
         public string? District{get; set;}
         public string Address {get; set;}
         public bool EquipmentProvided { get; set; }
+        public string? EquipmentNote { get; set; }
         public DateTime EventTime {get; set;}
         public decimal Budget {get; set;}
         public int? MinimumExperienceYears{get; set;}
