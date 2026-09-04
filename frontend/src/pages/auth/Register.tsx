@@ -124,7 +124,7 @@ export function Register() {
         {role === 'Musician' && (
           <label className="flex items-start gap-2.5 text-xs text-text-dim">
             <input type="checkbox" className="mt-0.5 h-4 w-4 accent-gold" {...register('allowCityAdvertAlerts')} />
-            <span>Şehrimde yeni bir ilan açıldığında bana bildirim/e-posta gönderilsin.</span>
+            <span>Bana uygun yeni ilan ve fırsatlardan e-posta ile haberdar olmak istiyorum.</span>
           </label>
         )}
         {errors.root && <p className="text-sm text-danger">{errors.root.message}</p>}

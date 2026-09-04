@@ -97,9 +97,9 @@ export function ProfileSetup() {
     }
     if (step === 3) {
       if (isMusician && mForm.bio.trim().length < 20) return 'Biyografi en az 20 karakter olmalı.';
-      if (isMusician && mForm.bio.trim().length > 200) return 'Biyografi en fazla 200 karakter olabilir.';
+      if (isMusician && mForm.bio.trim().length > 500) return 'Biyografi en fazla 500 karakter olabilir.';
       if (!isMusician && eForm.bio.trim().length < 30) return 'Açıklama en az 30 karakter olmalı.';
-      if (!isMusician && eForm.bio.trim().length > 300) return 'Açıklama en fazla 300 karakter olabilir.';
+      if (!isMusician && eForm.bio.trim().length > 500) return 'Açıklama en fazla 500 karakter olabilir.';
     }
     return null;
   }
@@ -393,7 +393,7 @@ export function ProfileSetup() {
         {step === 3 && (
           <div className="space-y-4">
             <h2 className="font-display text-xl font-bold">{isMusician ? 'Biyografin' : 'Hakkında'}</h2>
-            <Field label="Açıklama" required hint={isMusician ? '20-200 karakter' : '30-300 karakter'}>
+            <Field label="Açıklama" required hint={isMusician ? '20-500 karakter' : '30-500 karakter'}>
               <Textarea
                 rows={5}
                 value={isMusician ? mForm.bio : eForm.bio}

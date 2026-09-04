@@ -3,19 +3,23 @@ import { Bell, Mail, Search, X } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Field } from '@/components/ui/Field';
 import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { Button } from '@/components/ui/Button';
 import { Tabs } from '@/components/ui/Tabs';
 import * as adminService from '@/services/adminService';
-import type { AppUser } from '@/types';
+import { USER_TYPE_LABELS, type AppUser, type UserType } from '@/types';
 
 type Mode = 'notification' | 'email';
 type Audience = 'all' | 'custom';
+
+const ROLE_OPTIONS: UserType[] = ['Musician', 'Organizer', 'Venue'];
 
 export function AdminNotify() {
   const [mode, setMode] = useState<Mode>('notification');
   const [audience, setAudience] = useState<Audience>('all');
   const [search, setSearch] = useState('');
+  const [roleFilter, setRoleFilter] = useState<UserType | ''>('');
   const [results, setResults] = useState<AppUser[]>([]);
   const [selected, setSelected] = useState<AppUser[]>([]);
   const [searching, setSearching] = useState(false);
@@ -28,16 +32,25 @@ export function AdminNotify() {
   const [result, setResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleSearch(q: string) {
-    setSearch(q);
-    if (!q.trim()) { setResults([]); return; }
+  async function runSearch(q: string, role: UserType | '') {
+    if (!q.trim() && !role) { setResults([]); return; }
     setSearching(true);
     try {
-      const res = await adminService.listAllUsers(1, 8, { search: q });
+      const res = await adminService.listAllUsers(1, 20, { search: q || undefined, role: role || undefined });
       setResults(res.items.filter((u) => !selected.some((s) => s.id === u.id)));
     } finally {
       setSearching(false);
     }
+  }
+
+  function handleSearch(q: string) {
+    setSearch(q);
+    void runSearch(q, roleFilter);
+  }
+
+  function handleRoleFilter(role: UserType | '') {
+    setRoleFilter(role);
+    void runSearch(search, role);
   }
 
   function addUser(u: AppUser) {
@@ -120,14 +133,20 @@ export function AdminNotify() {
                 ))}
               </div>
             )}
-            <div className="relative">
-              <Search size={14} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-text-faint" />
-              <input
-                value={search}
-                onChange={(e) => handleSearch(e.target.value)}
-                placeholder="İsim veya e-posta ile ara..."
-                className="focus-ring h-10 w-full rounded-md border border-border bg-deep pl-9 pr-3 text-sm text-text placeholder:text-text-faint"
-              />
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <Search size={14} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-text-faint" />
+                <input
+                  value={search}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  placeholder="İsim veya e-posta ile ara..."
+                  className="focus-ring h-10 w-full rounded-md border border-border bg-deep pl-9 pr-3 text-sm text-text placeholder:text-text-faint"
+                />
+              </div>
+              <Select value={roleFilter} onChange={(e) => handleRoleFilter(e.target.value as UserType | '')} className="w-40">
+                <option value="">Tüm roller</option>
+                {ROLE_OPTIONS.map((r) => <option key={r} value={r}>{USER_TYPE_LABELS[r]}</option>)}
+              </Select>
             </div>
             {searching && <p className="mt-1.5 text-xs text-text-faint">Aranıyor...</p>}
             {results.length > 0 && (

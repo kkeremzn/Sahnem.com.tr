@@ -240,6 +240,12 @@ namespace Sahnem.Business.Services
                 }
             }
 
+            // Bir müzisyen kendi profilini "keşfet" listesinde görmemeli.
+            if (_cureentUserService.IsAuthenticated && _cureentUserService.Role == "Musician")
+            {
+                musicians = musicians.Where(m => m.AppUserId != _cureentUserService.UserId);
+            }
+
             var page = filter?.Page is > 0 ? filter.Page : 1;
             var pageSize = filter?.PageSize is > 0 and <= 100 ? filter.PageSize : 20;
 
@@ -331,6 +337,12 @@ namespace Sahnem.Business.Services
                 {
                     combined = combined.Where(e => e.City == filter.City.Value);
                 }
+            }
+
+            // Bir organizatör/mekan kendi profilini "keşfet" listesinde görmemeli.
+            if (_cureentUserService.IsAuthenticated && (_cureentUserService.Role == "Organizer" || _cureentUserService.Role == "Venue"))
+            {
+                combined = combined.Where(e => e.AppUserId != _cureentUserService.UserId);
             }
 
             var page = filter?.Page is > 0 ? filter.Page : 1;

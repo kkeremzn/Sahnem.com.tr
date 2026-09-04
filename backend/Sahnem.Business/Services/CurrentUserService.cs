@@ -33,6 +33,9 @@ namespace Sahnem.Business.Security
                 _httpContextAccessor.HttpContext!.User.FindFirstValue("IsProfileCompleted")!
             );
 
+        public bool IsAuthenticated =>
+            _httpContextAccessor.HttpContext?.User?.Identity?.IsAuthenticated ?? false;
+
             
     }
     

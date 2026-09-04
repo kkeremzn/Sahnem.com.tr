@@ -118,26 +118,26 @@ export function MusicianProfile() {
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                 <Card className="text-center">
                   <Music2 size={18} className="mx-auto text-gold-soft" />
-                  <p className="mt-2 text-sm font-semibold">{musician.experienceYears} yıl</p>
-                  <p className="text-xs text-text-faint">Deneyim</p>
+                  <p className="mt-2 text-xs text-text-faint">Deneyim</p>
+                  <p className="mt-0.5 text-sm font-semibold">{musician.experienceYears} yıl</p>
                 </Card>
                 <Card className="text-center">
                   <Wrench size={18} className="mx-auto text-gold-soft" />
-                  <p className="mt-2 text-sm font-semibold">{musician.hasOwnEquipment ? 'Var' : 'Yok'}</p>
-                  <p className="text-xs text-text-faint">Kendi ekipmanı</p>
+                  <p className="mt-2 text-xs text-text-faint">Kendi ekipmanı</p>
+                  <p className="mt-0.5 text-sm font-semibold">{musician.hasOwnEquipment ? 'Var' : 'Yok'}</p>
                   {musician.equipmentNote && <p className="mt-1 text-[11px] text-text-faint">{musician.equipmentNote}</p>}
                 </Card>
                 <Card className="text-center">
                   <Plane size={18} className="mx-auto text-gold-soft" />
-                  <p className="mt-2 text-sm font-semibold">{TRAVEL_LABELS[musician.isAvailableToTravel]}</p>
-                  <p className="text-xs text-text-faint">Seyahat</p>
+                  <p className="mt-2 text-xs text-text-faint">Seyahat</p>
+                  <p className="mt-0.5 text-sm font-semibold">{TRAVEL_LABELS[musician.isAvailableToTravel]}</p>
                 </Card>
                 <Card className="text-center">
                   <Star size={18} className="mx-auto text-gold-soft" />
-                  <p className="mt-2 text-sm font-semibold">
+                  <p className="mt-2 text-xs text-text-faint">Çalışma şekli</p>
+                  <p className="mt-0.5 text-sm font-semibold">
                     {musician.workStatus === 'Both' ? 'Solo & Grup' : WORK_STATUS_LABELS[musician.workStatus]}
                   </p>
-                  <p className="text-xs text-text-faint">Çalışma şekli</p>
                 </Card>
               </div>
             </div>

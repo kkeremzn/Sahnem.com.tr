@@ -6,5 +6,6 @@ namespace Sahnem.Business.Security
         string? Email { get; }
         string? Role { get; }
         bool IsProfileCompleted{get;}
+        bool IsAuthenticated { get; }
     }
 }

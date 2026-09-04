@@ -34,10 +34,12 @@ export function MultiSelectChips<T extends string>({ options, selected, onChange
   const matches = useMemo(() => {
     if (atLimit) return [];
     const q = query.trim().toLocaleLowerCase('tr');
+    // Sorgu boşken de TÜM seçenekler gösterilir (önceden ilk 8'e kesiliyordu —
+    // kullanıcı arama yapmadan listeye baktığında bazı seçenekler (ör. "Tulum")
+    // hiç yokmuş gibi görünüyordu). Açılır liste zaten kaydırılabilir.
     return options
       .filter((o) => !selected.includes(o.value))
-      .filter((o) => !q || o.label.toLocaleLowerCase('tr').includes(q))
-      .slice(0, 8);
+      .filter((o) => !q || o.label.toLocaleLowerCase('tr').includes(q));
   }, [options, selected, query, atLimit]);
 
   function add(value: T) {

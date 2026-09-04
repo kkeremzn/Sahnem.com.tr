@@ -193,7 +193,7 @@ export function ProfileEdit() {
 
             <Card>
               <h3 className="mb-4 font-display text-base font-bold">Biyografi & sosyal</h3>
-              <Field label="Biyografi" hint="20-200 karakter"><Textarea rows={5} value={musician.bio} onChange={(e) => setMusician({ ...musician, bio: e.target.value })} /></Field>
+              <Field label="Biyografi" hint="20-500 karakter"><Textarea rows={5} value={musician.bio} onChange={(e) => setMusician({ ...musician, bio: e.target.value })} /></Field>
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <Field label="Instagram"><Input placeholder="https://instagram.com/kullaniciadi" value={musician.instagramUrl ?? ''} onChange={(e) => setMusician({ ...musician, instagramUrl: e.target.value })} /></Field>
                 <Field label="YouTube"><Input placeholder="https://youtube.com/@kanaladi" value={musician.youtubeUrl ?? ''} onChange={(e) => setMusician({ ...musician, youtubeUrl: e.target.value })} /></Field>

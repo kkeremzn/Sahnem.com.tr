@@ -30,5 +30,16 @@ namespace Sahnem.Business.Email
                     <p style=""margin:24px 0 0; font-size:13px; color:#6b6777;"">Bu isteği sen yapmadıysan bu e-postayı yok sayabilirsin, şifren değişmeden kalır.</p>
                 </div>";
         }
+
+        public static string Welcome(string firstName)
+        {
+            var safeName = WebUtility.HtmlEncode(firstName);
+            return $@"
+                <div style=""font-family: -apple-system, Segoe UI, Roboto, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color:#16151d;"">
+                    <h2 style=""margin:0 0 16px;"">Hoş geldin, {safeName}!</h2>
+                    <p style=""margin:0 0 16px; line-height:1.6;"">E-postan doğrulandı, Sahnem'e resmen katıldın. Şimdi profilini tamamlayarak müzisyenleri, mekanları ve organizatörleri keşfetmeye başlayabilirsin.</p>
+                    <p style=""margin:0;""><a href=""https://sahnem.com.tr/dashboard"" style=""color:#8B1FE0; font-weight:600;"">Panele git</a></p>
+                </div>";
+        }
     }
 }

@@ -210,7 +210,7 @@ namespace Sahnem.Business.Services
                 UserId = user.Id,
                 Type = "system",
                 Title = "Sahnem'e hoş geldin!",
-                Body = "Aramıza katıldığın için teşekkürler. E-postanı doğrulayıp profilini tamamlayarak başlayabilirsin.",
+                Body = "Aramıza katıldığın için teşekkürler. Müzisyenleri, mekanları ve organizatörleri keşfetmeye hazır olduğunda buradayız.",
                 LinkTo = "/dashboard",
             });
             await _unitOfWork.SaveChanges();
@@ -430,6 +430,11 @@ namespace Sahnem.Business.Services
             user.EmailVerificationCode = null;
             user.EmailVerificationCodeExpiresAt = null;
             await _unitOfWork.SaveChanges();
+
+            // Kayıt anındaki hoş geldin bildirimi kod doğrulamadan önce oluşuyor,
+            // bu yüzden hoş geldin e-postası ayrıca ve doğru anda (doğrulama
+            // tamamlandığında) gönderiliyor.
+            await _emailService.SendAsync(user.Email, "Sahnem'e hoş geldin!", EmailTemplates.Welcome(user.FirstName));
         }
 
         private static readonly TimeSpan VerificationResendCooldown = TimeSpan.FromSeconds(60);
