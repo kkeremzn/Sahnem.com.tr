@@ -290,6 +290,71 @@ namespace Sahnem.Business.Services
             throw new Exception("Employer profile not found");
         }
 
+        // Müzisyenlerin de işveren (organizatör/mekan) keşfedebilmesi için —
+        // GetMusicians'ın işveren tarafındaki karşılığı. İki farklı entity'yi
+        // (OrganizerProfile, VenueProfile) tek bir özet listede birleştiriyor.
+        public async Task<PagedResultDto<EmployerSummaryDto>> GetEmployers(EmployerFilterDto? filter = null)
+        {
+            var organizers = (await _organizerProfileRepository.GetAllAsync()).AsEnumerable();
+            var venues = (await _venueProfileRepository.GetAllAsync()).AsEnumerable();
+
+            var combined = organizers.Select(o => new EmployerSummaryDto
+            {
+                AppUserId = o.AppUserId,
+                Kind = "Organizer",
+                Name = o.OrganizerName,
+                OrganizerType = o.OrganizerType,
+                Bio = o.Bio,
+                City = o.City,
+                District = o.District,
+            }).Concat(venues.Select(v => new EmployerSummaryDto
+            {
+                AppUserId = v.AppUserId,
+                Kind = "Venue",
+                Name = v.VenueName,
+                VenueType = v.VenueType,
+                Bio = v.Bio,
+                City = v.City,
+                District = v.District,
+            })).AsEnumerable();
+
+            if (filter != null)
+            {
+                if (!string.IsNullOrWhiteSpace(filter.Search))
+                {
+                    var search = filter.Search.Trim().ToLowerInvariant();
+                    combined = combined.Where(e =>
+                        e.Name.ToLowerInvariant().Contains(search) ||
+                        e.Bio.ToLowerInvariant().Contains(search));
+                }
+                if (filter.City.HasValue)
+                {
+                    combined = combined.Where(e => e.City == filter.City.Value);
+                }
+            }
+
+            var page = filter?.Page is > 0 ? filter.Page : 1;
+            var pageSize = filter?.PageSize is > 0 and <= 100 ? filter.PageSize : 20;
+
+            var list = combined.ToList();
+            var paged = list.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            var userIds = paged.Select(e => e.AppUserId).Distinct().ToList();
+            var users = await _userRepository.WhereAsync(u => userIds.Contains(u.Id));
+            foreach (var dto in paged)
+            {
+                dto.AvatarUrl = users.FirstOrDefault(u => u.Id == dto.AppUserId)?.AvatarUrl;
+            }
+
+            return new PagedResultDto<EmployerSummaryDto>
+            {
+                Items = paged,
+                Page = page,
+                PageSize = pageSize,
+                TotalCount = list.Count,
+            };
+        }
+
         public async Task<MusicianProfileResponseDto> UpdateMusicianProfile(MusicianProfileCreateDto dto)
         {
             var validationResult = await _validatorMusicianProfileCreate.ValidateAsync(dto);

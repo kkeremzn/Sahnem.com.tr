@@ -15,6 +15,7 @@ namespace Sahnem.Business.Interfaces
         Task<MusicianProfileResponseDto> GetMusicianByUserId(int userId);
         Task<PagedResultDto<MusicianProfileResponseDto>> GetMusicians(MusicianFilterDto? filter = null);
         Task<Object> GetEmployerByUserId(int userId);
+        Task<PagedResultDto<EmployerSummaryDto>> GetEmployers(EmployerFilterDto? filter = null);
 
         Task<MusicianProfileResponseDto> UpdateMusicianProfile(MusicianProfileCreateDto dto);
         Task<OrganizerProfileResponseDto> UpdateOrganizerProfile(OrganizerProfileCreateDto dto);

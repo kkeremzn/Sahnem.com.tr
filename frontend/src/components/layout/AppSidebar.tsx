@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import {
-  Bell, Briefcase, Heart, ListChecks, MessageCircle,
+  Bell, Briefcase, Heart, LayoutGrid, ListChecks, MessageCircle,
   PlusCircle, Search, Settings, ShieldCheck, User, type LucideIcon,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -16,7 +16,9 @@ interface NavItem {
 // "primary": her girişte doğrudan işe yarayan, sık kullanılan akışlar.
 // "account": kendi profil/ayar/geçmiş bilgisi — "Hesabım" başlığı altında toplanır.
 const MUSICIAN_PRIMARY: NavItem[] = [
+  { to: '/dashboard', label: 'Panel', icon: LayoutGrid },
   { to: '/jobs', label: 'İlanları Keşfet', icon: Briefcase },
+  { to: '/explore', label: 'Mekan & Organizatör Keşfet', icon: Search },
   { to: '/messages', label: 'Mesajlar', icon: MessageCircle },
 ];
 const MUSICIAN_ACCOUNT: NavItem[] = [
@@ -26,6 +28,7 @@ const MUSICIAN_ACCOUNT: NavItem[] = [
 ];
 
 const EMPLOYER_PRIMARY: NavItem[] = [
+  { to: '/dashboard', label: 'Panel', icon: LayoutGrid },
   { to: '/explore', label: 'Müzisyen Keşfet', icon: Search },
   { to: '/post-advert', label: 'İlan Ver', icon: PlusCircle },
   { to: '/my-adverts', label: 'İlanlarım', icon: ListChecks },

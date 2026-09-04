@@ -126,3 +126,17 @@ export interface VenueProfileInput {
 export type EmployerProfile =
   | ({ kind: 'Organizer' } & OrganizerProfile)
   | ({ kind: 'Venue' } & VenueProfile);
+
+// Sahnem.Business/DTOs/Profile/EmployerSummaryDto.cs — /explore'da müzisyenlerin
+// mekan/organizatör keşfedebilmesi için özet kart verisi.
+export interface EmployerSummary {
+  appUserId: number;
+  kind: 'Organizer' | 'Venue';
+  name: string;
+  organizerType?: OrganizerType;
+  venueType?: VenueType;
+  bio: string;
+  city: City;
+  district?: string;
+  avatarUrl?: string;
+}

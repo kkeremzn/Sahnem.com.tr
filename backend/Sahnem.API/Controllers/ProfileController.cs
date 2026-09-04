@@ -79,6 +79,13 @@ namespace Sahnem.API.Controllers
             return Ok(result);
         }
 
+        [HttpGet("employers")]
+        public async Task<IActionResult> GetEmployers([FromQuery] EmployerFilterDto filter)
+        {
+            var result = await _profileService.GetEmployers(filter);
+            return Ok(result);
+        }
+
         [Authorize(Roles = "Musician")]
         [HttpPut("musician")]
         public async Task<IActionResult> UpdateMusicianProfile([FromBody] MusicianProfileCreateDto dto)

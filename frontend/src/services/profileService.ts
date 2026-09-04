@@ -1,7 +1,7 @@
 import { api } from '@/lib/apiClient';
 import { setAccessToken } from '@/lib/tokenStore';
 import type {
-  City, EmployerProfile, MusicBranch, MusicianProfile, MusicianProfileInput,
+  City, EmployerProfile, EmployerSummary, MusicBranch, MusicianProfile, MusicianProfileInput,
   OrganizerProfile, OrganizerProfileInput, VenueProfile, VenueProfileInput,
 } from '@/types';
 
@@ -28,6 +28,24 @@ export async function listMusicians(filters: MusicianFilters = {}): Promise<Page
     branch: filters.branch,
     city: filters.city,
     travelOnly: filters.travelOnly,
+    page: filters.page ?? 1,
+    pageSize: filters.pageSize ?? 20,
+  });
+}
+
+export interface EmployerFilters {
+  search?: string;
+  city?: City;
+  page?: number;
+  pageSize?: number;
+}
+
+// GetMusicians'ın işveren tarafındaki karşılığı — müzisyenlerin de mekan/
+// organizatör keşfedebilmesi için.
+export async function listEmployers(filters: EmployerFilters = {}): Promise<PagedResult<EmployerSummary>> {
+  return api.get<PagedResult<EmployerSummary>>('/profile/employers', {
+    search: filters.search,
+    city: filters.city,
     page: filters.page ?? 1,
     pageSize: filters.pageSize ?? 20,
   });
