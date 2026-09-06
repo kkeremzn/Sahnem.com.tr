@@ -16,7 +16,7 @@ interface NavItem {
 const MUSICIAN_ITEMS: NavItem[] = [
   { to: '/dashboard', label: 'Panel', icon: LayoutGrid },
   { to: '/jobs', label: 'İlanlar', icon: Briefcase },
-  { to: '/explore', label: 'Keşfet', icon: Search },
+  { to: '/explore?tab=employers', label: 'Keşfet', icon: Search },
   { to: '/messages', label: 'Mesajlar', icon: MessageCircle },
   { to: '/notifications', label: 'Bildirimler', icon: Bell },
   { to: '/offers', label: 'Teklifler', icon: ListChecks },
@@ -26,7 +26,7 @@ const MUSICIAN_ITEMS: NavItem[] = [
 
 const EMPLOYER_ITEMS: NavItem[] = [
   { to: '/dashboard', label: 'Panel', icon: LayoutGrid },
-  { to: '/explore', label: 'Keşfet', icon: Search },
+  { to: '/explore?tab=musicians', label: 'Keşfet', icon: Search },
   { to: '/post-advert', label: 'İlan Ver', icon: PlusCircle },
   { to: '/my-adverts', label: 'İlanlarım', icon: ListChecks },
   { to: '/messages', label: 'Mesajlar', icon: MessageCircle },

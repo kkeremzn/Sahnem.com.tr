@@ -18,7 +18,7 @@ interface NavItem {
 const MUSICIAN_PRIMARY: NavItem[] = [
   { to: '/dashboard', label: 'Panel', icon: LayoutGrid },
   { to: '/jobs', label: 'İlanları Keşfet', icon: Briefcase },
-  { to: '/explore', label: 'Mekan & Organizatör Keşfet', icon: Search },
+  { to: '/explore?tab=employers', label: 'Mekan & Organizatör Keşfet', icon: Search },
   { to: '/messages', label: 'Mesajlar', icon: MessageCircle },
 ];
 const MUSICIAN_ACCOUNT: NavItem[] = [
@@ -29,7 +29,7 @@ const MUSICIAN_ACCOUNT: NavItem[] = [
 
 const EMPLOYER_PRIMARY: NavItem[] = [
   { to: '/dashboard', label: 'Panel', icon: LayoutGrid },
-  { to: '/explore', label: 'Müzisyen Keşfet', icon: Search },
+  { to: '/explore?tab=musicians', label: 'Müzisyen Keşfet', icon: Search },
   { to: '/post-advert', label: 'İlan Ver', icon: PlusCircle },
   { to: '/my-adverts', label: 'İlanlarım', icon: ListChecks },
   { to: '/messages', label: 'Mesajlar', icon: MessageCircle },

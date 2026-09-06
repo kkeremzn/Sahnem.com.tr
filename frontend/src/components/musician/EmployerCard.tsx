@@ -12,7 +12,7 @@ export function EmployerCard({ employer }: { employer: EmployerSummary }) {
 
   return (
     <Card hover className="p-0 overflow-hidden">
-      <Link to={`/employers/${employer.appUserId}`} className="flex flex-col p-5">
+      <Link to={`/${employer.kind === 'Venue' ? 'venues' : 'organizers'}/${employer.appUserId}`} className="flex flex-col p-5">
         <Avatar name={employer.name} src={resolveAssetUrl(employer.avatarUrl)} size={56} />
         <h3 className="mt-3.5 font-display text-base font-bold text-text hover:text-gold-soft">{employer.name}</h3>
         <p className="truncate text-sm text-text-dim">{typeLabel}</p>

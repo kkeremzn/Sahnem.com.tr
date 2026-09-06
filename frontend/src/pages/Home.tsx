@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Guitar, Mic2, Music4, Piano, Search, Sparkles } from 'lucide-react';
+import { ArrowRight, Guitar, Mic2, Music4, Piano, Search, ShieldCheck, Sparkles } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -20,7 +20,7 @@ const STEPS_MUSICIAN = [
 ];
 const STEPS_EMPLOYER = [
   { title: 'İlanını yayınla', desc: 'Etkinliğinin detaylarını, bütçeni ve tarihini paylaş.' },
-  { title: 'Teklifleri karşılaştır', desc: 'Gelen teklifleri, müzisyen profillerini ve puanlarını incele.' },
+  { title: 'Teklifleri karşılaştır', desc: 'Gelen teklifleri ve müzisyen profillerini incele.' },
   { title: 'Doğru ismi seç', desc: 'Teklifi kabul et, mesajlaş ve etkinliğini planla.' },
 ];
 
@@ -28,7 +28,7 @@ const BRANCH_ICONS = [Mic2, Guitar, Piano, Music4];
 
 export function Home() {
   const navigate = useNavigate();
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const [musicians, setMusicians] = useState<MusicianProfile[] | null>(null);
   const [searchBranch, setSearchBranch] = useState<MusicBranch | ''>('');
   const [searchCity, setSearchCity] = useState<City | ''>('');
@@ -40,15 +40,18 @@ export function Home() {
   }, []);
 
   function handleSearch() {
-    const params = new URLSearchParams();
+    const params = new URLSearchParams({ tab: 'musicians' });
     if (searchBranch) params.set('branch', searchBranch);
     if (searchCity) params.set('city', searchCity);
     navigate(`/explore?${params.toString()}`);
   }
 
-  // Giriş yapmış bir kullanıcının pazarlama anasayfasını görmesinin anlamı yok —
-  // zaten üye, doğrudan kendi işlevsel sayfasına gitsin.
-  if (!loading && user) return <Navigate to={getHomeRoute(user)} replace />;
+  // Giriş yapmış bir ziyaretçi de ana sayfaya (ör. logoya tıklayarak) gelebilir —
+  // artık buradan otomatik uzaklaştırılmıyor, ama "Hemen Başla" gibi CTA'lar
+  // onlar için anlamsız kayıt akışına değil doğrudan panellerine gitmeli.
+  const primaryCtaTo = user ? getHomeRoute(user) : '/register';
+  const primaryCtaLabel = user ? 'Panele Git' : 'Hemen Başla';
+
 
   return (
     <div>
@@ -66,16 +69,16 @@ export function Home() {
               Müzisyenleri organizatör ve mekanlarla buluşturuyoruz. İlan aç, teklif ver, doğru ismi bul — hepsi tek platformda.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Button size="lg" onClick={() => navigate('/register')} icon={<ArrowRight size={18} />}>
-                Hemen Başla
+              <Button size="lg" onClick={() => navigate(primaryCtaTo)} icon={<ArrowRight size={18} />}>
+                {primaryCtaLabel}
               </Button>
-              <Button size="lg" variant="secondary" onClick={() => navigate('/explore')}>
+              <Button size="lg" variant="secondary" onClick={() => navigate('/explore?tab=musicians')}>
                 Müzisyenleri Keşfet
               </Button>
             </div>
             <div className="mt-10 flex items-center gap-3 border-t border-border pt-6">
               <p className="font-display text-2xl font-bold text-text">81 il</p>
-              <p className="text-sm text-text-dim">Türkiye genelinde kapsama alanı</p>
+              <p className="text-sm text-text-dim">Türkiye genelinde ilan ve profil oluşturma imkânı</p>
             </div>
           </motion.div>
 
@@ -106,7 +109,7 @@ export function Home() {
                   return (
                     <Link
                       key={b}
-                      to={`/explore?branch=${b}`}
+                      to={`/explore?tab=musicians&branch=${b}`}
                       className="focus-ring inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-text-dim hover:border-gold/40 hover:text-gold-soft"
                     >
                       <Icon size={13} /> {MUSIC_BRANCH_LABELS[b as MusicBranch]}
@@ -123,10 +126,10 @@ export function Home() {
         <Container>
           <div className="mb-10 flex items-end justify-between">
             <div>
-              <h2 className="font-display text-2xl font-bold sm:text-3xl">Öne çıkan müzisyenler</h2>
-              <p className="mt-1.5 text-sm text-text-dim">En yüksek puanlı profillerden bir seçki.</p>
+              <h2 className="font-display text-2xl font-bold sm:text-3xl">Keşfedebileceğin müzisyenler</h2>
+              <p className="mt-1.5 text-sm text-text-dim">Platformdaki profillerden bir seçki.</p>
             </div>
-            <Link to="/explore" className="hidden text-sm font-semibold text-gold-soft hover:underline sm:inline-flex items-center gap-1">
+            <Link to="/explore?tab=musicians" className="hidden text-sm font-semibold text-gold-soft hover:underline sm:inline-flex items-center gap-1">
               Tümünü gör <ArrowRight size={14} />
             </Link>
           </div>
@@ -178,6 +181,40 @@ export function Home() {
         </Container>
       </section>
 
+      <section className="border-b border-border bg-deep py-16">
+        <Container>
+          <div className="grid gap-8 sm:grid-cols-3">
+            <div className="flex items-start gap-3.5">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold/15 text-gold-soft">
+                <ShieldCheck size={18} />
+              </span>
+              <div>
+                <h3 className="text-sm font-semibold text-text">E-posta doğrulamalı hesaplar</h3>
+                <p className="mt-1 text-sm text-text-dim">Her hesap, platforma tam erişimden önce e-posta doğrulamasından geçer.</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3.5">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold/15 text-gold-soft">
+                <Search size={18} />
+              </span>
+              <div>
+                <h3 className="text-sm font-semibold text-text">Yazışmalar platformda kalır</h3>
+                <p className="mt-1 text-sm text-text-dim">Teklif ve mesaj geçmişin Sahnem üzerinde kayıtlı kalır, ilanla ilgili her şeyi tek yerden takip edersin.</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3.5">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold/15 text-gold-soft">
+                <Sparkles size={18} />
+              </span>
+              <div>
+                <h3 className="text-sm font-semibold text-text">Bir sorun mu var?</h3>
+                <p className="mt-1 text-sm text-text-dim"><a href="mailto:support@sahnem.com.tr" className="text-gold-soft hover:underline">support@sahnem.com.tr</a> üzerinden ekibimize ulaşabilirsin.</p>
+              </div>
+            </div>
+          </div>
+        </Container>
+      </section>
+
       <section className="py-20">
         <Container>
           <Card className="bg-noise relative overflow-hidden border-gold/25 px-8 py-14 text-center">
@@ -188,7 +225,7 @@ export function Home() {
                 İster sahneye çıkacak bir müzisyen ol, ister etkinliğine doğru ismi arayan bir organizatör — Sahnem seninle.
               </p>
               <div className="mt-7 flex flex-wrap justify-center gap-3">
-                <Button size="lg" onClick={() => navigate('/register')}>Ücretsiz Kayıt Ol</Button>
+                <Button size="lg" onClick={() => navigate(primaryCtaTo)}>{user ? 'Panele Git' : 'Ücretsiz Kayıt Ol'}</Button>
                 <Button size="lg" variant="secondary" onClick={() => navigate('/jobs')}>İlanlara Göz At</Button>
               </div>
             </div>

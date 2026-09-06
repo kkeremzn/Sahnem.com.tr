@@ -20,6 +20,10 @@ import { AdvertCard } from '@/components/advert/AdvertCard';
 // önceki tasarım (bkz. git geçmişi) bunu bilinçli olarak kaldırmıştı ama
 // kullanıcı geri bildiriminde uygulamanın girişte "ıssız" hissettirdiğini,
 // müzisyen/mekan/organizatör keşfine ulaşmanın zor olduğunu belirtti.
+//
+// Sayaçlar (KPI'lar) bilinçli olarak sayfanın ALTINDA, küçük bir şeritte —
+// asıl işlevsel içerik (uygun ilanlar/müzisyenler) yukarıda. Aksi halde panel
+// bir ürün paneli değil bir "admin dashboard" gibi hissettiriyordu.
 export function Dashboard() {
   const { user, isMusician } = useAuth();
 
@@ -27,16 +31,21 @@ export function Dashboard() {
   return isMusician ? <MusicianDashboard firstName={user.firstName} /> : <EmployerDashboard firstName={user.firstName} />;
 }
 
-function StatLink({ to, label, value, icon }: { to: string; label: string; value: number | string; icon: ReactNode }) {
+function StatStrip({ items }: { items: { to: string; label: string; value: number | string; icon: ReactNode }[] }) {
   const navigate = useNavigate();
   return (
-    <Card hover onClick={() => navigate(to)}>
-      <div className="flex items-center justify-between">
-        <p className="text-xs text-text-faint">{label}</p>
-        <span className="text-text-faint">{icon}</span>
-      </div>
-      <p className="mt-1.5 font-display text-2xl font-bold text-text">{value}</p>
-    </Card>
+    <div className="grid grid-cols-2 divide-y divide-border rounded-md border border-border sm:grid-cols-4 sm:divide-x sm:divide-y-0">
+      {items.map((item) => (
+        <button
+          key={item.label}
+          onClick={() => navigate(item.to)}
+          className="flex cursor-pointer items-center justify-between gap-2 px-4 py-3 text-left transition-colors hover:bg-card-hover sm:flex-col sm:items-start sm:justify-center"
+        >
+          <span className="flex items-center gap-1.5 text-xs text-text-faint">{item.icon} {item.label}</span>
+          <span className="font-display text-lg font-bold text-text">{item.value}</span>
+        </button>
+      ))}
+    </div>
   );
 }
 
@@ -62,16 +71,9 @@ function MusicianDashboard({ firstName }: { firstName: string }) {
     <div className="space-y-6">
       <h1 className="font-display text-2xl font-bold text-text">Merhaba, {firstName}</h1>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <StatLink to="/offers" label="Bekleyen Tekliflerim" value={offers === null ? '—' : pending} icon={<ListChecks size={16} />} />
-        <StatLink to="/offers" label="Kabul Edilen" value={offers === null ? '—' : accepted} icon={<Star size={16} />} />
-        <StatLink to="/messages" label="Okunmamış Mesaj" value={unreadMessages} icon={<MessageCircle size={16} />} />
-        <StatLink to="/notifications" label="Bildirimler" value={unreadCount} icon={<Bell size={16} />} />
-      </div>
-
       <div className="grid gap-3 sm:grid-cols-3">
         <QuickAction to="/jobs" label="İlanları Keşfet" icon={<Briefcase size={17} />} />
-        <QuickAction to="/explore" label="Mekan & Organizatör Keşfet" icon={<Search size={17} />} />
+        <QuickAction to="/explore?tab=employers" label="Mekan & Organizatör Keşfet" icon={<Search size={17} />} />
         <QuickAction to="/profile/edit" label="Profilimi Düzenle" icon={<Users size={17} />} />
       </div>
 
@@ -87,6 +89,13 @@ function MusicianDashboard({ firstName }: { firstName: string }) {
           </div>
         )}
       </div>
+
+      <StatStrip items={[
+        { to: '/offers', label: 'Bekleyen Tekliflerim', value: offers === null ? '—' : pending, icon: <ListChecks size={13} /> },
+        { to: '/offers', label: 'Kabul Edilen', value: offers === null ? '—' : accepted, icon: <Star size={13} /> },
+        { to: '/messages', label: 'Okunmamış Mesaj', value: unreadMessages, icon: <MessageCircle size={13} /> },
+        { to: '/notifications', label: 'Bildirimler', value: unreadCount, icon: <Bell size={13} /> },
+      ]} />
     </div>
   );
 }
@@ -96,11 +105,23 @@ function EmployerDashboard({ firstName }: { firstName: string }) {
   const [adverts, setAdverts] = useState<Advert[] | null>(null);
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [musicians, setMusicians] = useState<MusicianProfile[] | null>(null);
+  const [personalized, setPersonalized] = useState(false);
 
   useEffect(() => {
     advertService.listMyAdverts().then(setAdverts);
     messageService.listConversations().then((list) => setUnreadMessages(list.reduce((s, c) => s + c.unreadCount, 0)));
-    profileService.listMusicians({ pageSize: 4 }).then((res) => setMusicians(res.items));
+    // Kendi şehrindeki müzisyenlerle öneriyi anlamlı kılmaya çalışıyoruz — hiç
+    // sonuç yoksa şehir filtresi olmadan geneli gösteriyoruz.
+    profileService.getMyProfile().then(async (profile) => {
+      const res = await profileService.listMusicians({ city: profile.city, pageSize: 4 });
+      if (res.items.length > 0) {
+        setMusicians(res.items);
+        setPersonalized(true);
+      } else {
+        const fallback = await profileService.listMusicians({ pageSize: 4 });
+        setMusicians(fallback.items);
+      }
+    });
   }, []);
 
   const openCount = adverts?.filter((a) => a.status === 'Open').length ?? 0;
@@ -110,21 +131,14 @@ function EmployerDashboard({ firstName }: { firstName: string }) {
     <div className="space-y-6">
       <h1 className="font-display text-2xl font-bold text-text">Merhaba, {firstName}</h1>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <StatLink to="/my-adverts" label="Açık İlanlarım" value={adverts === null ? '—' : openCount} icon={<Briefcase size={16} />} />
-        <StatLink to="/my-adverts" label="Toplam Gelen Teklif" value={adverts === null ? '—' : totalOffers} icon={<ListChecks size={16} />} />
-        <StatLink to="/messages" label="Okunmamış Mesaj" value={unreadMessages} icon={<MessageCircle size={16} />} />
-        <StatLink to="/notifications" label="Bildirimler" value={unreadCount} icon={<Bell size={16} />} />
-      </div>
-
       <div className="grid gap-3 sm:grid-cols-3">
         <QuickAction to="/post-advert" label="İlan Ver" icon={<PlusCircle size={17} />} />
-        <QuickAction to="/explore" label="Müzisyen Keşfet" icon={<Search size={17} />} />
+        <QuickAction to="/explore?tab=musicians" label="Müzisyen Keşfet" icon={<Search size={17} />} />
         <QuickAction to="/favorites" label="Favori Müzisyenlerim" icon={<Heart size={17} />} />
       </div>
 
       <div>
-        <h3 className="mb-3 font-display text-base font-bold">Öne çıkan müzisyenler</h3>
+        <h3 className="mb-3 font-display text-base font-bold">{personalized ? 'Sana uygun müzisyenler' : 'Keşfedebileceğin müzisyenler'}</h3>
         {musicians === null ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{Array.from({ length: 4 }, (_, i) => <CardSkeleton key={i} />)}</div>
         ) : (
@@ -133,6 +147,13 @@ function EmployerDashboard({ firstName }: { firstName: string }) {
           </div>
         )}
       </div>
+
+      <StatStrip items={[
+        { to: '/my-adverts', label: 'Açık İlanlarım', value: adverts === null ? '—' : openCount, icon: <Briefcase size={13} /> },
+        { to: '/my-adverts', label: 'Toplam Gelen Teklif', value: adverts === null ? '—' : totalOffers, icon: <ListChecks size={13} /> },
+        { to: '/messages', label: 'Okunmamış Mesaj', value: unreadMessages, icon: <MessageCircle size={13} /> },
+        { to: '/notifications', label: 'Bildirimler', value: unreadCount, icon: <Bell size={13} /> },
+      ]} />
     </div>
   );
 }

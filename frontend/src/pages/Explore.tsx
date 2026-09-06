@@ -27,9 +27,15 @@ export function Explore() {
   const { isEmployer } = useAuth();
   const { toast } = useToast();
 
-  // Müzisyenler için varsayılan sekme "mekanlar/organizatörler" (kendini
-  // listelemenin bir anlamı yok), işverenler için "müzisyenler".
-  const [tab, setTab] = useState<'musicians' | 'employers'>(isEmployer ? 'musicians' : 'employers');
+  // Hangi sekmenin açılacağı önce URL'deki açık niyete (?tab=...) bakar —
+  // "Müzisyenleri Keşfet" ve "Mekan & Organizatör Keşfet" gibi farklı
+  // bağlantılar aynı sayfaya farklı sekmeler için yönlendiriyor, bunu
+  // belirtmezlerse hangi sekmenin açılacağı belirsizleşiyordu. Hiç belirtilmemişse
+  // role göre en anlamlı varsayılana düşer (kendi rolünü listelemenin anlamı yok).
+  const tabParam = searchParams.get('tab');
+  const [tab, setTab] = useState<'musicians' | 'employers'>(
+    tabParam === 'musicians' || tabParam === 'employers' ? tabParam : isEmployer ? 'musicians' : 'employers',
+  );
 
   const [search, setSearch] = useState('');
   const [branch, setBranch] = useState<MusicBranch | ''>((searchParams.get('branch') as MusicBranch) ?? '');

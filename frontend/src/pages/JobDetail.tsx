@@ -84,7 +84,7 @@ export function JobDetail() {
   return (
     <Container className="max-w-5xl py-10">
       <div className="mb-6 flex items-center gap-3">
-        <Link to={`/employers/${advert.creatorId}`} className="flex items-center gap-2.5 group">
+        <Link to={`/${advert.creatorRole === 'Venue' ? 'venues' : 'organizers'}/${advert.creatorId}`} className="flex items-center gap-2.5 group">
           <Avatar name={advert.creatorName} size={40} />
           <span className="text-sm font-medium text-text-dim group-hover:text-text">{advert.creatorName}</span>
         </Link>

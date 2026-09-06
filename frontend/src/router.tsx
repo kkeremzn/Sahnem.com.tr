@@ -54,6 +54,11 @@ export const router = createBrowserRouter([
       { path: '/jobs', element: <Jobs /> },
       { path: '/jobs/:id', element: <JobDetail /> },
       { path: '/musicians/:id', element: <MusicianProfile /> },
+      // Domain dili "Müzisyen / Mekan / Organizatör" — "employer" iç kod adı,
+      // URL'de göründüğü için kullanıcıya dönük yollar bunlar. Eski /employers/:id
+      // hâlâ kayıtlı kalıyor ki paylaşılmış eski bağlantılar kırılmasın.
+      { path: '/organizers/:id', element: <EmployerProfile /> },
+      { path: '/venues/:id', element: <EmployerProfile /> },
       { path: '/employers/:id', element: <EmployerProfile /> },
       { path: '/about', element: <About /> },
       { path: '/help', element: <Help /> },
