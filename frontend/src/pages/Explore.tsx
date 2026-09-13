@@ -152,7 +152,7 @@ export function Explore() {
             {loading ? 'Yükleniyor...' : `${totalCount} ${tab === 'musicians' ? 'müzisyen' : 'sonuç'} bulundu`}
           </p>
           {loading ? (
-            <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(min(360px,100%),1fr))] gap-5">
               {Array.from({ length: 6 }, (_, i) => <CardSkeleton key={i} />)}
             </div>
           ) : tab === 'musicians' ? (
@@ -160,7 +160,7 @@ export function Explore() {
               <EmptyState icon={<Users size={22} />} title="Sonuç bulunamadı" description="Filtrelerini genişleterek tekrar dene." />
             ) : (
               <>
-                <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                <div className="grid grid-cols-[repeat(auto-fit,minmax(min(360px,100%),1fr))] gap-5">
                   {musicians!.map((m) => (
                     <MusicianCard
                       key={m.id}
@@ -179,7 +179,7 @@ export function Explore() {
             <EmptyState icon={<Users size={22} />} title="Sonuç bulunamadı" description="Filtrelerini genişleterek tekrar dene." />
           ) : (
             <>
-              <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+              <div className="grid grid-cols-[repeat(auto-fit,minmax(min(360px,100%),1fr))] gap-5">
                 {employers!.map((e) => <EmployerCard key={`${e.kind}-${e.appUserId}`} employer={e} />)}
               </div>
               <div className="mt-8">
