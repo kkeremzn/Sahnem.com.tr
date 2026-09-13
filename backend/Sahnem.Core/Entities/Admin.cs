@@ -15,6 +15,9 @@ namespace Sahnem.Core.Entities
         public string? PasswordResetCode {get; set;}
         public DateTime? PasswordResetCodeExpiresAt {get; set;}
         public DateTime? PasswordResetCodeSentAt {get; set;}
+        public int PasswordResetAttempts {get; set;} = 0;
+
+        public string SecurityStamp {get; set;} = Guid.NewGuid().ToString("N");
 
         public virtual ICollection<AdminRefreshToken> RefreshTokens {get; set;} = new List<AdminRefreshToken>();
     }

@@ -436,6 +436,19 @@ namespace Sahnem.Business.Services
             }
 
             user.PasswordHash = _passwordService.HashPassword(user, dto.NewPassword);
+            // SecurityStamp yenilenince, bu andan önce verilmiş HER access token
+            // (çalınmış olsa bile) bir sonraki istekte reddedilir — refresh token
+            // silmek sadece YENİ token alınmasını engelliyordu, eldeki geçerli
+            // access token doğal süresi (60 dk) dolana kadar çalışmaya devam ederdi.
+            user.SecurityStamp = Guid.NewGuid().ToString("N");
+            // Daha önce (ForgotPassword ile) istenmiş ama hiç kullanılmamış bir kod
+            // varsa geçersiz kılınıyor — aksi halde biri o kodu ele geçirdiyse,
+            // kullanıcı şifresini burada değiştirse bile o eski kodla şifreyi
+            // tekrar (kendi bilmediği bir değere) sıfırlayabilirdi.
+            user.PasswordResetCode = null;
+            user.PasswordResetCodeExpiresAt = null;
+            user.PasswordResetCodeSentAt = null;
+            user.PasswordResetAttempts = 0;
 
             // Şifre sıfırlamada (ResetPassword) tüm cihazlardaki oturumlar iptal
             // ediliyordu ama normal şifre değiştirmede unutulmuştu — çalınmış bir
@@ -480,12 +493,23 @@ namespace Sahnem.Business.Services
             }
             if (user.EmailVerificationCode != code.Trim())
             {
+                user.EmailVerificationAttempts += 1;
+                if (user.EmailVerificationAttempts >= MaxCodeAttempts)
+                {
+                    user.EmailVerificationCode = null;
+                    user.EmailVerificationCodeExpiresAt = null;
+                    user.EmailVerificationAttempts = 0;
+                    await _unitOfWork.SaveChanges();
+                    throw new Exception("Too many incorrect attempts, please request a new code");
+                }
+                await _unitOfWork.SaveChanges();
                 throw new Exception("Invalid verification code");
             }
 
             user.IsEmailConfirmed = true;
             user.EmailVerificationCode = null;
             user.EmailVerificationCodeExpiresAt = null;
+            user.EmailVerificationAttempts = 0;
             await _unitOfWork.SaveChanges();
 
             // Kayıt anındaki hoş geldin bildirimi kod doğrulamadan önce oluşuyor,
@@ -494,6 +518,9 @@ namespace Sahnem.Business.Services
             await _emailService.SendAsync(user.Email, "Sahnem'e hoş geldin!", EmailTemplates.Welcome(user.FirstName));
         }
 
+        // IP bazlı rate limit tek başına (rotasyonlu IP'lerle) aşılabilir — kod
+        // başına yanlış deneme sayısı da hesap seviyesinde ayrıca sınırlanıyor.
+        private const int MaxCodeAttempts = 5;
         private static readonly TimeSpan VerificationResendCooldown = TimeSpan.FromSeconds(60);
 
         public async Task ResendVerificationEmail()
@@ -535,6 +562,7 @@ namespace Sahnem.Business.Services
             user.EmailVerificationCode = SecureCodeGenerator.SixDigitCode();
             user.EmailVerificationCodeExpiresAt = DateTime.UtcNow.AddMinutes(15);
             user.EmailVerificationCodeSentAt = DateTime.UtcNow;
+            user.EmailVerificationAttempts = 0;
         }
 
         private Task SendVerificationEmail(AppUser user)
@@ -570,6 +598,7 @@ namespace Sahnem.Business.Services
             user.PasswordResetCode = SecureCodeGenerator.SixDigitCode();
             user.PasswordResetCodeExpiresAt = DateTime.UtcNow.AddMinutes(15);
             user.PasswordResetCodeSentAt = DateTime.UtcNow;
+            user.PasswordResetAttempts = 0;
             await _unitOfWork.SaveChanges();
 
             await _emailService.SendAsync(
@@ -590,7 +619,7 @@ namespace Sahnem.Business.Services
             }
 
             var user = await GetUserByEmailOrThrow(dto.Email);
-            EnsureResetCodeIsValid(user, dto.Code);
+            await EnsureResetCodeIsValid(user, dto.Code);
         }
 
         public async Task ResetPassword(ResetPasswordDto dto)
@@ -602,7 +631,7 @@ namespace Sahnem.Business.Services
             }
 
             var user = await GetUserByEmailOrThrow(dto.Email);
-            EnsureResetCodeIsValid(user, dto.Code);
+            await EnsureResetCodeIsValid(user, dto.Code);
 
             var isSameAsCurrentPassword = _passwordService.VerifyPassword(user, user.PasswordHash, dto.NewPassword);
             if (isSameAsCurrentPassword)
@@ -614,6 +643,8 @@ namespace Sahnem.Business.Services
             user.PasswordResetCode = null;
             user.PasswordResetCodeExpiresAt = null;
             user.PasswordResetCodeSentAt = null;
+            user.PasswordResetAttempts = 0;
+            user.SecurityStamp = Guid.NewGuid().ToString("N");
 
             // Şifre sıfırlandığında tüm cihazlardaki oturumlar geçersiz olsun —
             // hesaba başka biri erişmiş olsa bile eski refresh token'larla devam edemesin.
@@ -637,7 +668,7 @@ namespace Sahnem.Business.Services
             return user;
         }
 
-        private static void EnsureResetCodeIsValid(AppUser user, string code)
+        private async Task EnsureResetCodeIsValid(AppUser user, string code)
         {
             if (string.IsNullOrEmpty(user.PasswordResetCode)
                 || user.PasswordResetCodeExpiresAt == null
@@ -647,6 +678,16 @@ namespace Sahnem.Business.Services
             }
             if (user.PasswordResetCode != code.Trim())
             {
+                user.PasswordResetAttempts += 1;
+                if (user.PasswordResetAttempts >= MaxCodeAttempts)
+                {
+                    user.PasswordResetCode = null;
+                    user.PasswordResetCodeExpiresAt = null;
+                    user.PasswordResetAttempts = 0;
+                    await _unitOfWork.SaveChanges();
+                    throw new Exception("Too many incorrect attempts, please request a new code");
+                }
+                await _unitOfWork.SaveChanges();
                 throw new Exception("Invalid reset code");
             }
         }

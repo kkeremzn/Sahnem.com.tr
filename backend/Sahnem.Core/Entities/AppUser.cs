@@ -21,10 +21,21 @@ namespace Sahnem.Core.Entities
         public string? EmailVerificationCode {get; set;}
         public DateTime? EmailVerificationCodeExpiresAt {get; set;}
         public DateTime? EmailVerificationCodeSentAt {get; set;}
+        // IP bazlı rate limit tek başına yeterli değil (rotasyonlu IP'lerle
+        // aşılabilir) — kod başına yanlış deneme sayısı da ayrıca sınırlanıyor.
+        public int EmailVerificationAttempts {get; set;} = 0;
 
         public string? PasswordResetCode {get; set;}
         public DateTime? PasswordResetCodeExpiresAt {get; set;}
         public DateTime? PasswordResetCodeSentAt {get; set;}
+        public int PasswordResetAttempts {get; set;} = 0;
+
+        // Şifre her değiştiğinde/sıfırlandığında yenilenir ve JWT'ye claim olarak
+        // gömülür — daha önce verilmiş access token'lar (henüz doğal süresi
+        // dolmamış olsa bile) bu değer değiştiği an geçersiz sayılır. Askıya
+        // alma/şifre değişikliği gibi olayların "anında" etkili olmasını sağlayan
+        // mekanizma bu.
+        public string SecurityStamp {get; set;} = Guid.NewGuid().ToString("N");
 
         public virtual MusicianProfile MusicianProfile {get; set;}
         public virtual OrganizerProfile OrganizerProfile {get; set;}

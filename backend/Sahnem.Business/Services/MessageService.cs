@@ -92,6 +92,13 @@ namespace Sahnem.Business.Services
             }
 
             var senderId = _currentUserService.UserId;
+
+            var sender = await _userRepository.GetByIdAsync(senderId);
+            if (sender == null || !sender.IsEmailConfirmed)
+            {
+                throw new Exception("You must verify your email address before sending messages");
+            }
+
             Conversation conversation;
 
             if (dto.ConversationId.HasValue)
@@ -160,7 +167,6 @@ namespace Sahnem.Business.Services
             await _unitOfWork.SaveChanges();
 
             var recipientId = isSenderA ? conversation.UserBId : conversation.UserAId;
-            var sender = await _userRepository.GetByIdAsync(senderId);
             await _notificationService.CreateNotification(
                 recipientId,
                 "message",

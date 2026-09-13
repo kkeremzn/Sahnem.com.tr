@@ -378,6 +378,13 @@ namespace Sahnem.Business.Services
             if (user == null) throw new Exception("User not found");
 
             user.PasswordHash = _passwordService.HashPassword(user, newPassword);
+            // Bekleyen bir şifre kurtarma kodu varsa geçersiz kıl, ve eski erişim
+            // token'larını da security_stamp değişikliğiyle anında düşür.
+            user.PasswordResetCode = null;
+            user.PasswordResetCodeExpiresAt = null;
+            user.PasswordResetCodeSentAt = null;
+            user.PasswordResetAttempts = 0;
+            user.SecurityStamp = Guid.NewGuid().ToString("N");
 
             var tokens = await _refreshTokenRepository.WhereAsync(t => t.AppUserId == userId);
             foreach (var token in tokens)

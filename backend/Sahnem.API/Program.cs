@@ -144,13 +144,21 @@ builder.Services.AddAuthentication(options =>
                     return;
                 }
                 var dbContext = context.HttpContext.RequestServices.GetRequiredService<SahnemDbContext>();
-                var isActive = await dbContext.Users
+                var record = await dbContext.Users
                     .Where(u => u.Id == userId)
-                    .Select(u => (bool?)u.IsActive)
+                    .Select(u => new { u.IsActive, u.SecurityStamp })
                     .FirstOrDefaultAsync();
-                if (isActive != true)
+                if (record == null || !record.IsActive)
                 {
                     context.Fail("This account has been suspended");
+                    return;
+                }
+                // Şifre değişince/sıfırlanınca SecurityStamp yenilenir — token'daki
+                // değer güncel değilse, doğal süresi dolmamış olsa bile artık geçersiz.
+                var tokenStamp = context.Principal?.FindFirstValue("security_stamp");
+                if (tokenStamp != record.SecurityStamp)
+                {
+                    context.Fail("This token has been invalidated");
                 }
             },
         };
@@ -173,6 +181,31 @@ builder.Services.AddAuthentication(options =>
             Encoding.UTF8.GetBytes(adminJwtSettings.Key)
         ),
         ClockSkew = TimeSpan.Zero
+    };
+    // Normal kullanıcı şemasıyla aynı sebep: admin şifresini değiştirdiğinde,
+    // daha önce ele geçirilmiş olabilecek bir admin oturumunun (30 dk'ya kadar
+    // geçerli kalabilen access token'ı) anında geçersiz kalması gerekiyor.
+    options.Events = new JwtBearerEvents
+    {
+        OnTokenValidated = async context =>
+        {
+            var adminIdClaim = context.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (adminIdClaim == null || !int.TryParse(adminIdClaim, out var adminId))
+            {
+                context.Fail("Invalid token");
+                return;
+            }
+            var dbContext = context.HttpContext.RequestServices.GetRequiredService<SahnemDbContext>();
+            var stamp = await dbContext.Admins
+                .Where(a => a.Id == adminId)
+                .Select(a => (string?)a.SecurityStamp)
+                .FirstOrDefaultAsync();
+            var tokenStamp = context.Principal?.FindFirstValue("security_stamp");
+            if (stamp == null || tokenStamp != stamp)
+            {
+                context.Fail("This token has been invalidated");
+            }
+        },
     };
 });
 

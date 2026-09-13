@@ -29,7 +29,12 @@ namespace Sahnem.Business.Security
             {
                 new Claim(ClaimTypes.NameIdentifier, appUser.Id.ToString()),
                 new Claim(ClaimTypes.Email, appUser.Email),
-                new Claim("IsProfileCompleted", appUser.IsProfileCompleted.ToString())
+                new Claim("IsProfileCompleted", appUser.IsProfileCompleted.ToString()),
+                // Şifre değişince/sıfırlanınca bu değer yenilenir — token doğrulamada
+                // DB'deki güncel değerle karşılaştırılıp uyuşmuyorsa reddedilir, böylece
+                // önceden verilmiş bir access token doğal süresi dolmadan da geçersiz
+                // kılınabilir (bkz. Program.cs OnTokenValidated).
+                new Claim("security_stamp", appUser.SecurityStamp),
             };
 
             if (appUser.Role != UserType.None)

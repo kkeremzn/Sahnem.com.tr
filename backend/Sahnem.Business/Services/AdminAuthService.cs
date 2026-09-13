@@ -21,6 +21,7 @@ namespace Sahnem.Business.Services
     public class AdminAuthService : IAdminAuthService
     {
         private static readonly TimeSpan PasswordResetCooldown = TimeSpan.FromSeconds(60);
+        private const int MaxCodeAttempts = 5;
         private readonly PasswordHasher<Admin> _passwordHasher = new();
 
         private readonly IGenericRepository<Admin> _adminRepository;
@@ -137,6 +138,7 @@ namespace Sahnem.Business.Services
             admin.PasswordResetCode = SecureCodeGenerator.SixDigitCode();
             admin.PasswordResetCodeExpiresAt = DateTime.UtcNow.AddMinutes(15);
             admin.PasswordResetCodeSentAt = DateTime.UtcNow;
+            admin.PasswordResetAttempts = 0;
             await _unitOfWork.SaveChanges();
 
             await _emailService.SendAsync(
@@ -148,13 +150,13 @@ namespace Sahnem.Business.Services
         public async Task VerifyResetCode(AdminVerifyResetCodeDto dto)
         {
             var admin = await GetByUsernameOrThrow(dto.Username);
-            EnsureResetCodeIsValid(admin, dto.Code);
+            await EnsureResetCodeIsValid(admin, dto.Code);
         }
 
         public async Task ResetPassword(AdminResetPasswordDto dto)
         {
             var admin = await GetByUsernameOrThrow(dto.Username);
-            EnsureResetCodeIsValid(admin, dto.Code);
+            await EnsureResetCodeIsValid(admin, dto.Code);
 
             if (dto.NewPassword.Length < 8)
             {
@@ -165,6 +167,11 @@ namespace Sahnem.Business.Services
             admin.PasswordResetCode = null;
             admin.PasswordResetCodeExpiresAt = null;
             admin.PasswordResetCodeSentAt = null;
+            admin.PasswordResetAttempts = 0;
+            // Şifre kurtarma anında hem bekleyen refresh token'ları hem de
+            // (security_stamp değişince) daha önce verilmiş tüm access token'ları
+            // geçersiz kılar — kurtarma işlemi gerçekten önceki erişimi kapatsın diye.
+            admin.SecurityStamp = Guid.NewGuid().ToString("N");
 
             var tokens = await _refreshTokenRepository.WhereAsync(t => t.AdminId == admin.Id);
             foreach (var token in tokens)
@@ -191,6 +198,17 @@ namespace Sahnem.Business.Services
             }
 
             admin.PasswordHash = _passwordHasher.HashPassword(admin, dto.NewPassword);
+            // Normal (oturum içi) şifre değişikliği de eski oturumları kapatmalı —
+            // aksi halde önceden ele geçirilmiş bir admin oturumu şifre değişse
+            // bile çalışmaya devam eder.
+            admin.SecurityStamp = Guid.NewGuid().ToString("N");
+
+            var tokens = await _refreshTokenRepository.WhereAsync(t => t.AdminId == admin.Id);
+            foreach (var token in tokens)
+            {
+                _refreshTokenRepository.Delete(token);
+            }
+
             await _unitOfWork.SaveChanges();
         }
 
@@ -202,7 +220,7 @@ namespace Sahnem.Business.Services
             return admin;
         }
 
-        private static void EnsureResetCodeIsValid(Admin admin, string code)
+        private async Task EnsureResetCodeIsValid(Admin admin, string code)
         {
             if (string.IsNullOrEmpty(admin.PasswordResetCode)
                 || admin.PasswordResetCodeExpiresAt == null
@@ -212,6 +230,16 @@ namespace Sahnem.Business.Services
             }
             if (admin.PasswordResetCode != code.Trim())
             {
+                admin.PasswordResetAttempts += 1;
+                if (admin.PasswordResetAttempts >= MaxCodeAttempts)
+                {
+                    admin.PasswordResetCode = null;
+                    admin.PasswordResetCodeExpiresAt = null;
+                    admin.PasswordResetAttempts = 0;
+                    await _unitOfWork.SaveChanges();
+                    throw new Exception("Too many incorrect attempts, please request a new code");
+                }
+                await _unitOfWork.SaveChanges();
                 throw new Exception("Invalid reset code");
             }
         }
@@ -252,6 +280,7 @@ namespace Sahnem.Business.Services
                 // içinde asla yer almaz, admin endpoint'lerinin yetkilendirme
                 // politikası tam olarak bunu arıyor.
                 new("token_type", "system_admin"),
+                new("security_stamp", admin.SecurityStamp),
             };
 
             var expiration = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpireMinutes);

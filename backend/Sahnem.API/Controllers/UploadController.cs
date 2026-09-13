@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Sahnem.Business.Interfaces;
 using Sahnem.Business.Security;
 
@@ -30,7 +31,10 @@ namespace Sahnem.API.Controllers
 
         // Profil fotoğrafı / logo yükleme. Dönen relatif URL, kullanıcı/profil
         // update uçlarındaki AvatarUrl alanına kaydedilmek üzere kullanılabilir.
+        // Depolama maliyeti kötüye kullanımını sınırlamak için oturum sahibi
+        // başına aynı yazma rate limit politikası uygulanıyor.
         [HttpPost("avatar")]
+        [EnableRateLimiting("authenticated-write")]
         public async Task<IActionResult> UploadAvatar(IFormFile file)
         {
             if (file == null || file.Length == 0)
