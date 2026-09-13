@@ -3,6 +3,7 @@ using AutoMapper;
 using FluentValidation;
 using Sahnem.Business.DTOs;
 using Sahnem.Business.DTOs.Advert;
+using Sahnem.Business.Email;
 using Sahnem.Business.Interfaces;
 using Sahnem.Business.Security;
 using Sahnem.Core.Entities;
@@ -117,11 +118,8 @@ namespace Sahnem.Business.Services
 
                 await _emailService.SendAsync(
                     user.Email,
-                    "Şehrinde yeni bir ilan var — Sahnem",
-                    $"<p>Merhaba {WebUtility.HtmlEncode(user.FirstName)},</p>" +
-                    $"<p><strong>{advert.City}</strong> için yeni bir ilan yayınlandı: <strong>{WebUtility.HtmlEncode(advert.Title)}</strong></p>" +
-                    $"<p><a href=\"https://sahnem.com.tr/jobs/{advert.Id}\">İlanı görüntüle</a></p>" +
-                    "<p style=\"color:#888;font-size:12px\">Bu bildirimleri profil ayarlarından kapatabilirsin.</p>");
+                    $"{advert.City} için yeni bir ilan var",
+                    EmailTemplates.CityAdvert(user.FirstName, advert.Title, advert.City.ToString(), advert.Address, advert.EventTime, advert.Id));
             }
 
             await _unitOfWork.SaveChanges();
@@ -184,6 +182,16 @@ namespace Sahnem.Business.Services
             if (pendingOffers.Any())
             {
                 await _unitOfWork.SaveChanges();
+
+                var affectedMusicianIds = pendingOffers.Select(o => o.MusicianId).Distinct().ToList();
+                var affectedMusicians = await _userRepository.WhereAsync(u => affectedMusicianIds.Contains(u.Id));
+                foreach (var musician in affectedMusicians)
+                {
+                    await _emailService.SendAsync(
+                        musician.Email,
+                        $"{advert.Title} ilanı iptal edildi",
+                        EmailTemplates.AdvertCancelled(musician.FirstName, advert.Title));
+                }
             }
         }
 

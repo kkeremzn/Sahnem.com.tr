@@ -2,6 +2,7 @@ using System.Net;
 using AutoMapper;
 using FluentValidation;
 using Sahnem.Business.DTOs.Offer;
+using Sahnem.Business.Email;
 using Sahnem.Business.Helpers;
 using Sahnem.Business.Interfaces;
 using Sahnem.Business.Security;
@@ -109,10 +110,8 @@ namespace Sahnem.Business.Services
             {
                 await _emailService.SendAsync(
                     advertOwner.Email,
-                    "İlanınıza yeni teklif geldi — Sahnem",
-                    $"<p>Merhaba {WebUtility.HtmlEncode(advertOwner.FirstName)},</p>" +
-                    $"<p><strong>{WebUtility.HtmlEncode(musicianName)}</strong>, <strong>\"{WebUtility.HtmlEncode(advert.Title)}\"</strong> ilanınıza teklif gönderdi.</p>" +
-                    $"<p><a href=\"https://sahnem.com.tr/my-adverts/{advert.Id}\">Teklifi görüntüle</a></p>");
+                    $"{advert.Title} ilanına yeni teklif",
+                    EmailTemplates.NewOffer(advertOwner.FirstName, musicianName, advert.Title, advert.City.ToString(), advert.Address, advert.EventTime, offer.ProposedPrice, advert.Id));
             }
 
             return await BuildResponse(offer, advert);
@@ -228,15 +227,12 @@ namespace Sahnem.Business.Services
             var offerMusicianUser = await _userRepository.GetByIdAsync(offer.MusicianId);
             if (offerMusicianUser != null)
             {
-                var safeTitle = WebUtility.HtmlEncode(advert.Title);
                 await _emailService.SendAsync(
                     offerMusicianUser.Email,
-                    accepted ? "Teklifiniz kabul edildi — Sahnem" : "Teklifiniz reddedildi — Sahnem",
-                    $"<p>Merhaba {WebUtility.HtmlEncode(offerMusicianUser.FirstName)},</p>" +
-                    (accepted
-                        ? $"<p><strong>\"{safeTitle}\"</strong> ilanına gönderdiğiniz teklif kabul edildi. Tebrikler!</p>"
-                        : $"<p><strong>\"{safeTitle}\"</strong> ilanına gönderdiğiniz teklif reddedildi.</p>") +
-                    $"<p><a href=\"https://sahnem.com.tr/offers/{offer.Id}\">Teklifi görüntüle</a></p>");
+                    accepted ? $"Teklifin kabul edildi — {advert.Title}" : "Teklifin hakkında bir güncelleme var",
+                    accepted
+                        ? EmailTemplates.OfferAccepted(offerMusicianUser.FirstName, advert.Title, advert.City.ToString(), advert.Address, advert.EventTime, offer.Id)
+                        : EmailTemplates.OfferRejected(offerMusicianUser.FirstName, advert.Title));
             }
 
             foreach (var other in autoRejected)

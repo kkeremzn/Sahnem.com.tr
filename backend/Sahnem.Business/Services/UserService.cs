@@ -126,7 +126,7 @@ namespace Sahnem.Business.Services
             };
         }
 
-        public async Task SuspendUser(int userId)
+        public async Task SuspendUser(int userId, string? reason = null)
         {
             var user = await _repository.GetByIdAsync(userId);
             if (user == null) throw new Exception("User Not Found");
@@ -143,6 +143,11 @@ namespace Sahnem.Business.Services
             }
 
             await _unitOfWork.SaveChanges();
+
+            await _emailService.SendAsync(
+                user.Email,
+                "Sahnem hesabın hakkında bilgilendirme",
+                EmailTemplates.AccountSuspended(user.FirstName, string.IsNullOrWhiteSpace(reason) ? "Hesap etkinliklerinin incelenmesi gerekiyor." : reason));
         }
 
         public async Task ReactivateUser(int userId)
@@ -152,6 +157,9 @@ namespace Sahnem.Business.Services
 
             user.IsActive = true;
             await _unitOfWork.SaveChanges();
+
+            await _emailService.SendAsync(
+                user.Email, "Sahnem hesabın yeniden aktif", EmailTemplates.AccountReactivated(user.FirstName));
         }
 
         public async Task<AppUserResponseDto> GetUserById(int id)
@@ -461,6 +469,9 @@ namespace Sahnem.Business.Services
             }
 
             await _unitOfWork.SaveChanges();
+
+            await _emailService.SendAsync(
+                user.Email, "Sahnem şifren değiştirildi", EmailTemplates.PasswordChanged(user.FirstName, DateTime.UtcNow));
         }
 
         public async Task<TokenPairDto> RefreshToken(string refreshToken)
@@ -655,6 +666,9 @@ namespace Sahnem.Business.Services
             }
 
             await _unitOfWork.SaveChanges();
+
+            await _emailService.SendAsync(
+                user.Email, "Sahnem şifren değiştirildi", EmailTemplates.PasswordChanged(user.FirstName, DateTime.UtcNow));
         }
 
         private async Task<AppUser> GetUserByEmailOrThrow(string email)

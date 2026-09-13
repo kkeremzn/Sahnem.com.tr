@@ -50,9 +50,9 @@ namespace Sahnem.API.Controllers
         }
 
         [HttpPut("users/{id:int}/suspend")]
-        public async Task<IActionResult> SuspendUser(int id)
+        public async Task<IActionResult> SuspendUser(int id, [FromQuery] string? reason = null)
         {
-            await _userService.SuspendUser(id);
+            await _userService.SuspendUser(id, reason);
             return Ok();
         }
 

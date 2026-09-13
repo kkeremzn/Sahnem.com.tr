@@ -19,7 +19,7 @@ namespace Sahnem.Business.Interfaces
         Task ChangePassword(ChangePasswordDto dto);
         Task DeleteUser();
         Task AdminDeleteUser(int userId);
-        Task SuspendUser(int userId);
+        Task SuspendUser(int userId, string? reason = null);
         Task ReactivateUser(int userId);
 
         Task<TokenPairDto> RefreshToken(string refreshToken);

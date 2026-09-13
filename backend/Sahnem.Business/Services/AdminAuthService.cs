@@ -143,8 +143,8 @@ namespace Sahnem.Business.Services
 
             await _emailService.SendAsync(
                 admin.Email,
-                "Sahnem Admin — şifre sıfırlama kodun",
-                EmailTemplates.PasswordResetCode(admin.Username, admin.PasswordResetCode));
+                "Sahnem yönetici şifre sıfırlama kodu",
+                EmailTemplates.AdminResetCode(admin.PasswordResetCode));
         }
 
         public async Task VerifyResetCode(AdminVerifyResetCodeDto dto)
@@ -180,6 +180,11 @@ namespace Sahnem.Business.Services
             }
 
             await _unitOfWork.SaveChanges();
+
+            await _emailService.SendAsync(
+                admin.Email,
+                "Sahnem yönetici şifresi değiştirildi",
+                EmailTemplates.PasswordChanged(admin.Username, DateTime.UtcNow));
         }
 
         public async Task ChangePassword(AdminChangePasswordDto dto)
@@ -210,6 +215,11 @@ namespace Sahnem.Business.Services
             }
 
             await _unitOfWork.SaveChanges();
+
+            await _emailService.SendAsync(
+                admin.Email,
+                "Sahnem yönetici şifresi değiştirildi",
+                EmailTemplates.PasswordChanged(admin.Username, DateTime.UtcNow));
         }
 
         private async Task<Admin> GetByUsernameOrThrow(string username)

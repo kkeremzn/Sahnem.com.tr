@@ -1,5 +1,6 @@
 using AutoMapper;
 using Sahnem.Business.DTOs.Message;
+using Sahnem.Business.Email;
 using Sahnem.Business.Interfaces;
 using Sahnem.Business.Security;
 using Sahnem.Core.Entities;
@@ -19,6 +20,7 @@ namespace Sahnem.Business.Services
         private readonly IMapper _mapper;
         private readonly ICurrentUserService _currentUserService;
         private readonly INotificationService _notificationService;
+        private readonly IEmailService _emailService;
 
         public MessageService(
             IGenericRepository<Conversation> conversationRepository,
@@ -29,7 +31,8 @@ namespace Sahnem.Business.Services
             IUnitOfWork unitOfWork,
             IMapper mapper,
             ICurrentUserService currentUserService,
-            INotificationService notificationService)
+            INotificationService notificationService,
+            IEmailService emailService)
         {
             _conversationRepository = conversationRepository;
             _messageRepository = messageRepository;
@@ -40,6 +43,7 @@ namespace Sahnem.Business.Services
             _mapper = mapper;
             _currentUserService = currentUserService;
             _notificationService = notificationService;
+            _emailService = emailService;
         }
 
         public async Task<IEnumerable<ConversationResponseDto>> GetMyConversations()
@@ -173,6 +177,15 @@ namespace Sahnem.Business.Services
                 "Yeni mesaj",
                 $"{sender?.FirstName} {sender?.LastName} size bir mesaj gönderdi.",
                 $"/messages/{conversation.Id}");
+
+            var recipientUser = await _userRepository.GetByIdAsync(recipientId);
+            if (recipientUser != null)
+            {
+                await _emailService.SendAsync(
+                    recipientUser.Email,
+                    "Sahnem'de yeni bir mesajın var",
+                    EmailTemplates.NewMessage(recipientUser.FirstName, $"{sender?.FirstName} {sender?.LastName}".Trim(), conversation.Id));
+            }
 
             return _mapper.Map<MessageResponseDto>(message);
         }
