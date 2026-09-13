@@ -14,22 +14,24 @@ export function EmployerCard({ employer }: { employer: EmployerSummary }) {
 
   return (
     <Card hover className="p-0 overflow-hidden">
-      <Link to={`/${employer.kind === 'Venue' ? 'venues' : 'organizers'}/${employer.appUserId}`} className="flex flex-col p-5">
-        <Avatar name={employer.name} src={resolveAssetUrl(employer.avatarUrl)} size={56} />
-        <h3 className="mt-3.5 truncate font-display text-base font-bold text-text hover:text-gold-soft">{employer.name}</h3>
-        <div className="mt-1 flex flex-wrap items-center gap-1.5">
-          <p className="truncate text-sm text-text-dim">{typeLabel}</p>
-          <Badge variant="neutral" className="shrink-0">
-            <KindIcon size={11} /> {employer.kind === 'Venue' ? 'Mekan' : 'Organizatör'}
-          </Badge>
-        </div>
+      <Link to={`/${employer.kind === 'Venue' ? 'venues' : 'organizers'}/${employer.appUserId}`} className="flex gap-4 p-5">
+        <Avatar name={employer.name} src={resolveAssetUrl(employer.avatarUrl)} size={56} className="shrink-0" />
+        <div className="min-w-0 flex-1">
+          <h3 className="truncate font-display text-lg font-bold text-text hover:text-gold-soft">{employer.name}</h3>
+          <div className="mt-1 flex flex-wrap items-center gap-1.5">
+            <p className="truncate text-sm text-text-dim">{typeLabel}</p>
+            <Badge variant="neutral" className="shrink-0">
+              <KindIcon size={11} /> {employer.kind === 'Venue' ? 'Mekan' : 'Organizatör'}
+            </Badge>
+          </div>
 
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border px-2 py-1 text-xs text-text-dim">
-            <MapPin size={11} className="shrink-0" /> {CITY_LABELS[employer.city]}{employer.district ? `, ${employer.district}` : ''}
-          </span>
+          <div className="mt-2.5 flex flex-wrap gap-1.5">
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border px-2 py-1 text-xs text-text-dim">
+              <MapPin size={11} className="shrink-0" /> {CITY_LABELS[employer.city]}{employer.district ? `, ${employer.district}` : ''}
+            </span>
+          </div>
+          <p className="mt-2.5 line-clamp-2 text-sm text-text-faint">{employer.bio}</p>
         </div>
-        <p className="mt-2.5 line-clamp-2 text-xs text-text-faint">{employer.bio}</p>
       </Link>
     </Card>
   );

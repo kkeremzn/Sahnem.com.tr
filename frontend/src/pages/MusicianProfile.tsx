@@ -116,44 +116,44 @@ export function MusicianProfile() {
                 <h3 className="mb-2 font-display text-base font-bold">Biyografi</h3>
                 <p className="text-sm leading-relaxed text-text-dim">{musician.bio}</p>
               </Card>
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                <Card className="flex h-full flex-col items-center text-center">
-                  <Music2 size={18} className="text-gold-soft" />
-                  <div className="mt-2 flex h-8 items-center justify-center">
-                    <p className="text-xs text-text-faint">Deneyim</p>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <Card className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold/10 text-gold-soft">
+                    <Music2 size={17} />
                   </div>
-                  <div className="flex h-10 items-center justify-center">
-                    <p className="text-sm font-semibold">{musician.experienceYears} yıl</p>
-                  </div>
-                </Card>
-                <Card className="flex h-full flex-col items-center text-center">
-                  <Wrench size={18} className="text-gold-soft" />
-                  <div className="mt-2 flex h-8 items-center justify-center">
-                    <p className="text-xs text-text-faint">Ekipman</p>
-                  </div>
-                  <div className="flex h-10 items-center justify-center">
-                    <p className="text-sm font-semibold">{musician.hasOwnEquipment ? 'Var' : 'Yok'}</p>
-                  </div>
-                  {musician.equipmentNote && (
-                    <p className="line-clamp-1 text-[10px] text-text-faint">({musician.equipmentNote})</p>
-                  )}
-                </Card>
-                <Card className="flex h-full flex-col items-center text-center">
-                  <Plane size={18} className="text-gold-soft" />
-                  <div className="mt-2 flex h-8 items-center justify-center">
-                    <p className="text-xs text-text-faint">Seyahat durumu</p>
-                  </div>
-                  <div className="flex h-10 items-center justify-center">
-                    <p className="text-sm font-semibold">{TRAVEL_LABELS[musician.isAvailableToTravel]}</p>
+                  <div className="min-w-0">
+                    <p className="whitespace-nowrap text-xs text-text-faint">Deneyim</p>
+                    <p className="whitespace-nowrap text-sm font-semibold text-text">{musician.experienceYears} yıl</p>
                   </div>
                 </Card>
-                <Card className="flex h-full flex-col items-center text-center">
-                  <Star size={18} className="text-gold-soft" />
-                  <div className="mt-2 flex h-8 items-center justify-center">
-                    <p className="text-xs text-text-faint">Çalışma şekli</p>
+                <Card className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold/10 text-gold-soft">
+                    <Wrench size={17} />
                   </div>
-                  <div className="flex h-10 items-center justify-center">
-                    <p className="text-sm font-semibold">
+                  <div className="min-w-0">
+                    <p className="whitespace-nowrap text-xs text-text-faint">Ekipman</p>
+                    <p className="whitespace-nowrap text-sm font-semibold text-text">{musician.hasOwnEquipment ? 'Var' : 'Yok'}</p>
+                    {musician.equipmentNote && (
+                      <p className="mt-0.5 text-[11px] leading-snug text-text-faint">({musician.equipmentNote})</p>
+                    )}
+                  </div>
+                </Card>
+                <Card className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold/10 text-gold-soft">
+                    <Plane size={17} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="whitespace-nowrap text-xs text-text-faint">Seyahat durumu</p>
+                    <p className="whitespace-nowrap text-sm font-semibold text-text">{TRAVEL_LABELS[musician.isAvailableToTravel]}</p>
+                  </div>
+                </Card>
+                <Card className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold/10 text-gold-soft">
+                    <Star size={17} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="whitespace-nowrap text-xs text-text-faint">Çalışma şekli</p>
+                    <p className="whitespace-nowrap text-sm font-semibold text-text">
                       {musician.workStatus === 'Both' ? 'Solo & Grup' : WORK_STATUS_LABELS[musician.workStatus]}
                     </p>
                   </div>

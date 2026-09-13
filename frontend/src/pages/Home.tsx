@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Guitar, Mic2, Music4, Piano, Search, ShieldCheck, Sparkles } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
@@ -46,12 +46,13 @@ export function Home() {
     navigate(`/explore?${params.toString()}`);
   }
 
-  // Giriş yapmış bir ziyaretçi de ana sayfaya (ör. logoya tıklayarak) gelebilir —
-  // artık buradan otomatik uzaklaştırılmıyor, ama "Hemen Başla" gibi CTA'lar
-  // onlar için anlamsız kayıt akışına değil doğrudan panellerine gitmeli.
-  const primaryCtaTo = user ? getHomeRoute(user) : '/register';
-  const primaryCtaLabel = user ? 'Panele Git' : 'Hemen Başla';
-
+  // Giriş yapmış bir kullanıcı için "/" bu tanıtım sayfasını hiç göstermemeli —
+  // burada "Panele Git" gibi bir CTA'ya tıklamasını beklemek yerine doğrudan
+  // kendi paneline (rolüne/profil durumuna göre) yönlendiriyoruz, böylece giriş
+  // öncesi ve sonrası ana sayfa deneyimi baştan tamamen ayrışıyor. Diğer
+  // layout'larda (AuthLayout, ProfileSetupLayout, VerifyEmailLayout) da aynı
+  // <Navigate> deseni kullanılıyor.
+  if (user) return <Navigate to={getHomeRoute(user)} replace />;
 
   return (
     <div>
@@ -69,8 +70,8 @@ export function Home() {
               Müzisyenleri organizatör ve mekanlarla buluşturuyoruz. İlan aç, teklif ver, doğru ismi bul — hepsi tek platformda.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Button size="lg" onClick={() => navigate(primaryCtaTo)} icon={<ArrowRight size={18} />}>
-                {primaryCtaLabel}
+              <Button size="lg" onClick={() => navigate('/register')} icon={<ArrowRight size={18} />}>
+                Hemen Başla
               </Button>
               <Button size="lg" variant="secondary" onClick={() => navigate('/explore?tab=musicians')}>
                 Müzisyenleri Keşfet
@@ -225,7 +226,7 @@ export function Home() {
                 İster sahneye çıkacak bir müzisyen ol, ister etkinliğine doğru ismi arayan bir organizatör — Sahnem seninle.
               </p>
               <div className="mt-7 flex flex-wrap justify-center gap-3">
-                <Button size="lg" onClick={() => navigate(primaryCtaTo)}>{user ? 'Panele Git' : 'Ücretsiz Kayıt Ol'}</Button>
+                <Button size="lg" onClick={() => navigate('/register')}>Ücretsiz Kayıt Ol</Button>
                 <Button size="lg" variant="secondary" onClick={() => navigate('/jobs')}>İlanlara Göz At</Button>
               </div>
             </div>
