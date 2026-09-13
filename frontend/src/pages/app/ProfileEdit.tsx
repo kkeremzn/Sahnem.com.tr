@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Loader2, Save } from 'lucide-react';
+import { Save } from 'lucide-react';
 import { PageHeader } from '@/components/ui/PageHeader';
+import { FormSkeleton } from '@/components/ui/Skeleton';
+import { FadeIn } from '@/components/ui/FadeIn';
 import { Card } from '@/components/ui/Card';
 import { Field } from '@/components/ui/Field';
 import { Input } from '@/components/ui/Input';
@@ -88,13 +90,22 @@ export function ProfileEdit() {
   }
 
   if (loading) {
-    return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-gold" size={26} /></div>;
+    return (
+      <div>
+        <PageHeader title="Profili Düzenle" description="Bilgilerini güncel tut, doğru fırsatlarla eşleş." />
+        <div className="space-y-6">
+          <FormSkeleton rows={2} />
+          <FormSkeleton />
+        </div>
+      </div>
+    );
   }
 
   return (
     <div>
       <PageHeader title="Profili Düzenle" description="Bilgilerini güncel tut, doğru fırsatlarla eşleş." />
 
+      <FadeIn>
       <div className="space-y-6">
         <Card>
           <h3 className="mb-4 font-display text-base font-bold">Profil görseli</h3>
@@ -291,6 +302,7 @@ export function ProfileEdit() {
           <Button icon={<Save size={16} />} onClick={handleSave} loading={saving}>Değişiklikleri Kaydet</Button>
         </div>
       </div>
+      </FadeIn>
     </div>
   );
 }

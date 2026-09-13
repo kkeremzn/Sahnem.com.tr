@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { CalendarClock, CalendarDays, Clock, Loader2, MapPin, Send } from 'lucide-react';
+import { CalendarClock, CalendarDays, Clock, MapPin, Send } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
@@ -13,6 +13,8 @@ import { Field } from '@/components/ui/Field';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { AdvertStatusBadge, OfferStatusBadge } from '@/components/ui/StatusBadge';
+import { DetailPageSkeleton } from '@/components/ui/Skeleton';
+import { FadeIn } from '@/components/ui/FadeIn';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import * as advertService from '@/services/advertService';
@@ -67,9 +69,9 @@ export function JobDetail() {
 
   if (advert === null) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="animate-spin text-gold" size={28} />
-      </div>
+      <Container className="max-w-5xl py-10">
+        <DetailPageSkeleton withAvatarRow />
+      </Container>
     );
   }
   if (advert === undefined) {
@@ -83,6 +85,7 @@ export function JobDetail() {
 
   return (
     <Container className="max-w-5xl py-10">
+      <FadeIn>
       <div className="mb-6 flex items-center gap-3">
         <Link to={`/${advert.creatorRole === 'Venue' ? 'venues' : 'organizers'}/${advert.creatorId}`} className="flex items-center gap-2.5 group">
           <Avatar name={advert.creatorName} size={40} />
@@ -179,6 +182,7 @@ export function JobDetail() {
           </Card>
         </aside>
       </div>
+      </FadeIn>
     </Container>
   );
 }

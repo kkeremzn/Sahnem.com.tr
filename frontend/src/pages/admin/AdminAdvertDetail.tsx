@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Ban, CalendarDays, Clock, Loader2, MapPin } from 'lucide-react';
+import { ArrowLeft, Ban, CalendarDays, Clock, MapPin } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { AdvertStatusBadge, OfferStatusBadge } from '@/components/ui/StatusBadge';
+import { DetailPageSkeleton } from '@/components/ui/Skeleton';
+import { FadeIn } from '@/components/ui/FadeIn';
 import { useToast } from '@/context/ToastContext';
 import * as adminService from '@/services/adminService';
 import { CITY_LABELS, EVENT_DURATION_LABELS, type Advert, type Offer } from '@/types';
@@ -54,11 +56,11 @@ export function AdminAdvertDetail() {
   }
 
   if (advert === null) {
-    return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-gold" size={26} /></div>;
+    return <DetailPageSkeleton />;
   }
 
   return (
-    <div>
+    <FadeIn>
       <Link to="/backstage/adverts" className="mb-4 inline-flex items-center gap-1.5 text-sm text-text-dim hover:text-text">
         <ArrowLeft size={14} /> İlanlara dön
       </Link>
@@ -144,6 +146,6 @@ export function AdminAdvertDetail() {
         onConfirm={handleCancel}
         onClose={() => setCancelOpen(false)}
       />
-    </div>
+    </FadeIn>
   );
 }

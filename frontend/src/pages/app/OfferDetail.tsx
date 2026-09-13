@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { CalendarDays, Loader2, MapPin, MessageCircle } from 'lucide-react';
+import { CalendarDays, MapPin, MessageCircle } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { OfferStatusBadge } from '@/components/ui/StatusBadge';
+import { DetailPageSkeleton } from '@/components/ui/Skeleton';
+import { FadeIn } from '@/components/ui/FadeIn';
 import * as offerService from '@/services/offerService';
 import * as advertService from '@/services/advertService';
 import type { Advert, Offer } from '@/types';
@@ -25,7 +27,7 @@ export function OfferDetail() {
   }, [id]);
 
   if (offer === null) {
-    return <div className="flex min-h-[50vh] items-center justify-center"><Loader2 className="animate-spin text-gold" size={26} /></div>;
+    return <DetailPageSkeleton />;
   }
   if (offer === undefined) {
     return (
@@ -37,7 +39,7 @@ export function OfferDetail() {
   }
 
   return (
-    <div>
+    <FadeIn>
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="font-display text-2xl font-bold">{offer.advertTitle}</h1>
@@ -90,6 +92,6 @@ export function OfferDetail() {
           </Card>
         </aside>
       </div>
-    </div>
+    </FadeIn>
   );
 }

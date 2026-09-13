@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Loader2, MessageCircle, Send } from 'lucide-react';
+import { ArrowLeft, MessageCircle, Send } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { MessagesSkeleton } from '@/components/ui/Skeleton';
+import { FadeIn } from '@/components/ui/FadeIn';
 import { useAuth } from '@/context/AuthContext';
 import * as messageService from '@/services/messageService';
 import type { Conversation, Message } from '@/types';
@@ -120,11 +122,7 @@ export function Messages() {
   }
 
   if (conversations === null) {
-    return (
-      <div className="flex h-[calc(100vh-220px)] min-h-[480px] items-center justify-center">
-        <Loader2 className="animate-spin text-gold" size={28} />
-      </div>
-    );
+    return <MessagesSkeleton />;
   }
 
   if (conversations.length === 0 && !startingNew) {
@@ -132,6 +130,7 @@ export function Messages() {
   }
 
   return (
+    <FadeIn>
     <div className="grid h-[calc(100vh-220px)] min-h-[480px] grid-cols-1 overflow-hidden rounded-lg border border-border md:grid-cols-[300px_1fr]">
       <div className={cn('flex-col overflow-y-auto border-border md:flex md:border-r', activeId || startingNew ? 'hidden md:flex' : 'flex')}>
         {conversations.map((c) => (
@@ -206,5 +205,6 @@ export function Messages() {
         )}
       </div>
     </div>
+    </FadeIn>
   );
 }

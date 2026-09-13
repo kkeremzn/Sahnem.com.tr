@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, KeyRound, Loader2, Mail, ShieldCheck, ShieldOff, Trash2 } from 'lucide-react';
+import { ArrowLeft, KeyRound, Mail, ShieldCheck, ShieldOff, Trash2 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -8,6 +8,8 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { Modal } from '@/components/ui/Modal';
 import { Field } from '@/components/ui/Field';
 import { Input } from '@/components/ui/Input';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { FadeIn } from '@/components/ui/FadeIn';
 import { useToast } from '@/context/ToastContext';
 import * as adminService from '@/services/adminService';
 import { USER_TYPE_LABELS, type AdminUserDetail as AdminUserDetailType } from '@/types';
@@ -111,12 +113,24 @@ export function AdminUserDetail() {
   }
 
   if (detail === null) {
-    return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-gold" size={26} /></div>;
+    return (
+      <div className="max-w-2xl">
+        <Skeleton className="mb-4 h-4 w-32" />
+        {Array.from({ length: 4 }, (_, i) => (
+          <div key={i} className="mt-4 rounded-md border border-border bg-card p-5 first:mt-0">
+            <Skeleton className="h-4 w-1/3" />
+            <Skeleton className="mt-3 h-3 w-2/3" />
+            <Skeleton className="mt-2 h-3 w-1/2" />
+          </div>
+        ))}
+      </div>
+    );
   }
 
   const { user } = detail;
 
   return (
+    <FadeIn>
     <div className="max-w-2xl">
       <Link to="/backstage/users" className="mb-4 inline-flex items-center gap-1.5 text-sm text-text-dim hover:text-text">
         <ArrowLeft size={14} /> Kullanıcılara dön
@@ -210,5 +224,6 @@ export function AdminUserDetail() {
         onClose={() => setDeleteOpen(false)}
       />
     </div>
+    </FadeIn>
   );
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Loader2, MapPin, MessageCircle, Music2, Plane, Star, Wrench } from 'lucide-react';
+import { MapPin, MessageCircle, Music2, Plane, Star, Wrench } from 'lucide-react';
 import { InstagramIcon, LinkedinIcon, SpotifyIcon, YoutubeIcon } from '@/components/ui/SocialIcons';
 import { ProfileBanner } from '@/components/brand/ProfileBanner';
 import { Container } from '@/components/ui/Container';
@@ -9,6 +9,8 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { StarRating } from '@/components/ui/StarRating';
+import { ProfileDetailSkeleton } from '@/components/ui/Skeleton';
+import { FadeIn } from '@/components/ui/FadeIn';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import * as profileService from '@/services/profileService';
@@ -51,11 +53,7 @@ export function MusicianProfile() {
   }
 
   if (musician === null) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="animate-spin text-gold" size={28} />
-      </div>
-    );
+    return <ProfileDetailSkeleton />;
   }
   if (musician === undefined) {
     return (
@@ -74,7 +72,7 @@ export function MusicianProfile() {
   ].filter((s) => s.url);
 
   return (
-    <div>
+    <FadeIn>
       <ProfileBanner />
       <Container className="relative -mt-14 pb-14 sm:-mt-16">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -192,6 +190,6 @@ export function MusicianProfile() {
           </aside>
         </div>
       </Container>
-    </div>
+    </FadeIn>
   );
 }

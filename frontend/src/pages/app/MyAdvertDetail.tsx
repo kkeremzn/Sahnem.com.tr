@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Ban, CalendarDays, Clock, Loader2, MapPin } from 'lucide-react';
+import { Ban, CalendarDays, Clock, MapPin } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { AdvertStatusBadge, OfferStatusBadge } from '@/components/ui/StatusBadge';
+import { DetailPageSkeleton } from '@/components/ui/Skeleton';
+import { FadeIn } from '@/components/ui/FadeIn';
 import { useToast } from '@/context/ToastContext';
 import * as advertService from '@/services/advertService';
 import * as offerService from '@/services/offerService';
@@ -61,7 +63,7 @@ export function MyAdvertDetail() {
   }
 
   if (advert === null) {
-    return <div className="flex min-h-[50vh] items-center justify-center"><Loader2 className="animate-spin text-gold" size={26} /></div>;
+    return <DetailPageSkeleton />;
   }
   if (advert === undefined) {
     return (
@@ -73,7 +75,7 @@ export function MyAdvertDetail() {
   }
 
   return (
-    <div>
+    <FadeIn>
       <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2.5">
@@ -176,6 +178,6 @@ export function MyAdvertDetail() {
         onConfirm={handleOfferAction}
         onClose={() => setPendingOfferAction(null)}
       />
-    </div>
+    </FadeIn>
   );
 }

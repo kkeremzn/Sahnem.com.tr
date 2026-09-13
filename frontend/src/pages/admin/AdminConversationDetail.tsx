@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, Loader2, Trash2 } from 'lucide-react';
+import { ArrowLeft, Trash2 } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { FadeIn } from '@/components/ui/FadeIn';
 import { useToast } from '@/context/ToastContext';
 import * as adminService from '@/services/adminService';
 import type { AdminMessage } from '@/services/adminService';
@@ -48,10 +50,21 @@ export function AdminConversationDetail() {
       <h1 className="mb-6 font-display text-xl font-bold text-text">Sohbet Detayı</h1>
 
       {messages === null ? (
-        <div className="flex justify-center py-16"><Loader2 className="animate-spin text-gold" size={24} /></div>
+        <div className="space-y-3">
+          {Array.from({ length: 4 }, (_, i) => (
+            <div key={i} className="flex items-start gap-3 rounded-md border border-border bg-card p-4">
+              <Skeleton className="h-9 w-9 shrink-0 rounded-full" />
+              <div className="min-w-0 flex-1 space-y-2">
+                <Skeleton className="h-3 w-1/3" />
+                <Skeleton className="h-3 w-2/3" />
+              </div>
+            </div>
+          ))}
+        </div>
       ) : messages.length === 0 ? (
         <EmptyState title="Mesaj yok" description="" />
       ) : (
+        <FadeIn>
         <div className="space-y-3">
           {messages.map((m) => (
             <div key={m.id} className="flex items-start gap-3 rounded-md border border-border bg-card p-4">
@@ -73,6 +86,7 @@ export function AdminConversationDetail() {
             </div>
           ))}
         </div>
+        </FadeIn>
       )}
 
       <ConfirmDialog
