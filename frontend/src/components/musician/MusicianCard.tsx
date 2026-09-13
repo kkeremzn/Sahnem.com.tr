@@ -23,17 +23,22 @@ export function MusicianCard({ musician, favorite, onToggleFavorite }: MusicianC
         <h3 className="mt-3.5 font-display text-base font-bold text-text group-hover:text-gold-soft">
           {musician.firstName} {musician.lastName}
         </h3>
-        <p className="truncate text-sm text-text-dim">
-          {musician.branch.map((b) => MUSIC_BRANCH_LABELS[b]).join(', ')} · {musician.genres.map((g) => MUSIC_GENRE_LABELS[g]).join(', ')}
+        <p className="mt-1 truncate text-sm text-text-dim">
+          {musician.branch.map((b) => MUSIC_BRANCH_LABELS[b]).join(', ')}
         </p>
+        {musician.genres.length > 0 && (
+          <p className="mt-0.5 truncate text-xs text-text-faint">
+            {musician.genres.map((g) => MUSIC_GENRE_LABELS[g]).join(', ')}
+          </p>
+        )}
 
-        <div className="mt-2.5 flex items-center gap-3 text-xs text-text-faint">
-          <span className="inline-flex items-center gap-1">
-            <MapPin size={12} /> {CITY_LABELS[musician.city]}
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border px-2 py-1 text-xs text-text-dim">
+            <MapPin size={11} className="shrink-0" /> {CITY_LABELS[musician.city]}
           </span>
           {musician.isAvailableToTravel === 'Yes' && (
-            <span className="inline-flex items-center gap-1">
-              <Plane size={12} /> Seyahat edebilir
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border px-2 py-1 text-xs text-text-dim">
+              <Plane size={11} className="shrink-0" /> Seyahat edebilir
             </span>
           )}
         </div>

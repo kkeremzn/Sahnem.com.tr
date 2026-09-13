@@ -2,8 +2,10 @@ using AutoMapper;
 using Sahnem.Business.DTOs;
 using Sahnem.Business.DTOs.Admin;
 using Sahnem.Business.DTOs.User;
+using Sahnem.Business.Email;
 using Sahnem.Business.Helpers;
 using Sahnem.Business.Interfaces;
+using Sahnem.Business.Security;
 using Sahnem.Core.Entities;
 using Sahnem.Core.Enums;
 using Sahnem.Core.Interfaces;
@@ -26,9 +28,11 @@ namespace Sahnem.Business.Services
         private readonly IGenericRepository<Conversation> _conversationRepository;
         private readonly IGenericRepository<Favorite> _favoriteRepository;
         private readonly IGenericRepository<Notification> _notificationRepository;
+        private readonly IGenericRepository<RefreshToken> _refreshTokenRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IEmailService _emailService;
+        private readonly IPasswordService _passwordService;
 
         public AdminService(
             IGenericRepository<MusicianProfile> musicianProfileRepository,
@@ -41,9 +45,11 @@ namespace Sahnem.Business.Services
             IGenericRepository<Conversation> conversationRepository,
             IGenericRepository<Favorite> favoriteRepository,
             IGenericRepository<Notification> notificationRepository,
+            IGenericRepository<RefreshToken> refreshTokenRepository,
             IUnitOfWork unitOfWork,
             IMapper mapper,
-            IEmailService emailService)
+            IEmailService emailService,
+            IPasswordService passwordService)
         {
             _musicianProfileRepository = musicianProfileRepository;
             _organizerProfileRepository = organizerProfileRepository;
@@ -55,9 +61,11 @@ namespace Sahnem.Business.Services
             _conversationRepository = conversationRepository;
             _favoriteRepository = favoriteRepository;
             _notificationRepository = notificationRepository;
+            _refreshTokenRepository = refreshTokenRepository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _emailService = emailService;
+            _passwordService = passwordService;
         }
 
         public async Task<AdminStatsDto> GetStats()
@@ -273,19 +281,23 @@ namespace Sahnem.Business.Services
             }
         }
 
-        private async Task<List<AppUser>> ResolveTargets(List<int>? userIds)
+        private async Task<List<AppUser>> ResolveTargets(List<int>? userIds, UserType? role = null)
         {
             if (userIds is { Count: > 0 })
             {
                 var idSet = userIds.ToHashSet();
                 return (await _userRepository.WhereAsync(u => idSet.Contains(u.Id) && u.IsActive)).ToList();
             }
+            if (role.HasValue)
+            {
+                return (await _userRepository.WhereAsync(u => u.Role == role.Value && u.IsActive)).ToList();
+            }
             return (await _userRepository.WhereAsync(u => u.IsActive)).ToList();
         }
 
         public async Task<AdminBroadcastResultDto> BroadcastNotification(AdminBroadcastNotificationDto dto)
         {
-            var targets = await ResolveTargets(dto.UserIds);
+            var targets = await ResolveTargets(dto.UserIds, dto.Role);
             foreach (var user in targets)
             {
                 await _notificationRepository.AddAsync(new Notification
@@ -303,7 +315,7 @@ namespace Sahnem.Business.Services
 
         public async Task<AdminBroadcastResultDto> SendBulkEmail(AdminSendEmailDto dto)
         {
-            var targets = await ResolveTargets(dto.UserIds);
+            var targets = await ResolveTargets(dto.UserIds, dto.Role);
             var delivered = 0;
             foreach (var user in targets)
             {
@@ -317,6 +329,63 @@ namespace Sahnem.Business.Services
             // döndürülüyordu, tek bir Zoho hatası bile sessizce yutulup admin'e
             // her şey başarılıymış gibi görünüyordu.
             return new AdminBroadcastResultDto { RecipientCount = delivered, FailedCount = targets.Count - delivered };
+        }
+
+        // Destek amaçlı: kullanıcı "kodu alamadım" derse admin buradan tekrar
+        // gönderebilsin diye — normal ResendVerificationEmail sadece giriş yapmış
+        // kullanıcının kendisi için çalışıyor, bu burada keyfi bir userId alıyor.
+        public async Task SendVerificationCodeToUser(int userId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null) throw new Exception("User not found");
+            if (user.IsEmailConfirmed) throw new Exception("This user's email is already verified");
+
+            user.EmailVerificationCode = SecureCodeGenerator.SixDigitCode();
+            user.EmailVerificationCodeExpiresAt = DateTime.UtcNow.AddMinutes(15);
+            user.EmailVerificationCodeSentAt = DateTime.UtcNow;
+            await _unitOfWork.SaveChanges();
+
+            await _emailService.SendAsync(
+                user.Email, "Sahnem hesabını doğrula", EmailTemplates.VerificationCode(user.FirstName, user.EmailVerificationCode));
+        }
+
+        public async Task SendPasswordResetCodeToUser(int userId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null) throw new Exception("User not found");
+
+            user.PasswordResetCode = SecureCodeGenerator.SixDigitCode();
+            user.PasswordResetCodeExpiresAt = DateTime.UtcNow.AddMinutes(15);
+            user.PasswordResetCodeSentAt = DateTime.UtcNow;
+            await _unitOfWork.SaveChanges();
+
+            await _emailService.SendAsync(
+                user.Email, "Şifre sıfırlama kodu — Sahnem", EmailTemplates.PasswordResetCode(user.FirstName, user.PasswordResetCode));
+        }
+
+        // Kullanıcı destek hattından ulaşıp "hesabıma giremiyorum, kodu da
+        // alamıyorum" derse admin'in şifreyi doğrudan değiştirebilmesi için. Tüm
+        // cihazlardaki oturumlar iptal edilir — normal şifre sıfırlama/değiştirmeyle
+        // aynı güvenlik kuralı.
+        public async Task ResetUserPasswordDirectly(int userId, string newPassword)
+        {
+            if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < 6)
+            {
+                throw new Exception("Password must be at least 6 characters long");
+            }
+
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null) throw new Exception("User not found");
+
+            user.PasswordHash = _passwordService.HashPassword(user, newPassword);
+
+            var tokens = await _refreshTokenRepository.WhereAsync(t => t.AppUserId == userId);
+            foreach (var token in tokens)
+            {
+                _refreshTokenRepository.Delete(token);
+            }
+
+            await _unitOfWork.SaveChanges();
         }
     }
 }

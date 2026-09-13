@@ -11,13 +11,14 @@ import * as adminService from '@/services/adminService';
 import { USER_TYPE_LABELS, type AppUser, type UserType } from '@/types';
 
 type Mode = 'notification' | 'email';
-type Audience = 'all' | 'custom';
+type Audience = 'all' | 'role' | 'custom';
 
 const ROLE_OPTIONS: UserType[] = ['Musician', 'Organizer', 'Venue'];
 
 export function AdminNotify() {
   const [mode, setMode] = useState<Mode>('notification');
   const [audience, setAudience] = useState<Audience>('all');
+  const [audienceRole, setAudienceRole] = useState<UserType>('Musician');
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<UserType | ''>('');
   const [results, setResults] = useState<AppUser[]>([]);
@@ -62,17 +63,24 @@ export function AdminNotify() {
     setSelected((prev) => prev.filter((u) => u.id !== id));
   }
 
+  function handleModeChange(next: Mode) {
+    setMode(next);
+    setResult(null);
+    setError(null);
+  }
+
   async function handleSend() {
     setSending(true);
     setError(null);
     setResult(null);
     const userIds = audience === 'custom' ? selected.map((u) => u.id) : undefined;
+    const role = audience === 'role' ? audienceRole : undefined;
     try {
       if (mode === 'notification') {
-        const res = await adminService.broadcastNotification({ title, body, linkTo: linkTo || undefined, userIds });
+        const res = await adminService.broadcastNotification({ title, body, linkTo: linkTo || undefined, userIds, role });
         setResult(`${res.recipientCount} kullanıcıya bildirim gönderildi.`);
       } else {
-        const res = await adminService.sendBulkEmail({ subject: title, body, userIds });
+        const res = await adminService.sendBulkEmail({ subject: title, body, userIds, role });
         setResult(
           res.failedCount > 0
             ? `${res.recipientCount} kullanıcıya e-posta gönderildi, ${res.failedCount} tanesi başarısız oldu.`
@@ -87,7 +95,7 @@ export function AdminNotify() {
     }
   }
 
-  const canSend = title.trim() && body.trim() && (audience === 'all' || selected.length > 0);
+  const canSend = title.trim() && body.trim() && (audience !== 'custom' || selected.length > 0);
 
   return (
     <div className="max-w-2xl space-y-6">
@@ -99,7 +107,7 @@ export function AdminNotify() {
           { key: 'email', label: 'E-posta' },
         ]}
         active={mode}
-        onChange={(k) => setMode(k as Mode)}
+        onChange={(k) => handleModeChange(k as Mode)}
       />
 
       <Card className="space-y-4">
@@ -115,6 +123,13 @@ export function AdminNotify() {
             </button>
             <button
               type="button"
+              onClick={() => setAudience('role')}
+              className={`flex-1 cursor-pointer rounded-md border px-3.5 py-2.5 text-sm font-medium transition-colors ${audience === 'role' ? 'border-gold bg-gold/10 text-gold-soft' : 'border-border text-text-dim hover:border-border-hover'}`}
+            >
+              Role göre
+            </button>
+            <button
+              type="button"
               onClick={() => setAudience('custom')}
               className={`flex-1 cursor-pointer rounded-md border px-3.5 py-2.5 text-sm font-medium transition-colors ${audience === 'custom' ? 'border-gold bg-gold/10 text-gold-soft' : 'border-border text-text-dim hover:border-border-hover'}`}
             >
@@ -122,6 +137,14 @@ export function AdminNotify() {
             </button>
           </div>
         </div>
+
+        {audience === 'role' && (
+          <Field label="Rol">
+            <Select value={audienceRole} onChange={(e) => setAudienceRole(e.target.value as UserType)}>
+              {ROLE_OPTIONS.map((r) => <option key={r} value={r}>{USER_TYPE_LABELS[r]}</option>)}
+            </Select>
+          </Field>
+        )}
 
         {audience === 'custom' && (
           <div>

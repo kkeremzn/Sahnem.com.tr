@@ -1,3 +1,4 @@
+import { useLocation } from 'react-router-dom';
 import { Navbar } from './Navbar';
 import { Footer } from './Footer';
 import { AppSidebar } from './AppSidebar';
@@ -13,9 +14,16 @@ import { useAuth } from '@/context/AuthContext';
 // sayfalara AppSidebar'daki bir bağlantıdan geldiğinde (ör. "İlanları Keşfet")
 // sidebar'ın birden kaybolması kafa karıştırıcıydı — bu yüzden profili
 // tamamlanmış kullanıcılar için sidebar burada da gösteriliyor.
+//
+// Anasayfa ('/') bunun dışında tutuluyor: o tam genişlikte bir pazarlama
+// sayfası (hero, "hemen başla" CTA'ları, "nasıl çalışır" vb.) — yanına app
+// sidebar'ı eklemek, giriş yapmış kullanıcı için anlamsız/karışık bir hibrit
+// görünüm oluşturuyordu (pazarlama içeriği + uygulama navigasyonu bir arada).
 export function PublicLayout() {
   const { user } = useAuth();
-  const showSidebar = !!user && user.isProfileCompleted && user.role !== 'Admin';
+  const location = useLocation();
+  const isHome = location.pathname === '/';
+  const showSidebar = !isHome && !!user && user.isProfileCompleted && user.role !== 'Admin';
 
   return (
     <div className="flex min-h-screen flex-col bg-black">

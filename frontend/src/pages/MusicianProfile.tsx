@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Loader2, MapPin, MessageCircle, Music2, Plane, Star, Wrench } from 'lucide-react';
 import { InstagramIcon, LinkedinIcon, SpotifyIcon, YoutubeIcon } from '@/components/ui/SocialIcons';
+import { ProfileBanner } from '@/components/brand/ProfileBanner';
 import { Container } from '@/components/ui/Container';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
@@ -74,7 +75,7 @@ export function MusicianProfile() {
 
   return (
     <div>
-      <div className="h-40 bg-gradient-to-r from-gold-dim/40 via-deep to-accent/20 sm:h-56" />
+      <ProfileBanner />
       <Container className="relative -mt-14 pb-14 sm:-mt-16">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-end">
@@ -116,24 +117,24 @@ export function MusicianProfile() {
                 <p className="text-sm leading-relaxed text-text-dim">{musician.bio}</p>
               </Card>
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                <Card className="text-center">
-                  <Music2 size={18} className="mx-auto text-gold-soft" />
+                <Card className="flex h-full flex-col items-center justify-center text-center">
+                  <Music2 size={18} className="text-gold-soft" />
                   <p className="mt-2 text-xs text-text-faint">Deneyim</p>
                   <p className="mt-0.5 text-sm font-semibold">{musician.experienceYears} yıl</p>
                 </Card>
-                <Card className="text-center">
-                  <Wrench size={18} className="mx-auto text-gold-soft" />
+                <Card className="flex h-full flex-col items-center justify-center text-center">
+                  <Wrench size={18} className="text-gold-soft" />
                   <p className="mt-2 text-xs text-text-faint">Kendi ekipmanı</p>
                   <p className="mt-0.5 text-sm font-semibold">{musician.hasOwnEquipment ? 'Var' : 'Yok'}</p>
-                  {musician.equipmentNote && <p className="mt-1 text-[11px] text-text-faint">{musician.equipmentNote}</p>}
+                  {musician.equipmentNote && <p className="mt-1 line-clamp-1 text-[11px] text-text-faint">{musician.equipmentNote}</p>}
                 </Card>
-                <Card className="text-center">
-                  <Plane size={18} className="mx-auto text-gold-soft" />
-                  <p className="mt-2 text-xs text-text-faint">Seyahat</p>
+                <Card className="flex h-full flex-col items-center justify-center text-center">
+                  <Plane size={18} className="text-gold-soft" />
+                  <p className="mt-2 text-xs text-text-faint">Seyahat durumu</p>
                   <p className="mt-0.5 text-sm font-semibold">{TRAVEL_LABELS[musician.isAvailableToTravel]}</p>
                 </Card>
-                <Card className="text-center">
-                  <Star size={18} className="mx-auto text-gold-soft" />
+                <Card className="flex h-full flex-col items-center justify-center text-center">
+                  <Star size={18} className="text-gold-soft" />
                   <p className="mt-2 text-xs text-text-faint">Çalışma şekli</p>
                   <p className="mt-0.5 text-sm font-semibold">
                     {musician.workStatus === 'Both' ? 'Solo & Grup' : WORK_STATUS_LABELS[musician.workStatus]}

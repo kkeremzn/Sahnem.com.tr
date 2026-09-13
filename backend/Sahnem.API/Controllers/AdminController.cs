@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Sahnem.Business.DTOs.Admin;
 using Sahnem.Business.DTOs.Advert;
 using Sahnem.Business.Interfaces;
@@ -119,6 +120,7 @@ namespace Sahnem.API.Controllers
         }
 
         [HttpPost("notifications/broadcast")]
+        [EnableRateLimiting("auth")]
         public async Task<IActionResult> BroadcastNotification([FromBody] AdminBroadcastNotificationDto dto)
         {
             var result = await _adminService.BroadcastNotification(dto);
@@ -126,10 +128,35 @@ namespace Sahnem.API.Controllers
         }
 
         [HttpPost("emails/send")]
+        [EnableRateLimiting("auth")]
         public async Task<IActionResult> SendBulkEmail([FromBody] AdminSendEmailDto dto)
         {
             var result = await _adminService.SendBulkEmail(dto);
             return Ok(result);
+        }
+
+        [HttpPost("users/{id:int}/send-verification-code")]
+        [EnableRateLimiting("auth")]
+        public async Task<IActionResult> SendVerificationCodeToUser(int id)
+        {
+            await _adminService.SendVerificationCodeToUser(id);
+            return Ok();
+        }
+
+        [HttpPost("users/{id:int}/send-reset-code")]
+        [EnableRateLimiting("auth")]
+        public async Task<IActionResult> SendPasswordResetCodeToUser(int id)
+        {
+            await _adminService.SendPasswordResetCodeToUser(id);
+            return Ok();
+        }
+
+        [HttpPut("users/{id:int}/reset-password")]
+        [EnableRateLimiting("auth")]
+        public async Task<IActionResult> ResetUserPassword(int id, [FromBody] AdminResetPasswordDto dto)
+        {
+            await _adminService.ResetUserPasswordDirectly(id, dto.NewPassword);
+            return Ok();
         }
     }
 }

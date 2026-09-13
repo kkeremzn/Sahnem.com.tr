@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Loader2, MapPin, MessageCircle } from 'lucide-react';
 import { InstagramIcon, LinkedinIcon, SpotifyIcon, YoutubeIcon } from '@/components/ui/SocialIcons';
+import { ProfileBanner } from '@/components/brand/ProfileBanner';
 import { Container } from '@/components/ui/Container';
 import { Avatar } from '@/components/ui/Avatar';
 import { Card } from '@/components/ui/Card';
@@ -53,7 +54,7 @@ export function EmployerProfile() {
 
   return (
     <div>
-      <div className="h-40 bg-gradient-to-r from-accent/20 via-deep to-gold-dim/30 sm:h-56" />
+      <ProfileBanner />
       <Container className="relative -mt-14 pb-14 sm:-mt-16">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-end">

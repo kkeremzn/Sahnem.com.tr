@@ -1,5 +1,5 @@
 import { adminApi } from '@/lib/adminApiClient';
-import type { AdminStats, AdminUserDetail, AdminUserFilter, Advert, AppUser, Offer } from '@/types';
+import type { AdminStats, AdminUserDetail, AdminUserFilter, Advert, AppUser, Offer, UserType } from '@/types';
 
 interface PagedResult<T> {
   items: T[];
@@ -88,10 +88,22 @@ export interface BroadcastResult {
   failedCount: number;
 }
 
-export async function broadcastNotification(input: { title: string; body: string; linkTo?: string; userIds?: number[] }): Promise<BroadcastResult> {
+export async function broadcastNotification(input: { title: string; body: string; linkTo?: string; userIds?: number[]; role?: UserType }): Promise<BroadcastResult> {
   return adminApi.post<BroadcastResult>('/admin/notifications/broadcast', input);
 }
 
-export async function sendBulkEmail(input: { subject: string; body: string; userIds?: number[] }): Promise<BroadcastResult> {
+export async function sendBulkEmail(input: { subject: string; body: string; userIds?: number[]; role?: UserType }): Promise<BroadcastResult> {
   return adminApi.post<BroadcastResult>('/admin/emails/send', input);
+}
+
+export async function sendVerificationCodeToUser(id: number): Promise<void> {
+  await adminApi.post(`/admin/users/${id}/send-verification-code`);
+}
+
+export async function sendPasswordResetCodeToUser(id: number): Promise<void> {
+  await adminApi.post(`/admin/users/${id}/send-reset-code`);
+}
+
+export async function resetUserPassword(id: number, newPassword: string): Promise<void> {
+  await adminApi.put(`/admin/users/${id}/reset-password`, { newPassword });
 }

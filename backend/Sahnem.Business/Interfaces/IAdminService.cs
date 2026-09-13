@@ -15,5 +15,8 @@ namespace Sahnem.Business.Interfaces
         Task DeleteMessage(int messageId);
         Task<AdminBroadcastResultDto> BroadcastNotification(AdminBroadcastNotificationDto dto);
         Task<AdminBroadcastResultDto> SendBulkEmail(AdminSendEmailDto dto);
+        Task SendVerificationCodeToUser(int userId);
+        Task SendPasswordResetCodeToUser(int userId);
+        Task ResetUserPasswordDirectly(int userId, string newPassword);
     }
 }
