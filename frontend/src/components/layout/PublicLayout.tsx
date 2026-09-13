@@ -1,4 +1,5 @@
 import { useLocation } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
 import { Navbar } from './Navbar';
 import { Footer } from './Footer';
 import { AppSidebar } from './AppSidebar';
@@ -20,10 +21,24 @@ import { useAuth } from '@/context/AuthContext';
 // sidebar'ı eklemek, giriş yapmış kullanıcı için anlamsız/karışık bir hibrit
 // görünüm oluşturuyordu (pazarlama içeriği + uygulama navigasyonu bir arada).
 export function PublicLayout() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const location = useLocation();
   const isHome = location.pathname === '/';
   const showSidebar = !isHome && !!user && user.isProfileCompleted && user.role !== 'Admin';
+
+  // Oturum durumu (tryRestoreSession) çözülene kadar sidebar'lı/sidebar'sız
+  // hangi düzenin doğru olduğunu bilemiyoruz — önce "çıkış yapmış" düzeni
+  // (sidebar'sız, tam genişlik) çizip sonra giriş yapmış kullanıcı için
+  // sidebar'ı sonradan içeri sokmak, içeriğin (ör. Keşfet'teki kartların)
+  // aniden daralmasına yol açan bir düzen sıçramasına neden oluyordu. Bu
+  // yüzden AppLayout'takiyle aynı desen: sonuç netleşene kadar bekle.
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-black">
+        <Loader2 className="animate-spin text-gold" size={28} />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-black">
