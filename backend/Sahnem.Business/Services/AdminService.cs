@@ -254,8 +254,23 @@ namespace Sahnem.Business.Services
         {
             var message = await _messageRepository.GetByIdAsync(messageId);
             if (message == null) throw new Exception("Message not found");
+
+            var conversationId = message.ConversationId;
             _messageRepository.Delete(message);
             await _unitOfWork.SaveChanges();
+
+            // Silinen mesaj sohbetin son mesajıysa, Conversation.LastMessage/
+            // LastMessageAt eski (artık var olmayan) mesajı göstermeye devam
+            // ederdi — kalan en son mesaja göre yeniden hesaplanıyor.
+            var conversation = await _conversationRepository.GetByIdAsync(conversationId);
+            if (conversation != null)
+            {
+                var remaining = await _messageRepository.WhereAsync(m => m.ConversationId == conversationId);
+                var newest = remaining.OrderByDescending(m => m.CreatedDate).FirstOrDefault();
+                conversation.LastMessage = newest?.Body ?? "";
+                conversation.LastMessageAt = newest?.CreatedDate ?? conversation.CreatedDate;
+                await _unitOfWork.SaveChanges();
+            }
         }
 
         private async Task<List<AppUser>> ResolveTargets(List<int>? userIds)
@@ -289,11 +304,19 @@ namespace Sahnem.Business.Services
         public async Task<AdminBroadcastResultDto> SendBulkEmail(AdminSendEmailDto dto)
         {
             var targets = await ResolveTargets(dto.UserIds);
+            var delivered = 0;
             foreach (var user in targets)
             {
-                await _emailService.SendAsync(user.Email, dto.Subject, dto.Body);
+                if (await _emailService.SendAsync(user.Email, dto.Subject, dto.Body))
+                {
+                    delivered++;
+                }
             }
-            return new AdminBroadcastResultDto { RecipientCount = targets.Count };
+            // RecipientCount artık "kaç kişiye göndermeye çalıştık" değil, "kaçına
+            // gerçekten teslim edildi" anlamına geliyor — önceden hedef sayısı
+            // döndürülüyordu, tek bir Zoho hatası bile sessizce yutulup admin'e
+            // her şey başarılıymış gibi görünüyordu.
+            return new AdminBroadcastResultDto { RecipientCount = delivered, FailedCount = targets.Count - delivered };
         }
     }
 }

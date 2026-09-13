@@ -67,5 +67,29 @@ namespace Sahnem.API.Services
 
             return $"{_settings.PublicUrlBase.TrimEnd('/')}/{key}";
         }
+
+        // Avatar değiştirildiğinde/hesap silindiğinde eski R2 nesnesi hiç
+        // temizlenmiyordu — bucket'ta süresiz artan, kullanılmayan dosyalar
+        // birikiyordu. En iyi çaba (best-effort) temizlik: bilinen public URL
+        // önekiyle başlamıyorsa ya da silme başarısız olursa akışı bozmadan geçilir.
+        public async Task DeleteFileAsync(string publicUrl)
+        {
+            var prefix = $"{_settings.PublicUrlBase.TrimEnd('/')}/";
+            if (string.IsNullOrWhiteSpace(publicUrl) || !publicUrl.StartsWith(prefix))
+            {
+                return;
+            }
+
+            var key = publicUrl[prefix.Length..];
+            try
+            {
+                await _client.DeleteObjectAsync(_settings.Bucket, key);
+            }
+            catch
+            {
+                // Temizlik en iyi çabadır — silme başarısız olsa bile kullanıcı
+                // akışını (avatar değiştirme, hesap silme) kesmemeli.
+            }
+        }
     }
 }

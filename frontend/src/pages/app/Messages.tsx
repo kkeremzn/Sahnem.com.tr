@@ -65,7 +65,14 @@ export function Messages() {
     if (!activeId || !user) return;
     const interval = setInterval(() => {
       messageService.listMessages(activeId).then((fresh) => {
-        setMessages((prev) => (prev.length !== fresh.length ? fresh : prev));
+        setMessages((prev) => {
+          if (prev.length === fresh.length) return prev;
+          // Konuşma açıkken karşı taraftan yeni mesaj geldiğinde backend'deki
+          // okunmamış sayacı artmaya devam ediyordu (sadece ilk açılışta
+          // okundu işaretleniyordu) — sayaç, görüntülenen sohbetle senkron kalsın.
+          messageService.markConversationRead(activeId);
+          return fresh;
+        });
       });
     }, 4000);
     return () => clearInterval(interval);

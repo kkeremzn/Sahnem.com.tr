@@ -22,15 +22,29 @@ const TAB_ITEMS = [
 ];
 
 export function Settings() {
-  const { user, logout } = useAuth();
+  const { user, logout, refreshUser } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [tab, setTab] = useState('notifications');
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [savingCityAlerts, setSavingCityAlerts] = useState(false);
 
   const [notifPrefs, setNotifPrefs] = useState({ offers: true, messages: true, marketing: false });
   const [privacyPrefs, setPrivacyPrefs] = useState({ showProfile: true, showContact: false });
+
+  async function handleCityAlertsToggle(value: boolean) {
+    setSavingCityAlerts(true);
+    try {
+      await authService.updateNotificationPreferences(value);
+      await refreshUser();
+      toast(value ? 'Şehir ilan bildirimleri açıldı.' : 'Şehir ilan bildirimleri kapatıldı.', 'success');
+    } catch (e) {
+      toast(formatApiError(e, 'Tercih güncellenemedi.'), 'error');
+    } finally {
+      setSavingCityAlerts(false);
+    }
+  }
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -73,7 +87,18 @@ export function Settings() {
 
       {tab === 'notifications' && (
         <div className="max-w-xl space-y-3">
-          <p className="text-xs text-text-faint">Bu tercihler yakında aktif olacak, şu an uygulama tüm bildirimleri gönderiyor.</p>
+          {user.role === 'Musician' && (
+            <Card>
+              <Switch
+                checked={user.allowCityAdvertAlerts}
+                disabled={savingCityAlerts}
+                onChange={handleCityAlertsToggle}
+                label="Şehrimde yeni ilan bildirimi"
+                description="Şehrinde yeni bir ilan açıldığında bildirim ve e-posta al."
+              />
+            </Card>
+          )}
+          <p className="text-xs text-text-faint">Aşağıdaki tercihler yakında aktif olacak, şu an uygulama tüm bildirimleri gönderiyor.</p>
           <Card className="divide-y divide-border">
             <div className="pb-4">
               <Switch disabled checked={notifPrefs.offers} onChange={(v) => setNotifPrefs((p) => ({ ...p, offers: v }))} label="Teklif bildirimleri" description="Yeni teklif ve durum değişikliklerinde bildirim al." />

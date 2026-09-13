@@ -13,6 +13,7 @@ export interface AppUser {
   isProfileCompleted: boolean;
   isActive: boolean;
   avatarUrl?: string;
+  allowCityAdvertAlerts: boolean;
   createdDate: string;
 }
 

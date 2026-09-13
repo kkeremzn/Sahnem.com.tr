@@ -63,7 +63,11 @@ namespace Sahnem.Business.Services
             }
             if (user.IsProfileCompleted)
             {
-                throw new Exception("Profile already exists");               
+                throw new Exception("Profile already exists");
+            }
+            if (!user.IsEmailConfirmed)
+            {
+                throw new Exception("Please verify your email before completing your profile");
             }
 
 
@@ -101,6 +105,10 @@ namespace Sahnem.Business.Services
             {
                 throw new Exception("Profile already exists");
             }
+            if (!user.IsEmailConfirmed)
+            {
+                throw new Exception("Please verify your email before completing your profile");
+            }
 
             var organizer = _mapper.Map<OrganizerProfile>(dto);
             organizer.AppUserId = user.Id;
@@ -129,6 +137,10 @@ namespace Sahnem.Business.Services
             if (user.IsProfileCompleted)
             {
                 throw new Exception("Profile already exists");
+            }
+            if (!user.IsEmailConfirmed)
+            {
+                throw new Exception("Please verify your email before completing your profile");
             }
 
             var venue = _mapper.Map<VenueProfile>(dto);
@@ -218,10 +230,19 @@ namespace Sahnem.Business.Services
             {
                 if (!string.IsNullOrWhiteSpace(filter.Search))
                 {
+                    // Arama kutusu "isim/tür" bekletiyordu ama sadece Genres/Bio
+                    // içinde arıyordu, müzisyenin adı hiç dahil değildi.
                     var search = filter.Search.Trim().ToLowerInvariant();
+                    var candidateUserIds = musicians.Select(m => m.AppUserId).ToList();
+                    var candidateUsers = await _userRepository.WhereAsync(u => candidateUserIds.Contains(u.Id));
+                    var nameMatchIds = candidateUsers
+                        .Where(u => $"{u.FirstName} {u.LastName}".ToLowerInvariant().Contains(search))
+                        .Select(u => u.Id)
+                        .ToHashSet();
                     musicians = musicians.Where(m =>
                         m.Genres.ToLowerInvariant().Contains(search) ||
-                        m.Bio.ToLowerInvariant().Contains(search));
+                        m.Bio.ToLowerInvariant().Contains(search) ||
+                        nameMatchIds.Contains(m.AppUserId));
                 }
                 if (filter.Branch.HasValue)
                 {
@@ -304,6 +325,17 @@ namespace Sahnem.Business.Services
             var organizers = (await _organizerProfileRepository.GetAllAsync()).AsEnumerable();
             var venues = (await _venueProfileRepository.GetAllAsync()).AsEnumerable();
 
+            if (filter?.City is { } cityFilter)
+            {
+                // Mekan tek bir fiziksel konuma bağlı (AdditionalCities yok), ama
+                // organizatör müzisyen gibi ek şehirlerde de hizmet verebiliyor —
+                // filtre bunu dikkate almazsa organizatörün ek şehirlerinden biri
+                // aranınca hiç bulunamıyordu.
+                organizers = organizers.Where(o =>
+                    o.City == cityFilter || MultiEnumField.Parse<City>(o.AdditionalCities).Contains(cityFilter));
+                venues = venues.Where(v => v.City == cityFilter);
+            }
+
             var combined = organizers.Select(o => new EmployerSummaryDto
             {
                 AppUserId = o.AppUserId,
@@ -332,10 +364,6 @@ namespace Sahnem.Business.Services
                     combined = combined.Where(e =>
                         e.Name.ToLowerInvariant().Contains(search) ||
                         e.Bio.ToLowerInvariant().Contains(search));
-                }
-                if (filter.City.HasValue)
-                {
-                    combined = combined.Where(e => e.City == filter.City.Value);
                 }
             }
 

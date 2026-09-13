@@ -33,14 +33,14 @@ namespace Sahnem.Business.Email
             _logger = logger;
         }
 
-        public async Task SendAsync(string toEmail, string subject, string htmlBody)
+        public async Task<bool> SendAsync(string toEmail, string subject, string htmlBody)
         {
             if (string.IsNullOrWhiteSpace(_settings.RefreshToken) || string.IsNullOrWhiteSpace(_settings.ClientId))
             {
                 _logger.LogWarning(
                     "Zoho API ayarlanmamış, '{Subject}' e-postası {ToEmail} adresine gönderilmedi.",
                     subject, toEmail);
-                return;
+                return false;
             }
 
             try
@@ -65,12 +65,15 @@ namespace Sahnem.Business.Email
                 {
                     var body = await response.Content.ReadAsStringAsync();
                     _logger.LogError("Zoho Mail API gönderimi başarısız ({Status}): {Body}", response.StatusCode, body);
+                    return false;
                 }
+                return true;
             }
             catch (Exception ex)
             {
                 // E-posta gönderiminin başarısız olması iş akışını (kayıt, teklif vb.) kesmemeli.
                 _logger.LogError(ex, "Zoho Mail API gönderimi sırasında beklenmeyen hata.");
+                return false;
             }
         }
 

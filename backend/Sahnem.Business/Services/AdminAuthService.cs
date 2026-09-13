@@ -134,7 +134,7 @@ namespace Sahnem.Business.Services
                 }
             }
 
-            admin.PasswordResetCode = Random.Shared.Next(100000, 999999).ToString();
+            admin.PasswordResetCode = SecureCodeGenerator.SixDigitCode();
             admin.PasswordResetCodeExpiresAt = DateTime.UtcNow.AddMinutes(15);
             admin.PasswordResetCodeSentAt = DateTime.UtcNow;
             await _unitOfWork.SaveChanges();

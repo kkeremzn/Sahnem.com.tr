@@ -71,6 +71,14 @@ namespace Sahnem.DataAccess.Contexts
             .Property(o => o.ProposedPrice)
             .HasPrecision(18, 2);
 
+            // Uygulama katmanındaki "aynı ilana aynı müzisyen birden fazla teklif
+            // veremez" kuralı sadece bir SELECT ile kontrol ediliyordu — eşzamanlı
+            // iki istek arada bu kontrolü geçip mükerrer kayıt oluşturabilirdi.
+            // DB seviyesinde kesin garanti için unique index.
+            modelBuilder.Entity<Offer>()
+            .HasIndex(o => new { o.AdvertId, o.MusicianId })
+            .IsUnique();
+
             // Refresh token - kullanıcı ilişkisi
             modelBuilder.Entity<RefreshToken>()
             .HasOne(r => r.AppUser)

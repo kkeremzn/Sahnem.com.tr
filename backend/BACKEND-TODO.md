@@ -53,6 +53,35 @@ Tüm bu değişiklikler `dotnet build` ile hatasız derlendi, tek bir migration'
 - Migration'lar artık deploy'da otomatik uygulanıyor (`db.Database.Migrate()` startup'ta) — elle `dotnet ef database update` gerekmiyor.
 - `DeleteUser` düzeltildi — daha önce ilişkili kayıtları (teklif/ilan/mesaj/favori/bildirim/refresh token) temizlemediği için her zaman 500 veriyordu.
 
+## ✅ 2026-09-13 turunda tamamlananlar (doğruluk/dayanıklılık düzeltmeleri)
+
+- İlan iptal edilince üzerindeki bekleyen teklifler artık otomatik reddediliyor
+  (önceden iptal edilmiş bir ilana hâlâ "Pending" bir teklif kabul edilebiliyordu).
+  `UpdateOfferStatus` artık ilanın hâlâ `Open` olduğunu da kontrol ediyor.
+- Teklif oluşturmada son başvuru tarihi artık backend'de de zorunlu.
+- Aynı ilana aynı müzisyenin birden fazla teklif vermesine karşı DB seviyesinde
+  unique index eklendi (önceden sadece uygulama katmanında kontrol ediliyordu).
+- Profil oluşturma uçları artık `IsEmailConfirmed` kontrolü yapıyor (önceden
+  sadece frontend'deki route guard'a güveniliyordu).
+- Askıya alınan bir hesabın mevcut access token'ı artık her istekte kontrol
+  ediliyor — önceden sadece refresh token iptal ediliyordu, mevcut token süresi
+  (60 dk'ya kadar) dolana kadar geçerli kalabiliyordu.
+- Şifre değiştirme (ChangePassword) artık şifre sıfırlama gibi tüm refresh
+  token'ları iptal ediyor.
+- Doğrulama/sıfırlama kodları artık `Random.Shared` yerine kriptografik RNG ile üretiliyor.
+- Teklif/ilan e-postalarındaki kullanıcı girdisi (ilan başlığı, isim vb.) artık
+  HTML-encode ediliyor — önceden ham haliyle e-posta içeriğine ekleniyordu.
+- `GetMyAdverts`/`GetAdvertById`: ilan sahibi artık kendi iptal ettiği ilanı da
+  görebiliyor (önceden herkese açık görünümle aynı kural uygulanıp "bulunamadı" dönüyordu).
+- Müzisyen aramasına isim de dahil edildi (önceden sadece branş/biyografi
+  içinde aranıyordu); organizatör keşfinde ek şehirler de filtreye dahil edildi.
+- Admin toplu e-posta gönderimi artık gerçek teslim sayısını raporluyor (önceden
+  hedef sayısını "başarıyla gönderildi" gibi gösteriyordu).
+- Avatar değiştirildiğinde/hesap silindiğinde eski R2 dosyası temizleniyor.
+- `/health` artık gerçek bir DB bağlantı kontrolü yapıyor (önceden sabit yanıt dönüyordu).
+- Kullanıcı, kayıt sırasında verdiği "şehrimde yeni ilan açılınca bildir" iznini
+  artık Ayarlar sayfasından değiştirebiliyor.
+
 ## Kalan işler (öncelik sırasına göre)
 
 ### P3 — production olgunluğu

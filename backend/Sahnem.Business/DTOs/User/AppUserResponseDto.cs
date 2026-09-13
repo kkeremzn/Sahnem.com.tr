@@ -16,6 +16,7 @@ namespace Sahnem.Business.DTOs.User
         public bool IsPhoneNumberConfirmed{get; set;}
         public bool IsProfileCompleted{get; set;}
         public bool IsActive{get; set;}
+        public bool AllowCityAdvertAlerts{get; set;}
         public DateTime CreatedDate{get; set;}
     }
 

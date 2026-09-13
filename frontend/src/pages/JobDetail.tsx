@@ -22,7 +22,7 @@ import { formatDate, formatPrice } from '@/lib/format';
 import { formatApiError } from '@/lib/apiClient';
 
 const offerSchema = z.object({
-  message: z.string().min(10, 'Mesajın en az 10 karakter olmalı.'),
+  message: z.string().min(10, 'Mesajın en az 10 karakter olmalı.').max(500, 'Mesajın en fazla 500 karakter olabilir.'),
   proposedPrice: z.coerce.number().min(1, 'Geçerli bir fiyat gir.'),
 });
 type OfferFormInput = z.input<typeof offerSchema>;
@@ -158,7 +158,7 @@ export function JobDetail() {
                     <Send size={14} /> Teklif Gönder
                   </h4>
                   <Field label="Mesajın" error={errors.message?.message}>
-                    <Textarea placeholder="Kendini tanıt, neden uygun olduğunu anlat..." rows={4} {...register('message')} invalid={!!errors.message} />
+                    <Textarea placeholder="Kendini tanıt, neden uygun olduğunu anlat..." rows={4} maxLength={500} {...register('message')} invalid={!!errors.message} />
                   </Field>
                   <Field label="Teklif ettiğin fiyat (₺)" error={errors.proposedPrice?.message}>
                     <Input type="number" placeholder="15000" {...register('proposedPrice')} invalid={!!errors.proposedPrice} />

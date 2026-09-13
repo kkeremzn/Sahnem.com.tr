@@ -15,6 +15,7 @@ namespace Sahnem.Business.Interfaces
             bool? isActive = null, bool? isEmailConfirmed = null);
         Task<TokenPairDto> RegisterUser(AppUserRegisterDto userRegisterDto);
         Task UpdateUser(AppUserUpdateDto userUpdateDto);
+        Task UpdateNotificationPreferences(UpdateNotificationPreferencesDto dto);
         Task ChangePassword(ChangePasswordDto dto);
         Task DeleteUser();
         Task AdminDeleteUser(int userId);

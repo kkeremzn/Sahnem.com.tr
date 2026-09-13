@@ -63,8 +63,8 @@ namespace Sahnem.Business.Validators.Advert
 
             RuleFor(x=> x.Budget)
             .Cascade(CascadeMode.Stop)
-            .NotEmpty()
-            .WithMessage("Budget can not be empty");
+            .GreaterThan(0)
+            .WithMessage("Budget must be greater than 0");
 
 
             RuleFor(x=> x.MinimumExperienceYears)

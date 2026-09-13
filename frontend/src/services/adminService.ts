@@ -85,6 +85,7 @@ export async function deleteMessage(id: number): Promise<void> {
 
 export interface BroadcastResult {
   recipientCount: number;
+  failedCount: number;
 }
 
 export async function broadcastNotification(input: { title: string; body: string; linkTo?: string; userIds?: number[] }): Promise<BroadcastResult> {

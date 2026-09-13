@@ -6,5 +6,6 @@ namespace Sahnem.Business.Interfaces
     public interface IFileStorageService
     {
         Task<string> SaveFileAsync(Stream content, string fileName, string subFolder);
+        Task DeleteFileAsync(string publicUrl);
     }
 }

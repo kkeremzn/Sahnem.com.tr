@@ -1,3 +1,4 @@
+using System.Net;
 using AutoMapper;
 using FluentValidation;
 using Sahnem.Business.DTOs.Offer;
@@ -73,6 +74,10 @@ namespace Sahnem.Business.Services
             {
                 throw new Exception("This advert is not accepting offers anymore");
             }
+            if (advert.ApplicationDeadline < DateTime.UtcNow)
+            {
+                throw new Exception("The application deadline for this advert has passed");
+            }
 
             var musicianId = _currentUserService.UserId;
 
@@ -105,8 +110,8 @@ namespace Sahnem.Business.Services
                 await _emailService.SendAsync(
                     advertOwner.Email,
                     "İlanınıza yeni teklif geldi — Sahnem",
-                    $"<p>Merhaba {advertOwner.FirstName},</p>" +
-                    $"<p><strong>{musicianName}</strong>, <strong>\"{advert.Title}\"</strong> ilanınıza teklif gönderdi.</p>" +
+                    $"<p>Merhaba {WebUtility.HtmlEncode(advertOwner.FirstName)},</p>" +
+                    $"<p><strong>{WebUtility.HtmlEncode(musicianName)}</strong>, <strong>\"{WebUtility.HtmlEncode(advert.Title)}\"</strong> ilanınıza teklif gönderdi.</p>" +
                     $"<p><a href=\"https://sahnem.com.tr/my-adverts/{advert.Id}\">Teklifi görüntüle</a></p>");
             }
 
@@ -180,6 +185,13 @@ namespace Sahnem.Business.Services
             {
                 throw new Exception("This offer has already been responded to");
             }
+            // Teklif hâlâ Pending görünse bile ilan iptal/kapanmış olabilir (ör.
+            // ilan sahibi başka bir teklifi kabul etti ya da ilanı iptal etti) —
+            // böyle bir ilana artık kabul/red yanıtı verilememeli.
+            if (advert.Status != AdvertStatus.Open)
+            {
+                throw new Exception("This advert is no longer open, so its offers can't be responded to");
+            }
 
             offer.OfferStatus = status;
 
@@ -216,13 +228,14 @@ namespace Sahnem.Business.Services
             var offerMusicianUser = await _userRepository.GetByIdAsync(offer.MusicianId);
             if (offerMusicianUser != null)
             {
+                var safeTitle = WebUtility.HtmlEncode(advert.Title);
                 await _emailService.SendAsync(
                     offerMusicianUser.Email,
                     accepted ? "Teklifiniz kabul edildi — Sahnem" : "Teklifiniz reddedildi — Sahnem",
-                    $"<p>Merhaba {offerMusicianUser.FirstName},</p>" +
+                    $"<p>Merhaba {WebUtility.HtmlEncode(offerMusicianUser.FirstName)},</p>" +
                     (accepted
-                        ? $"<p><strong>\"{advert.Title}\"</strong> ilanına gönderdiğiniz teklif kabul edildi. Tebrikler!</p>"
-                        : $"<p><strong>\"{advert.Title}\"</strong> ilanına gönderdiğiniz teklif reddedildi.</p>") +
+                        ? $"<p><strong>\"{safeTitle}\"</strong> ilanına gönderdiğiniz teklif kabul edildi. Tebrikler!</p>"
+                        : $"<p><strong>\"{safeTitle}\"</strong> ilanına gönderdiğiniz teklif reddedildi.</p>") +
                     $"<p><a href=\"https://sahnem.com.tr/offers/{offer.Id}\">Teklifi görüntüle</a></p>");
             }
 

@@ -146,6 +146,14 @@ namespace Sahnem.API.Controllers
         }
 
         [Authorize]
+        [HttpPut("notification-preferences")]
+        public async Task<IActionResult> UpdateNotificationPreferences(UpdateNotificationPreferencesDto dto)
+        {
+            await _userService.UpdateNotificationPreferences(dto);
+            return Ok();
+        }
+
+        [Authorize]
         [HttpPut("change-password")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
         {

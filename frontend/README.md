@@ -7,39 +7,34 @@ Sahnem'i müzisyenlerle organizatör/mekanları buluşturan platformun web aray�
 ```bash
 cd frontend
 npm install
+cp .env.example .env   # VITE_API_URL'i kendi backend adresine göre ayarla
 npm run dev      # http://localhost:5173
 npm run build    # production build (dist/)
 ```
 
-## Demo giriş bilgileri
+## Backend entegrasyonu
 
-Backend henüz hazır olmadığı için tüm veriler `localStorage` destekli bir mock katmanından geliyor (bkz. "Mimari" bölümü). Seed'lenmiş kullanıcılardan biriyle giriş yapabilirsin:
+Mock/localStorage katmanı kaldırıldı — uygulama gerçek backend API'sine (`.env`'deki `VITE_API_URL`) bağlanır. Yerel geliştirme için backend'i ayrıca çalıştırman gerekir (bkz. `backend/README` yoksa proje kökündeki `LAUNCH-READINESS.md`); üretimde `VITE_API_URL` canlı API adresine (`https://api.sahnem.com.tr/api`) işaret eder.
 
-- **Müzisyen:** `elif@sahnem.com`
-- **Organizatör:** `bosphorus@sahnem.com`
-- **Mekan:** `zorlupsm@sahnem.com`
-- **Şifre (hepsi için):** `sahnem123`
-
-Veya `/register` üzerinden yeni bir hesap oluşturup profil kurulum sihirbazını deneyebilirsin. Farklı bir seed durumuyla baştan başlamak istersen tarayıcı konsolunda `localStorage.clear()` çalıştırıp sayfayı yenilemen yeterli.
+Yeni bir hesap oluşturmak için `/register` üzerinden kayıt olup e-postanı doğrulayarak profil kurulum sihirbazını tamamlayabilirsin.
 
 ## Mimari
 
 ```
 src/
   types/       Backend enum/DTO'larıyla birebir eşleşen TypeScript tipleri
-  mocks/       Zengin, gerçekçi Türkçe seed veri (81 il, 18 müzik dalı, ...)
-  services/    Async fonksiyonlar (authService, advertService, offerService, ...) —
-               şu an mock veriyi localStorage'a okuyup yazıyor, backend hazır olunca
-               içleri fetch() ile değiştirilecek; dışa açık imzalar aynı kalacak
-  context/     AuthContext (oturum), ToastContext (bildirimler)
-  components/  layout/ (Navbar, Footer, Sidebar, layout kabukları) + ui/ (buton, kart,
-               form alanları, modal, sekme vb. tekrar kullanılabilir bileşenler)
-  pages/       Sayfa bileşenleri (public sayfalar, auth/, app/ altında panel sayfaları)
+  services/    Backend API'sine fetch() ile bağlanan servis fonksiyonları
+               (authService, advertService, offerService, profileService, ...)
+  context/     AuthContext (oturum), ToastContext, NotificationContext
+  components/  layout/ (Navbar, Footer, Sidebar) + ui/ (buton, kart, form
+               alanları, modal, sekme vb. tekrar kullanılabilir bileşenler)
+  pages/       Sayfa bileşenleri (public sayfalar, auth/, app/ altında panel
+               sayfaları, admin/ altında yönetim paneli)
   router.tsx   Tüm route tanımları
 ```
 
 Marka kimliği (mor #B14EFF + cyan #5CC8DB, Syne + Inter, dark tema) `src/index.css` içindeki Tailwind `@theme` bloğunda tanımlı.
 
-## Backend entegrasyonu
+## Yönetim paneli
 
-Backend'de eksik olan uçlar ve öncelik sırası için bkz. [`backend/BACKEND-TODO.md`](../backend/BACKEND-TODO.md). Backend'de CORS + `AdvertController`/`OfferController` hazır olduğunda `src/services/*.ts` içindeki mock okuma/yazma çağrıları `fetch(...)` ile değiştirilecek; sayfa bileşenlerinde değişiklik gerekmeyecek şekilde tasarlandı.
+Admin panelinin kendi ayrı girişi var: `/backstage/login`. Tüketici (musician/organizer/venue) hesaplarından tamamen bağımsız bir kimlik doğrulama şeması kullanır.

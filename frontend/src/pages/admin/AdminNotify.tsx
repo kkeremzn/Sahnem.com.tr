@@ -73,7 +73,11 @@ export function AdminNotify() {
         setResult(`${res.recipientCount} kullanıcıya bildirim gönderildi.`);
       } else {
         const res = await adminService.sendBulkEmail({ subject: title, body, userIds });
-        setResult(`${res.recipientCount} kullanıcıya e-posta gönderildi.`);
+        setResult(
+          res.failedCount > 0
+            ? `${res.recipientCount} kullanıcıya e-posta gönderildi, ${res.failedCount} tanesi başarısız oldu.`
+            : `${res.recipientCount} kullanıcıya e-posta gönderildi.`,
+        );
       }
       setTitle(''); setBody(''); setLinkTo('');
     } catch {

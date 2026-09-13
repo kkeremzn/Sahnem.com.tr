@@ -1,6 +1,11 @@
 @Sahnem.API_HostAddress = http://localhost:5283
 
-GET {{Sahnem.API_HostAddress}}/weatherforecast/
+GET {{Sahnem.API_HostAddress}}/health
+Accept: application/json
+
+###
+
+GET {{Sahnem.API_HostAddress}}/api/advert/getall
 Accept: application/json
 
 ###

@@ -1,3 +1,4 @@
+using System.Net;
 using AutoMapper;
 using FluentValidation;
 using Sahnem.Business.DTOs;
@@ -117,8 +118,8 @@ namespace Sahnem.Business.Services
                 await _emailService.SendAsync(
                     user.Email,
                     "Şehrinde yeni bir ilan var — Sahnem",
-                    $"<p>Merhaba {user.FirstName},</p>" +
-                    $"<p><strong>{advert.City}</strong> için yeni bir ilan yayınlandı: <strong>{advert.Title}</strong></p>" +
+                    $"<p>Merhaba {WebUtility.HtmlEncode(user.FirstName)},</p>" +
+                    $"<p><strong>{advert.City}</strong> için yeni bir ilan yayınlandı: <strong>{WebUtility.HtmlEncode(advert.Title)}</strong></p>" +
                     $"<p><a href=\"https://sahnem.com.tr/jobs/{advert.Id}\">İlanı görüntüle</a></p>" +
                     "<p style=\"color:#888;font-size:12px\">Bu bildirimleri profil ayarlarından kapatabilirsin.</p>");
             }
@@ -156,7 +157,34 @@ namespace Sahnem.Business.Services
             }
 
             advert.Status = AdvertStatus.Cancelled;
+
+            // İptal edilen ilan üzerindeki bekleyen teklifler cevapsız kalmamalı —
+            // aksi halde ilan iptal edilmiş olsa bile bir teklif hâlâ "Pending"
+            // görünüp sonradan (tutarsız biçimde) kabul edilebiliyordu.
+            var pendingOffers = await _offerRepository.WhereAsync(
+                o => o.AdvertId == advert.Id && o.OfferStatus == OfferStatus.Pending);
+            foreach (var offer in pendingOffers)
+            {
+                offer.OfferStatus = OfferStatus.Rejected;
+            }
+
             await _unitOfWork.SaveChanges();
+
+            foreach (var offer in pendingOffers)
+            {
+                await _notificationRepository.AddAsync(new Notification
+                {
+                    UserId = offer.MusicianId,
+                    Type = "offer",
+                    Title = "Teklifiniz reddedildi",
+                    Body = $"\"{advert.Title}\" ilanı iptal edildiği için teklifiniz otomatik olarak reddedildi.",
+                    LinkTo = $"/offers/{offer.Id}",
+                });
+            }
+            if (pendingOffers.Any())
+            {
+                await _unitOfWork.SaveChanges();
+            }
         }
 
 
@@ -164,7 +192,11 @@ namespace Sahnem.Business.Services
         public async Task<AdvertResponseDto> GetAdvertById(int advertId, bool asAdmin = false)
         {
             var advert = await _advertRepository.GetByIdAsync(advertId);
-            if(advert == null || (advert.Status == AdvertStatus.Cancelled && !asAdmin))
+            // İptal edilmiş bir ilan herkese açık görünümden gizlenir, ama sahibi
+            // (ve admin) kendi ilanının geçmişini görebilmeli — aksi halde ilanını
+            // iptal eden kullanıcı kendi ilanına "bulunamadı" hatası alıyordu.
+            var isOwner = advert != null && _currentUserService.IsAuthenticated && advert.CreatorId == _currentUserService.UserId;
+            if (advert == null || (advert.Status == AdvertStatus.Cancelled && !asAdmin && !isOwner))
             {
                 throw new Exception("Advert not found");
             }
@@ -250,8 +282,11 @@ namespace Sahnem.Business.Services
 
         public async Task<IEnumerable<AdvertResponseDto>> GetMyAdverts()
         {
+            // Sahibi kendi ilan geçmişinin tamamını (iptal edilenler dahil)
+            // görebilmeli — bu, herkese açık listelerdeki (GetAllAdvert) iptal
+            // edilmiş ilanları gizleme kuralından ayrı, sahibe özel bir görünüm.
             var creatorId = _currentUserService.UserId;
-            var adverts = await _advertRepository.WhereAsync(a=> a.CreatorId == creatorId && a.Status != AdvertStatus.Cancelled);
+            var adverts = await _advertRepository.WhereAsync(a => a.CreatorId == creatorId);
             if (!adverts.Any())
             {
                 return Enumerable.Empty<AdvertResponseDto>();

@@ -51,6 +51,10 @@ export async function updateUser(input: AppUserUpdateInput): Promise<void> {
   await api.put('/user/update', input);
 }
 
+export async function updateNotificationPreferences(allowCityAdvertAlerts: boolean): Promise<void> {
+  await api.put('/user/notification-preferences', { allowCityAdvertAlerts });
+}
+
 export async function changePassword(currentPassword: string, newPassword: string): Promise<void> {
   await api.put('/user/change-password', { currentPassword, newPassword });
 }

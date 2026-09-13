@@ -19,5 +19,6 @@ namespace Sahnem.Business.DTOs.Admin
     public class AdminBroadcastResultDto
     {
         public int RecipientCount { get; set; }
+        public int FailedCount { get; set; }
     }
 }

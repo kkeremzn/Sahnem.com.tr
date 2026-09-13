@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
@@ -128,6 +129,31 @@ builder.Services.AddAuthentication(options =>
             ),
             ClockSkew = TimeSpan.Zero
         };
+        // Askıya alınan bir hesabın erişimi yalnızca refresh token iptaliyle
+        // kesiliyordu — mevcut access token'ı (60 dk'ya kadar) hâlâ geçerli
+        // kalıyordu, admin panelinin "hesap hemen kilitlenir" iddiasıyla
+        // çelişiyordu. Her istekte tek bir ek DB okumasıyla anlık kontrol.
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = async context =>
+            {
+                var userIdClaim = context.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (userIdClaim == null || !int.TryParse(userIdClaim, out var userId))
+                {
+                    context.Fail("Invalid token");
+                    return;
+                }
+                var dbContext = context.HttpContext.RequestServices.GetRequiredService<SahnemDbContext>();
+                var isActive = await dbContext.Users
+                    .Where(u => u.Id == userId)
+                    .Select(u => (bool?)u.IsActive)
+                    .FirstOrDefaultAsync();
+                if (isActive != true)
+                {
+                    context.Fail("This account has been suspended");
+                }
+            },
+        };
     }
 
 // Admin panelinin kendi JWT şeması — ayrı bir imzalama anahtarıyla doğrulanıyor,
@@ -248,11 +274,21 @@ app.UseAuthorization();
 app.UseRateLimiter();
 app.MapControllers();
 
-app.MapGet("/health", () => Results.Ok(new
+// Önceden sabit bir yanıt döndürüyordu — veritabanı bağlantısı kopsa bile
+// "ok" derdi. Artık gerçek bir sorgu deniyor; R2/Zoho'yu her istekte kontrol
+// etmiyoruz (maliyetli ve deploy sağlığı için asıl kritik olan DB).
+app.MapGet("/health", async (SahnemDbContext db) =>
 {
-    status = "ok",
-    service = "Sahnem API"
-}));
+    try
+    {
+        await db.Database.CanConnectAsync();
+        return Results.Ok(new { status = "ok", service = "Sahnem API", database = "ok" });
+    }
+    catch
+    {
+        return Results.Json(new { status = "degraded", service = "Sahnem API", database = "unreachable" }, statusCode: 503);
+    }
+});
 
 app.Run();
 

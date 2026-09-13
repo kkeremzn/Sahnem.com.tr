@@ -35,6 +35,7 @@ namespace Sahnem.Business.Services
         private readonly ITokenService _tokenService;
         private readonly IEmailService _emailService;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IFileStorageService _fileStorageService;
 
 
         public UserService(
@@ -58,7 +59,8 @@ namespace Sahnem.Business.Services
             IPasswordService passwordService,
             ITokenService tokenService,
             IEmailService emailService,
-            ICurrentUserService currentUserService)
+            ICurrentUserService currentUserService,
+            IFileStorageService fileStorageService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -81,6 +83,7 @@ namespace Sahnem.Business.Services
             _tokenService = tokenService;
             _emailService = emailService;
             _currentUserService = currentUserService;
+            _fileStorageService = fileStorageService;
         }
 
 
@@ -302,8 +305,15 @@ namespace Sahnem.Business.Services
                 _refreshTokenRepository.Delete(refreshToken);
             }
 
+            var avatarUrl = user.AvatarUrl;
+
             _repository.Delete(user);
             await _unitOfWork.SaveChanges();
+
+            if (!string.IsNullOrWhiteSpace(avatarUrl))
+            {
+                await _fileStorageService.DeleteFileAsync(avatarUrl);
+            }
         }
 
         public async Task<TokenPairDto> LoginUser(AppUserLoginDto userLoginDto)
@@ -358,8 +368,29 @@ namespace Sahnem.Business.Services
                 throw new Exception("User not found");
             }
 
+            // Avatar değiştiriliyorsa eski R2 nesnesi bucket'ta öksüz kalmasın diye
+            // temizleniyor. Kaydı önce yapıp temizliği sonra yapıyoruz ki silme
+            // sırasında bir hata olursa yeni avatar zaten kalıcı olmuş olsun.
+            var previousAvatarUrl = user.AvatarUrl;
+
             _mapper.Map(dto, user);
             user.PhoneNumber = NormalizePhoneNumber(user.PhoneNumber);
+            await _unitOfWork.SaveChanges();
+
+            if (!string.IsNullOrWhiteSpace(previousAvatarUrl) && previousAvatarUrl != user.AvatarUrl)
+            {
+                await _fileStorageService.DeleteFileAsync(previousAvatarUrl);
+            }
+        }
+
+        public async Task UpdateNotificationPreferences(UpdateNotificationPreferencesDto dto)
+        {
+            var user = await _repository.GetByIdAsync(_currentUserService.UserId);
+            if (user == null)
+            {
+                throw new Exception("User not found");
+            }
+            user.AllowCityAdvertAlerts = dto.AllowCityAdvertAlerts;
             await _unitOfWork.SaveChanges();
         }
 
@@ -390,6 +421,17 @@ namespace Sahnem.Business.Services
             }
 
             user.PasswordHash = _passwordService.HashPassword(user, dto.NewPassword);
+
+            // Şifre sıfırlamada (ResetPassword) tüm cihazlardaki oturumlar iptal
+            // ediliyordu ama normal şifre değiştirmede unutulmuştu — çalınmış bir
+            // refresh token, kullanıcı şifresini kendi oturumundan değiştirse bile
+            // geçerli kalabiliyordu.
+            var tokens = await _refreshTokenRepository.WhereAsync(t => t.AppUserId == user.Id);
+            foreach (var token in tokens)
+            {
+                _refreshTokenRepository.Delete(token);
+            }
+
             await _unitOfWork.SaveChanges();
         }
 
@@ -475,7 +517,7 @@ namespace Sahnem.Business.Services
         {
             // Yeni kod üretildiği an eski kod otomatik geçersiz sayılır — VerifyEmail
             // her zaman user.EmailVerificationCode'daki GÜNCEL değerle karşılaştırıyor.
-            user.EmailVerificationCode = Random.Shared.Next(100000, 999999).ToString();
+            user.EmailVerificationCode = SecureCodeGenerator.SixDigitCode();
             user.EmailVerificationCodeExpiresAt = DateTime.UtcNow.AddMinutes(15);
             user.EmailVerificationCodeSentAt = DateTime.UtcNow;
         }
@@ -510,7 +552,7 @@ namespace Sahnem.Business.Services
                 }
             }
 
-            user.PasswordResetCode = Random.Shared.Next(100000, 999999).ToString();
+            user.PasswordResetCode = SecureCodeGenerator.SixDigitCode();
             user.PasswordResetCodeExpiresAt = DateTime.UtcNow.AddMinutes(15);
             user.PasswordResetCodeSentAt = DateTime.UtcNow;
             await _unitOfWork.SaveChanges();
