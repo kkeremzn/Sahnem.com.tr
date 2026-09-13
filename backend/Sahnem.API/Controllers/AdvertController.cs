@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Sahnem.Business.DTOs.Advert;
 using Sahnem.Business.Interfaces;
 
@@ -41,6 +42,7 @@ namespace Sahnem.API.Controllers
 
         [Authorize(Roles = "Organizer,Venue")]
         [Authorize(Policy = "ProfileCompleted")]
+        [EnableRateLimiting("authenticated-write")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateAdvert([FromBody] AdvertCreateDto advertCreateDto)
         {

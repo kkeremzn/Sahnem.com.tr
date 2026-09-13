@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sahnem.Business.Interfaces;
+using Sahnem.Business.Security;
 
 namespace Sahnem.API.Controllers
 {
@@ -19,10 +20,12 @@ namespace Sahnem.API.Controllers
         private const long MaxFileSizeBytes = 5 * 1024 * 1024; // 5 MB
 
         private readonly IFileStorageService _fileStorageService;
+        private readonly ICurrentUserService _currentUserService;
 
-        public UploadController(IFileStorageService fileStorageService)
+        public UploadController(IFileStorageService fileStorageService, ICurrentUserService currentUserService)
         {
             _fileStorageService = fileStorageService;
+            _currentUserService = currentUserService;
         }
 
         // Profil fotoğrafı / logo yükleme. Dönen relatif URL, kullanıcı/profil
@@ -57,7 +60,13 @@ namespace Sahnem.API.Controllers
             }
             stream.Position = 0;
 
-            var url = await _fileStorageService.SaveFileAsync(stream, $"avatar{extension}", "avatars");
+            // Kullanıcı bazlı alt klasör kasıtlı — AvatarUrl istemciden serbest
+            // metin olarak kabul edildiği için (bkz. AppUserUpdateDto), bu yol
+            // segmenti olmadan bir kullanıcı başka birinin (herkese açık profilde
+            // zaten görünen) avatar URL'ini kendi AvatarUrl'i olarak gönderip,
+            // sonra değiştirip UserService'teki "eski avatarı R2'den temizle"
+            // mantığını kullanarak o kişinin gerçek dosyasını sildirebilirdi.
+            var url = await _fileStorageService.SaveFileAsync(stream, $"avatar{extension}", $"avatars/{_currentUserService.UserId}");
 
             return Ok(new { url });
         }

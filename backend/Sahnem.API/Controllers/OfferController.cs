@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Sahnem.Business.DTOs.Offer;
 using Sahnem.Business.Interfaces;
 
@@ -18,6 +19,7 @@ namespace Sahnem.API.Controllers
 
         [Authorize(Roles = "Musician")]
         [Authorize(Policy = "ProfileCompleted")]
+        [EnableRateLimiting("authenticated-write")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateOffer([FromBody] OfferCreateDto dto)
         {

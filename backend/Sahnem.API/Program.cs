@@ -228,6 +228,29 @@ builder.Services.AddRateLimiter(options =>
             QueueLimit = 0,
         });
     });
+
+    // İlan/teklif/mesaj oluşturma gibi giriş yapmış kullanıcının tekrarlayabildiği
+    // eylemler hiç sınırlanmıyordu — bir ilan her oluşturulduğunda o şehirdeki
+    // uygun müzisyenlere toplu bildirim+e-posta gittiği için (NotifyMatchingMusicians),
+    // hızlı bir döngü hem e-posta kotasını hem başka kullanıcıların bildirim
+    // kutusunu kötüye kullanılabilirdi. IP yerine kullanıcı kimliğine göre
+    // bölümleniyor — aksi halde aynı NAT arkasındaki farklı kullanıcılar aynı
+    // limiti paylaşırdı.
+    options.AddPolicy("authenticated-write", httpContext =>
+    {
+        var key = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+            ?? httpContext.Request.Headers["CF-Connecting-IP"].FirstOrDefault()
+            ?? httpContext.Connection.RemoteIpAddress?.ToString()
+            ?? "unknown";
+
+        return RateLimitPartition.GetSlidingWindowLimiter(key, _ => new SlidingWindowRateLimiterOptions
+        {
+            PermitLimit = 20,
+            Window = TimeSpan.FromMinutes(1),
+            SegmentsPerWindow = 4,
+            QueueLimit = 0,
+        });
+    });
 });
 
 var app = builder.Build();

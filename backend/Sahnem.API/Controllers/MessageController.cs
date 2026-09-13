@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Sahnem.Business.DTOs.Message;
 using Sahnem.Business.Interfaces;
 
@@ -31,6 +32,7 @@ namespace Sahnem.API.Controllers
             return Ok(result);
         }
 
+        [EnableRateLimiting("authenticated-write")]
         [HttpPost("send")]
         public async Task<IActionResult> SendMessage([FromBody] SendMessageDto dto)
         {

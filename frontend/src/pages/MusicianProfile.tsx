@@ -117,28 +117,46 @@ export function MusicianProfile() {
                 <p className="text-sm leading-relaxed text-text-dim">{musician.bio}</p>
               </Card>
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                <Card className="flex h-full flex-col items-center justify-center text-center">
+                <Card className="flex h-full flex-col items-center text-center">
                   <Music2 size={18} className="text-gold-soft" />
-                  <p className="mt-2 text-xs text-text-faint">Deneyim</p>
-                  <p className="mt-0.5 text-sm font-semibold">{musician.experienceYears} yıl</p>
+                  <div className="mt-2 flex h-8 items-center justify-center">
+                    <p className="text-xs text-text-faint">Deneyim</p>
+                  </div>
+                  <div className="flex h-10 items-center justify-center">
+                    <p className="text-sm font-semibold">{musician.experienceYears} yıl</p>
+                  </div>
                 </Card>
-                <Card className="flex h-full flex-col items-center justify-center text-center">
+                <Card className="flex h-full flex-col items-center text-center">
                   <Wrench size={18} className="text-gold-soft" />
-                  <p className="mt-2 text-xs text-text-faint">Kendi ekipmanı</p>
-                  <p className="mt-0.5 text-sm font-semibold">{musician.hasOwnEquipment ? 'Var' : 'Yok'}</p>
-                  {musician.equipmentNote && <p className="mt-1 line-clamp-1 text-[11px] text-text-faint">{musician.equipmentNote}</p>}
+                  <div className="mt-2 flex h-8 items-center justify-center">
+                    <p className="text-xs text-text-faint">Ekipman</p>
+                  </div>
+                  <div className="flex h-10 items-center justify-center">
+                    <p className="text-sm font-semibold">{musician.hasOwnEquipment ? 'Var' : 'Yok'}</p>
+                  </div>
+                  {musician.equipmentNote && (
+                    <p className="line-clamp-1 text-[10px] text-text-faint">({musician.equipmentNote})</p>
+                  )}
                 </Card>
-                <Card className="flex h-full flex-col items-center justify-center text-center">
+                <Card className="flex h-full flex-col items-center text-center">
                   <Plane size={18} className="text-gold-soft" />
-                  <p className="mt-2 text-xs text-text-faint">Seyahat durumu</p>
-                  <p className="mt-0.5 text-sm font-semibold">{TRAVEL_LABELS[musician.isAvailableToTravel]}</p>
+                  <div className="mt-2 flex h-8 items-center justify-center">
+                    <p className="text-xs text-text-faint">Seyahat durumu</p>
+                  </div>
+                  <div className="flex h-10 items-center justify-center">
+                    <p className="text-sm font-semibold">{TRAVEL_LABELS[musician.isAvailableToTravel]}</p>
+                  </div>
                 </Card>
-                <Card className="flex h-full flex-col items-center justify-center text-center">
+                <Card className="flex h-full flex-col items-center text-center">
                   <Star size={18} className="text-gold-soft" />
-                  <p className="mt-2 text-xs text-text-faint">Çalışma şekli</p>
-                  <p className="mt-0.5 text-sm font-semibold">
-                    {musician.workStatus === 'Both' ? 'Solo & Grup' : WORK_STATUS_LABELS[musician.workStatus]}
-                  </p>
+                  <div className="mt-2 flex h-8 items-center justify-center">
+                    <p className="text-xs text-text-faint">Çalışma şekli</p>
+                  </div>
+                  <div className="flex h-10 items-center justify-center">
+                    <p className="text-sm font-semibold">
+                      {musician.workStatus === 'Both' ? 'Solo & Grup' : WORK_STATUS_LABELS[musician.workStatus]}
+                    </p>
+                  </div>
                 </Card>
               </div>
             </div>

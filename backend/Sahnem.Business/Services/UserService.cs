@@ -368,6 +368,21 @@ namespace Sahnem.Business.Services
                 throw new Exception("User not found");
             }
 
+            // AvatarUrl istemciden serbest metin olarak geliyor — doğrulanmazsa bir
+            // kullanıcı, herkese açık bir profilde gördüğü BAŞKA birinin avatar
+            // URL'ini kendi AvatarUrl'i olarak gönderip sonra tekrar değiştirerek,
+            // aşağıdaki "eski avatarı temizle" mantığıyla o kişinin gerçek dosyasını
+            // R2'den sildirebilirdi. Kabul edilen tek biçim, /upload/avatar'ın bu
+            // kullanıcı için ürettiği yol (avatars/{userId}/...).
+            if (!string.IsNullOrWhiteSpace(dto.AvatarUrl) && dto.AvatarUrl != user.AvatarUrl)
+            {
+                var expectedSegment = $"avatars/{user.Id}/";
+                if (!dto.AvatarUrl.Contains(expectedSegment))
+                {
+                    throw new Exception("Invalid avatar URL");
+                }
+            }
+
             // Avatar değiştiriliyorsa eski R2 nesnesi bucket'ta öksüz kalmasın diye
             // temizleniyor. Kaydı önce yapıp temizliği sonra yapıyoruz ki silme
             // sırasında bir hata olursa yeni avatar zaten kalıcı olmuş olsun.

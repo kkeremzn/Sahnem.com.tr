@@ -15,14 +15,14 @@ export function EmployerCard({ employer }: { employer: EmployerSummary }) {
   return (
     <Card hover className="p-0 overflow-hidden">
       <Link to={`/${employer.kind === 'Venue' ? 'venues' : 'organizers'}/${employer.appUserId}`} className="flex flex-col p-5">
-        <div className="flex items-start justify-between gap-2">
-          <Avatar name={employer.name} src={resolveAssetUrl(employer.avatarUrl)} size={56} />
-          <Badge variant="neutral">
+        <Avatar name={employer.name} src={resolveAssetUrl(employer.avatarUrl)} size={56} />
+        <h3 className="mt-3.5 truncate font-display text-base font-bold text-text hover:text-gold-soft">{employer.name}</h3>
+        <div className="mt-1 flex flex-wrap items-center gap-1.5">
+          <p className="truncate text-sm text-text-dim">{typeLabel}</p>
+          <Badge variant="neutral" className="shrink-0">
             <KindIcon size={11} /> {employer.kind === 'Venue' ? 'Mekan' : 'Organizatör'}
           </Badge>
         </div>
-        <h3 className="mt-3.5 font-display text-base font-bold text-text hover:text-gold-soft">{employer.name}</h3>
-        <p className="truncate text-sm text-text-dim">{typeLabel}</p>
 
         <div className="mt-3 flex flex-wrap gap-1.5">
           <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border px-2 py-1 text-xs text-text-dim">
