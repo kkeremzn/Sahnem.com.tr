@@ -30,7 +30,7 @@ export function Favorites() {
       <PageHeader title="Favori Müzisyenler" description="Beğendiğin ve daha sonra ulaşmak istediğin profiller." />
 
       {musicians === null ? (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
           {Array.from({ length: 3 }, (_, i) => <CardSkeleton key={i} />)}
         </div>
       ) : musicians.length === 0 ? (
@@ -41,7 +41,7 @@ export function Favorites() {
           action={<Link to="/explore" className="text-sm font-semibold text-gold-soft hover:underline">Müzisyen Keşfet</Link>}
         />
       ) : (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
           {musicians.map((m) => (
             <MusicianCard key={m.id} musician={m} favorite onToggleFavorite={handleToggleFavorite} />
           ))}

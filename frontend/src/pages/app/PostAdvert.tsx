@@ -16,7 +16,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import * as advertService from '@/services/advertService';
 import * as profileService from '@/services/profileService';
-import { CITIES, CITY_LABELS, MUSIC_BRANCHES, MUSIC_BRANCH_LABELS, optionsFrom, type City } from '@/types';
+import { CITIES, CITY_LABELS, EVENT_DURATIONS, EVENT_DURATION_LABELS, MUSIC_BRANCHES, MUSIC_BRANCH_LABELS, optionsFrom, type City } from '@/types';
 import { DISTRICTS } from '@/data/districts';
 import { formatApiError } from '@/lib/apiClient';
 
@@ -29,6 +29,7 @@ const schema = z
     address: z.string().min(1, 'Adres gerekli.'),
     branch: z.string().optional(),
     eventTime: z.string().min(1, 'Etkinlik tarihi gerekli.'),
+    eventDuration: z.string().min(1, 'Etkinlik süresini seç.'),
     applicationDeadline: z.string().min(1, 'Son başvuru tarihi gerekli.'),
     budget: z.coerce.number().min(1, 'Geçerli bir bütçe gir.'),
     minimumExperienceYears: z.coerce.number().min(0).max(50, 'En fazla 50 yıl girilebilir.').optional(),
@@ -85,6 +86,7 @@ export function PostAdvert() {
         district: data.district || undefined, address: data.address,
         equipmentProvided, equipmentNote: equipmentNote || undefined,
         eventTime: new Date(data.eventTime).toISOString(),
+        eventDuration: data.eventDuration as never,
         budget: data.budget, minimumExperienceYears: data.minimumExperienceYears || undefined,
         applicationDeadline: new Date(data.applicationDeadline).toISOString(),
         branch: (data.branch || undefined) as never,
@@ -146,9 +148,15 @@ export function PostAdvert() {
             <MapPinned size={13} /> {loadingOwnAddress ? 'Yükleniyor...' : 'Kendi adresimi kullan'}
           </button>
 
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <Field label="Etkinlik tarihi & saati" required error={errors.eventTime?.message}>
               <Input type="datetime-local" {...register('eventTime')} invalid={!!errors.eventTime} />
+            </Field>
+            <Field label="Etkinlik süresi" required error={errors.eventDuration?.message}>
+              <Select {...register('eventDuration')} invalid={!!errors.eventDuration}>
+                <option value="">Seç</option>
+                {optionsFrom(EVENT_DURATIONS, EVENT_DURATION_LABELS).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </Select>
             </Field>
             <Field label="Son başvuru tarihi" required error={errors.applicationDeadline?.message}>
               <Input type="date" {...register('applicationDeadline')} invalid={!!errors.applicationDeadline} />

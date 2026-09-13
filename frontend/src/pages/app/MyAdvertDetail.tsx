@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Ban, CalendarDays, Loader2, MapPin } from 'lucide-react';
+import { Ban, CalendarDays, Clock, Loader2, MapPin } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
@@ -11,7 +11,7 @@ import { AdvertStatusBadge, OfferStatusBadge } from '@/components/ui/StatusBadge
 import { useToast } from '@/context/ToastContext';
 import * as advertService from '@/services/advertService';
 import * as offerService from '@/services/offerService';
-import { CITY_LABELS, MUSIC_BRANCH_LABELS, type Advert, type Offer } from '@/types';
+import { CITY_LABELS, EVENT_DURATION_LABELS, MUSIC_BRANCH_LABELS, type Advert, type Offer } from '@/types';
 import { formatDate, formatPrice } from '@/lib/format';
 import { resolveAssetUrl } from '@/lib/apiClient';
 
@@ -83,6 +83,9 @@ export function MyAdvertDetail() {
           <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-text-dim">
             <span className="inline-flex items-center gap-1.5"><MapPin size={14} /> {CITY_LABELS[advert.city]}</span>
             <span className="inline-flex items-center gap-1.5"><CalendarDays size={14} /> {formatDate(advert.eventTime)}</span>
+            {EVENT_DURATION_LABELS[advert.eventDuration] && (
+              <span className="inline-flex items-center gap-1.5"><Clock size={14} /> {EVENT_DURATION_LABELS[advert.eventDuration]}</span>
+            )}
           </div>
         </div>
         {advert.status === 'Open' && (

@@ -11,27 +11,27 @@ export function EmployerCard({ employer }: { employer: EmployerSummary }) {
     ? (employer.organizerType ? ORGANIZER_TYPE_LABELS[employer.organizerType] : 'Organizatör')
     : (employer.venueType ? VENUE_TYPE_LABELS[employer.venueType] : 'Mekan');
   const KindIcon = employer.kind === 'Venue' ? Store : Users2;
+  // Mekan ve organizatör kartları görsel olarak türüne göre ayrışsın diye
+  // farklı renklendiriliyor — uygulamada zaten kullanılan iki vurgu rengi
+  // (accent = cam göbeği, gold = mor) dışında yeni bir renk eklemiyoruz.
+  const badgeVariant = employer.kind === 'Venue' ? 'accent' : 'gold';
 
   return (
-    <Card hover className="p-0 overflow-hidden">
-      <Link to={`/${employer.kind === 'Venue' ? 'venues' : 'organizers'}/${employer.appUserId}`} className="flex gap-4 p-5">
-        <Avatar name={employer.name} src={resolveAssetUrl(employer.avatarUrl)} size={56} className="shrink-0" />
-        <div className="min-w-0 flex-1">
+    <Card hover className="relative overflow-hidden p-0">
+      <Badge variant={badgeVariant} className="absolute right-4 top-4 z-10 max-w-[55%]">
+        <KindIcon size={11} className="shrink-0" /> <span className="truncate">{typeLabel}</span>
+      </Badge>
+      <Link to={`/${employer.kind === 'Venue' ? 'venues' : 'organizers'}/${employer.appUserId}`} className="flex flex-col gap-3 p-5">
+        <div className="flex items-center gap-3 pr-20">
+          <Avatar name={employer.name} src={resolveAssetUrl(employer.avatarUrl)} size={52} className="shrink-0" />
           <h3 className="truncate font-display text-lg font-bold text-text hover:text-gold-soft">{employer.name}</h3>
-          <div className="mt-1 flex flex-wrap items-center gap-1.5">
-            <p className="truncate text-sm text-text-dim">{typeLabel}</p>
-            <Badge variant="neutral" className="shrink-0">
-              <KindIcon size={11} /> {employer.kind === 'Venue' ? 'Mekan' : 'Organizatör'}
-            </Badge>
-          </div>
-
-          <div className="mt-2.5 flex flex-wrap gap-1.5">
-            <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border px-2 py-1 text-xs text-text-dim">
-              <MapPin size={11} className="shrink-0" /> {CITY_LABELS[employer.city]}{employer.district ? `, ${employer.district}` : ''}
-            </span>
-          </div>
-          <p className="mt-2.5 line-clamp-2 text-sm text-text-faint">{employer.bio}</p>
         </div>
+
+        <span className="inline-flex w-fit items-center gap-1 text-xs text-text-dim">
+          <MapPin size={12} className="shrink-0" /> {CITY_LABELS[employer.city]}{employer.district ? `, ${employer.district}` : ''}
+        </span>
+
+        <p className="line-clamp-2 text-sm text-text-faint">{employer.bio}</p>
       </Link>
     </Card>
   );

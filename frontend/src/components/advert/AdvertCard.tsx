@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom';
-import { CalendarDays, MapPin, Users2 } from 'lucide-react';
+import { CalendarDays, Clock, MapPin, Users2 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { AdvertStatusBadge } from '@/components/ui/StatusBadge';
 import { Badge } from '@/components/ui/Badge';
-import { CITY_LABELS, MUSIC_BRANCH_LABELS, type Advert } from '@/types';
+import { CITY_LABELS, EVENT_DURATION_LABELS, MUSIC_BRANCH_LABELS, type Advert } from '@/types';
 import { formatDate, formatPrice } from '@/lib/format';
 
 export function AdvertCard({ advert }: { advert: Advert }) {
@@ -26,6 +26,11 @@ export function AdvertCard({ advert }: { advert: Advert }) {
           <span className="inline-flex items-center gap-1">
             <CalendarDays size={12} /> {formatDate(advert.eventTime)}
           </span>
+          {EVENT_DURATION_LABELS[advert.eventDuration] && (
+            <span className="inline-flex items-center gap-1">
+              <Clock size={12} /> {EVENT_DURATION_LABELS[advert.eventDuration]}
+            </span>
+          )}
           {advert.minimumExperienceYears !== undefined && advert.minimumExperienceYears > 0 && (
             <span className="inline-flex items-center gap-1">
               <Users2 size={12} /> {advert.minimumExperienceYears}+ yıl deneyim

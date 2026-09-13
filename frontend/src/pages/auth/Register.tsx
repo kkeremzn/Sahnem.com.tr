@@ -14,12 +14,24 @@ import { cn } from '@/lib/cn';
 import { formatApiError } from '@/lib/apiClient';
 import { isValidTurkishPhone, normalizePhoneNumber } from '@/lib/phone';
 
+// Platform 16 yaş altına kapalı — sunucu tarafında da ayrıca doğrulanıyor
+// (bkz. AppUserRegisterValidator.cs), burası sadece kullanıcıya erken geri
+// bildirim vermek için.
+function isAtLeast16(dateStr: string): boolean {
+  const dob = new Date(dateStr);
+  if (Number.isNaN(dob.getTime())) return false;
+  const cutoff = new Date();
+  cutoff.setFullYear(cutoff.getFullYear() - 16);
+  return dob <= cutoff;
+}
+
 const schema = z
   .object({
     firstName: z.string().min(2, 'Ad gerekli.'),
     lastName: z.string().min(2, 'Soyad gerekli.'),
     email: z.string().email('Geçerli bir e-posta gir.'),
     phoneNumber: z.string().refine(isValidTurkishPhone, 'Geçerli bir telefon numarası gir (5xx xxx xx xx).'),
+    dateOfBirth: z.string().min(1, 'Doğum tarihi gerekli.').refine(isAtLeast16, 'Sahnem\'e kayıt olmak için en az 16 yaşında olmalısın.'),
     password: z.string().min(6, 'Şifre en az 6 karakter olmalı.'),
     confirmPassword: z.string(),
     terms: z.boolean().refine((v) => v === true, { message: 'Devam etmek için koşulları kabul etmelisin.' }),
@@ -104,6 +116,9 @@ export function Register() {
         </Field>
         <Field label="Telefon" error={errors.phoneNumber?.message}>
           <Input type="tel" placeholder="532 111 22 33" {...register('phoneNumber')} invalid={!!errors.phoneNumber} />
+        </Field>
+        <Field label="Doğum tarihi" error={errors.dateOfBirth?.message}>
+          <Input type="date" {...register('dateOfBirth')} invalid={!!errors.dateOfBirth} />
         </Field>
         <div className="grid grid-cols-2 gap-3">
           <Field label="Şifre" error={errors.password?.message}>

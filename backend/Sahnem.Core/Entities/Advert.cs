@@ -14,6 +14,7 @@ namespace Sahnem.Core.Entities
         public bool EquipmentProvided { get; set; }
         public string? EquipmentNote { get; set; }
         public DateTime EventTime {get; set;}
+        public EventDuration EventDuration {get; set;}
         public decimal Budget {get; set;}
         public int? MinimumExperienceYears{get; set;}
         public MusicBranch? TargetBranch {get; set;}

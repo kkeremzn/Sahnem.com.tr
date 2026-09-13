@@ -60,6 +60,12 @@ namespace Sahnem.Business.Validators.Advert
             .GreaterThan(DateTime.UtcNow.AddDays(1))
             .WithMessage("Event time must be at least 1 day later");
 
+            RuleFor(x=> x.EventDuration)
+            .Cascade(CascadeMode.Stop)
+            .NotEqual(EventDuration.None)
+            .WithMessage("Please select an event duration")
+            .IsInEnum()
+            .WithMessage("Invalid event duration");
 
             RuleFor(x=> x.Budget)
             .Cascade(CascadeMode.Stop)

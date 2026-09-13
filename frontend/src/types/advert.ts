@@ -1,4 +1,4 @@
-import type { AdvertStatus, City, MusicBranch } from './enums';
+import type { AdvertStatus, City, EventDuration, MusicBranch } from './enums';
 
 // Sahnem.Business/DTOs/Advert/AdvertResponseDto.cs
 export interface Advert {
@@ -14,6 +14,7 @@ export interface Advert {
   equipmentProvided: boolean;
   equipmentNote?: string;
   eventTime: string;
+  eventDuration: EventDuration;
   budget: number;
   minimumExperienceYears?: number;
   branch?: MusicBranch;
@@ -33,6 +34,7 @@ export interface AdvertCreateInput {
   equipmentProvided: boolean;
   equipmentNote?: string;
   eventTime: string;
+  eventDuration: EventDuration;
   budget: number;
   minimumExperienceYears?: number;
   branch?: MusicBranch;

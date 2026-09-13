@@ -50,7 +50,17 @@ namespace Sahnem.Business.Validators.User
                 .Matches(@"^0?5\d{9}$")
                 .WithMessage("Invalid phone number format");
 
-            
+            // Platform 16 yaş altı kullanıcı kabul etmiyor — doğum tarihi bugüne
+            // göre en az 16 yıl geride olmalı. "AddYears(-16)" sonrasına düşen
+            // (yani henüz 16'sını doldurmamış) bir tarih reddedilir.
+            RuleFor(x => x.DateOfBirth)
+            .Cascade(CascadeMode.Stop)
+            .NotEmpty()
+            .WithMessage("Date of birth is required")
+            .Must(dob => dob <= DateTime.UtcNow.Date.AddYears(-16))
+            .WithMessage("You must be at least 16 years old to create an account")
+            .Must(dob => dob >= DateTime.UtcNow.Date.AddYears(-120))
+            .WithMessage("Please enter a valid date of birth");
         }
     }
 }

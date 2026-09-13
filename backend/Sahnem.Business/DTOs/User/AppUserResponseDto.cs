@@ -10,6 +10,7 @@ namespace Sahnem.Business.DTOs.User
         public string LastName{get; set;}
         public string Email{get; set;}
         public string PhoneNumber{get; set;}
+        public DateTime DateOfBirth{get; set;}
         public string? AvatarUrl{get; set;}
         public UserType Role{get; set;}
         public bool IsEmailConfirmed{get; set;}

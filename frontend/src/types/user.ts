@@ -7,6 +7,7 @@ export interface AppUser {
   lastName: string;
   email: string;
   phoneNumber: string;
+  dateOfBirth: string;
   role: UserType;
   isEmailConfirmed: boolean;
   isPhoneNumberConfirmed: boolean;
@@ -27,6 +28,7 @@ export interface AppUserRegisterInput {
   email: string;
   password: string;
   phoneNumber: string;
+  dateOfBirth: string;
   allowCityAdvertAlerts?: boolean;
 }
 

@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { CalendarClock, CalendarDays, Loader2, MapPin, Send } from 'lucide-react';
+import { CalendarClock, CalendarDays, Clock, Loader2, MapPin, Send } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
@@ -17,7 +17,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import * as advertService from '@/services/advertService';
 import * as offerService from '@/services/offerService';
-import { CITY_LABELS, MUSIC_BRANCH_LABELS, type Advert, type Offer } from '@/types';
+import { CITY_LABELS, EVENT_DURATION_LABELS, MUSIC_BRANCH_LABELS, type Advert, type Offer } from '@/types';
 import { formatDate, formatPrice } from '@/lib/format';
 import { formatApiError } from '@/lib/apiClient';
 
@@ -98,6 +98,9 @@ export function JobDetail() {
           <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm text-text-dim">
             <span className="inline-flex items-center gap-1.5"><MapPin size={14} /> {CITY_LABELS[advert.city]}{advert.district ? `, ${advert.district}` : ''}</span>
             <span className="inline-flex items-center gap-1.5"><CalendarDays size={14} /> {formatDate(advert.eventTime)}</span>
+            {EVENT_DURATION_LABELS[advert.eventDuration] && (
+              <span className="inline-flex items-center gap-1.5"><Clock size={14} /> {EVENT_DURATION_LABELS[advert.eventDuration]}</span>
+            )}
             <span className="inline-flex items-center gap-1.5"><CalendarClock size={14} /> Son başvuru: {formatDate(advert.applicationDeadline)}</span>
           </div>
 
@@ -117,6 +120,12 @@ export function JobDetail() {
               <p className="text-xs text-text-faint">Ekipman</p>
               <p className="mt-1.5 text-sm font-semibold">{advert.equipmentProvided ? 'Sağlanıyor' : 'Sağlanmıyor'}</p>
             </Card>
+            {EVENT_DURATION_LABELS[advert.eventDuration] && (
+              <Card>
+                <p className="text-xs text-text-faint">Süre</p>
+                <p className="mt-1.5 text-sm font-semibold">{EVENT_DURATION_LABELS[advert.eventDuration]}</p>
+              </Card>
+            )}
             {!!advert.minimumExperienceYears && (
               <Card>
                 <p className="text-xs text-text-faint">Min. deneyim</p>

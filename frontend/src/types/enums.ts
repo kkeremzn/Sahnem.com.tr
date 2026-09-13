@@ -106,6 +106,13 @@ export const ADVERT_STATUS_LABELS: Record<AdvertStatus, string> = {
   Open: 'Açık', Closed: 'Kapalı', Cancelled: 'İptal edildi', Completed: 'Tamamlandı',
 };
 
+// Sahnem.Core/Enums/EventDuration.cs
+export const EVENT_DURATIONS = ['Minutes30', 'Hour1', 'Hour2', 'Hour3', 'Hour4', 'Hour5Plus'] as const;
+export type EventDuration = (typeof EVENT_DURATIONS)[number];
+export const EVENT_DURATION_LABELS: Record<EventDuration, string> = {
+  Minutes30: '30 dakika', Hour1: '1 saat', Hour2: '2 saat', Hour3: '3 saat', Hour4: '4 saat', Hour5Plus: '5+ saat',
+};
+
 // Sahnem.Core/Enums/City.cs — 81 il, backend enum ada birebir (Türkçe karaktersiz)
 export const CITIES = [
   'Adana', 'Adiyaman', 'Afyonkarahisar', 'Agri', 'Amasya', 'Ankara', 'Antalya',
