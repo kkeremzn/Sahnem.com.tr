@@ -118,7 +118,7 @@ namespace Sahnem.Business.Services
 
                 await _emailService.SendAsync(
                     user.Email,
-                    $"{advert.City} için yeni bir ilan var",
+                    $"{advert.City} İçin Yeni Bir İlan Var",
                     EmailTemplates.CityAdvert(user.FirstName, advert.Title, advert.City.ToString(), advert.Address, advert.EventTime, advert.Id));
             }
 
@@ -189,7 +189,7 @@ namespace Sahnem.Business.Services
                 {
                     await _emailService.SendAsync(
                         musician.Email,
-                        $"{advert.Title} ilanı iptal edildi",
+                        $"{advert.Title} İlanı İptal Edildi",
                         EmailTemplates.AdvertCancelled(musician.FirstName, advert.Title));
                 }
             }

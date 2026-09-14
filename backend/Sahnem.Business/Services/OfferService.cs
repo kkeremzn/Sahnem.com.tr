@@ -110,7 +110,7 @@ namespace Sahnem.Business.Services
             {
                 await _emailService.SendAsync(
                     advertOwner.Email,
-                    $"{advert.Title} ilanına yeni teklif",
+                    $"{advert.Title} İlanına Yeni Teklif",
                     EmailTemplates.NewOffer(advertOwner.FirstName, musicianName, advert.Title, advert.City.ToString(), advert.Address, advert.EventTime, offer.ProposedPrice, advert.Id));
             }
 
@@ -229,7 +229,7 @@ namespace Sahnem.Business.Services
             {
                 await _emailService.SendAsync(
                     offerMusicianUser.Email,
-                    accepted ? $"Teklifin kabul edildi — {advert.Title}" : "Teklifin hakkında bir güncelleme var",
+                    accepted ? $"Teklifin Kabul Edildi — {advert.Title}" : "Teklifin Hakkında Bir Güncelleme Var",
                     accepted
                         ? EmailTemplates.OfferAccepted(offerMusicianUser.FirstName, advert.Title, advert.City.ToString(), advert.Address, advert.EventTime, offer.Id)
                         : EmailTemplates.OfferRejected(offerMusicianUser.FirstName, advert.Title));

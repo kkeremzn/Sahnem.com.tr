@@ -183,7 +183,7 @@ namespace Sahnem.Business.Services
             {
                 await _emailService.SendAsync(
                     recipientUser.Email,
-                    "Sahnem'de yeni bir mesajın var",
+                    "Sahnem'de Yeni Bir Mesajın Var",
                     EmailTemplates.NewMessage(recipientUser.FirstName, $"{sender?.FirstName} {sender?.LastName}".Trim(), conversation.Id));
             }
 

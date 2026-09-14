@@ -146,7 +146,7 @@ namespace Sahnem.Business.Services
 
             await _emailService.SendAsync(
                 user.Email,
-                "Sahnem hesabın hakkında bilgilendirme",
+                "Hesabın Hakkında Bilgilendirme",
                 EmailTemplates.AccountSuspended(user.FirstName, string.IsNullOrWhiteSpace(reason) ? "Hesap etkinliklerinin incelenmesi gerekiyor." : reason));
         }
 
@@ -159,7 +159,7 @@ namespace Sahnem.Business.Services
             await _unitOfWork.SaveChanges();
 
             await _emailService.SendAsync(
-                user.Email, "Sahnem hesabın yeniden aktif", EmailTemplates.AccountReactivated(user.FirstName));
+                user.Email, "Hesabın Yeniden Aktif", EmailTemplates.AccountReactivated(user.FirstName));
         }
 
         public async Task<AppUserResponseDto> GetUserById(int id)
@@ -220,7 +220,7 @@ namespace Sahnem.Business.Services
             {
                 UserId = user.Id,
                 Type = "system",
-                Title = "Sahnem'e hoş geldin!",
+                Title = "Sahnem'e Hoş Geldin!",
                 Body = "Aramıza katıldığın için teşekkürler. Müzisyenleri, mekanları ve organizatörleri keşfetmeye hazır olduğunda buradayız.",
                 LinkTo = "/dashboard",
             });
@@ -471,7 +471,7 @@ namespace Sahnem.Business.Services
             await _unitOfWork.SaveChanges();
 
             await _emailService.SendAsync(
-                user.Email, "Sahnem şifren değiştirildi", EmailTemplates.PasswordChanged(user.FirstName, DateTime.UtcNow));
+                user.Email, "Şifren Değiştirildi", EmailTemplates.PasswordChanged(user.FirstName, DateTime.UtcNow));
         }
 
         public async Task<TokenPairDto> RefreshToken(string refreshToken)
@@ -526,7 +526,7 @@ namespace Sahnem.Business.Services
             // Kayıt anındaki hoş geldin bildirimi kod doğrulamadan önce oluşuyor,
             // bu yüzden hoş geldin e-postası ayrıca ve doğru anda (doğrulama
             // tamamlandığında) gönderiliyor.
-            await _emailService.SendAsync(user.Email, "Sahnem'e hoş geldin!", EmailTemplates.Welcome(user.FirstName));
+            await _emailService.SendAsync(user.Email, "Sahnem'e Hoş Geldin!", EmailTemplates.Welcome(user.FirstName));
         }
 
         // IP bazlı rate limit tek başına (rotasyonlu IP'lerle) aşılabilir — kod
@@ -580,7 +580,7 @@ namespace Sahnem.Business.Services
         {
             return _emailService.SendAsync(
                 user.Email,
-                "Sahnem hesabını doğrula",
+                "Hesabını Doğrula",
                 EmailTemplates.VerificationCode(user.FirstName, user.EmailVerificationCode!));
         }
 
@@ -622,7 +622,7 @@ namespace Sahnem.Business.Services
 
             await _emailService.SendAsync(
                 user.Email,
-                "Şifre sıfırlama kodun",
+                "Şifre Sıfırlama Kodun",
                 EmailTemplates.PasswordResetCode(user.FirstName, user.PasswordResetCode));
         }
 
@@ -684,7 +684,7 @@ namespace Sahnem.Business.Services
             await _unitOfWork.SaveChanges();
 
             await _emailService.SendAsync(
-                user.Email, "Sahnem şifren değiştirildi", EmailTemplates.PasswordChanged(user.FirstName, DateTime.UtcNow));
+                user.Email, "Şifren Değiştirildi", EmailTemplates.PasswordChanged(user.FirstName, DateTime.UtcNow));
         }
 
         private async Task<AppUser> GetUserByEmailOrThrow(string email)

@@ -143,7 +143,7 @@ namespace Sahnem.Business.Services
 
             await _emailService.SendAsync(
                 admin.Email,
-                "Sahnem yönetici şifre sıfırlama kodu",
+                "Yönetici Şifre Sıfırlama Kodu",
                 EmailTemplates.AdminResetCode(admin.PasswordResetCode));
         }
 
@@ -183,7 +183,7 @@ namespace Sahnem.Business.Services
 
             await _emailService.SendAsync(
                 admin.Email,
-                "Sahnem yönetici şifresi değiştirildi",
+                "Yönetici Şifresi Değiştirildi",
                 EmailTemplates.PasswordChanged(admin.Username, DateTime.UtcNow));
         }
 
@@ -218,7 +218,7 @@ namespace Sahnem.Business.Services
 
             await _emailService.SendAsync(
                 admin.Email,
-                "Sahnem yönetici şifresi değiştirildi",
+                "Yönetici Şifresi Değiştirildi",
                 EmailTemplates.PasswordChanged(admin.Username, DateTime.UtcNow));
         }
 

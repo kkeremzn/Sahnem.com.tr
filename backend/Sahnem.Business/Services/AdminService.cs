@@ -346,7 +346,7 @@ namespace Sahnem.Business.Services
             await _unitOfWork.SaveChanges();
 
             await _emailService.SendAsync(
-                user.Email, "Sahnem doğrulama kodun yeniden gönderildi", EmailTemplates.SupportVerificationCode(user.FirstName, user.EmailVerificationCode));
+                user.Email, "Doğrulama Kodun Yeniden Gönderildi", EmailTemplates.SupportVerificationCode(user.FirstName, user.EmailVerificationCode));
         }
 
         public async Task SendPasswordResetCodeToUser(int userId)
@@ -360,7 +360,7 @@ namespace Sahnem.Business.Services
             await _unitOfWork.SaveChanges();
 
             await _emailService.SendAsync(
-                user.Email, "Sahnem destek: şifre sıfırlama kodun", EmailTemplates.SupportResetCode(user.FirstName, user.PasswordResetCode));
+                user.Email, "Şifre Sıfırlama Kodun", EmailTemplates.SupportResetCode(user.FirstName, user.PasswordResetCode));
         }
 
         // Kullanıcı destek hattından ulaşıp "hesabıma giremiyorum, kodu da
@@ -395,7 +395,7 @@ namespace Sahnem.Business.Services
             await _unitOfWork.SaveChanges();
 
             await _emailService.SendAsync(
-                user.Email, "Sahnem şifren değiştirildi", EmailTemplates.PasswordChanged(user.FirstName, DateTime.UtcNow));
+                user.Email, "Şifren Değiştirildi", EmailTemplates.PasswordChanged(user.FirstName, DateTime.UtcNow));
         }
     }
 }
