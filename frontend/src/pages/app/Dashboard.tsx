@@ -80,11 +80,11 @@ function MusicianDashboard({ firstName }: { firstName: string }) {
       <div>
         <h3 className="mb-3 font-display text-base font-bold">Sana uygun ilanlar</h3>
         {suggested === null ? (
-          <div className="grid gap-4 sm:grid-cols-2">{Array.from({ length: 2 }, (_, i) => <CardSkeleton key={i} />)}</div>
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] gap-4">{Array.from({ length: 2 }, (_, i) => <CardSkeleton key={i} />)}</div>
         ) : suggested.length === 0 ? (
           <Card><p className="text-sm text-text-faint">Şu an branşına/şehrine uygun açık ilan yok. <Link to="/jobs" className="text-gold-soft hover:underline">Tüm ilanlara göz at</Link>.</p></Card>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] gap-4">
             {suggested.map((a) => <AdvertCard key={a.id} advert={a} />)}
           </div>
         )}
@@ -140,9 +140,9 @@ function EmployerDashboard({ firstName }: { firstName: string }) {
       <div>
         <h3 className="mb-3 font-display text-base font-bold">{personalized ? 'Sana uygun müzisyenler' : 'Keşfedebileceğin müzisyenler'}</h3>
         {musicians === null ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{Array.from({ length: 4 }, (_, i) => <CardSkeleton key={i} />)}</div>
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] gap-4">{Array.from({ length: 4 }, (_, i) => <CardSkeleton key={i} />)}</div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] gap-4">
             {musicians.map((m) => <MusicianCard key={m.id} musician={m} />)}
           </div>
         )}

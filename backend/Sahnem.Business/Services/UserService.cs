@@ -596,6 +596,14 @@ namespace Sahnem.Business.Services
 
             var user = await GetUserByEmailOrThrow(dto.Email);
 
+            // Askıya alınmış bir hesap için kod bile gönderilmemeli — aksi halde
+            // hesap zaten kilitliyken "şifreni sıfırla" akışının bir anlamı
+            // kalmıyor, sadece kafa karıştırıyor (kod gelir ama giriş yine olmaz).
+            if (!user.IsActive)
+            {
+                throw new Exception("This account has been suspended");
+            }
+
             if (user.PasswordResetCodeSentAt.HasValue)
             {
                 var elapsed = DateTime.UtcNow - user.PasswordResetCodeSentAt.Value;
@@ -642,6 +650,14 @@ namespace Sahnem.Business.Services
             }
 
             var user = await GetUserByEmailOrThrow(dto.Email);
+            // Askıya alınmadan önce istenmiş ama hiç kullanılmamış bir kod hâlâ
+            // geçerli olabilir — hesap suspend edildikten sonra bu kodla şifre
+            // sıfırlamanın tamamlanabilmesi anlamsız, ForgotPassword'daki
+            // kontrolün burada da tekrarlanması gerekiyor.
+            if (!user.IsActive)
+            {
+                throw new Exception("This account has been suspended");
+            }
             await EnsureResetCodeIsValid(user, dto.Code);
 
             var isSameAsCurrentPassword = _passwordService.VerifyPassword(user, user.PasswordHash, dto.NewPassword);

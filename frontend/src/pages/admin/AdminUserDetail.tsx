@@ -8,6 +8,7 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { Modal } from '@/components/ui/Modal';
 import { Field } from '@/components/ui/Field';
 import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { FadeIn } from '@/components/ui/FadeIn';
 import { useToast } from '@/context/ToastContext';
@@ -15,6 +16,13 @@ import * as adminService from '@/services/adminService';
 import { USER_TYPE_LABELS, type AdminUserDetail as AdminUserDetailType } from '@/types';
 import { formatDateTime } from '@/lib/format';
 import { formatApiError } from '@/lib/apiClient';
+
+const SUSPEND_REASONS = [
+  'Kullanım koşullarının ihlali',
+  'Şüpheli veya sahte hesap aktivitesi',
+  'Hesap etkinliklerinin incelenmesi gerekiyor',
+  'Kullanıcının kendi talebi üzerine',
+] as const;
 
 export function AdminUserDetail() {
   const { id } = useParams();
@@ -26,6 +34,8 @@ export function AdminUserDetail() {
   const [resetPwOpen, setResetPwOpen] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [sendingCode, setSendingCode] = useState<'verify' | 'reset' | null>(null);
+  const [suspendOpen, setSuspendOpen] = useState(false);
+  const [suspendReason, setSuspendReason] = useState<string>(SUSPEND_REASONS[0]);
 
   function load() {
     setDetail(null);
@@ -37,17 +47,31 @@ export function AdminUserDetail() {
 
   useEffect(() => { load(); }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  async function handleSuspendToggle() {
+  // Askıya alma gerekçesi artık serbest metin ya da (daha önce olduğu gibi)
+  // hep aynı sabit metin değil — birkaç önceden tanımlı seçenekten biri
+  // seçiliyor ve kullanıcıya giden bildirim e-postasında da bu gerçek
+  // gerekçe görünüyor.
+  async function handleConfirmSuspend() {
     if (!detail) return;
     setBusy(true);
     try {
-      if (detail.user.isActive) {
-        await adminService.suspendUser(detail.user.id);
-        toast('Kullanıcı askıya alındı. Açık oturumları sonlandırıldı, tekrar giriş yapamaz.', 'success');
-      } else {
-        await adminService.reactivateUser(detail.user.id);
-        toast('Kullanıcı yeniden aktifleştirildi.', 'success');
-      }
+      await adminService.suspendUser(detail.user.id, suspendReason);
+      toast('Kullanıcı askıya alındı. Açık oturumları sonlandırıldı, tekrar giriş yapamaz.', 'success');
+      setSuspendOpen(false);
+      load();
+    } catch (e) {
+      toast(formatApiError(e), 'error');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleReactivate() {
+    if (!detail) return;
+    setBusy(true);
+    try {
+      await adminService.reactivateUser(detail.user.id);
+      toast('Kullanıcı yeniden aktifleştirildi.', 'success');
       load();
     } catch (e) {
       toast(formatApiError(e), 'error');
@@ -193,7 +217,7 @@ export function AdminUserDetail() {
             variant={user.isActive ? 'secondary' : 'primary'}
             icon={user.isActive ? <ShieldOff size={15} /> : <ShieldCheck size={15} />}
             loading={busy}
-            onClick={handleSuspendToggle}
+            onClick={() => (user.isActive ? setSuspendOpen(true) : handleReactivate())}
           >
             {user.isActive ? 'Askıya Al' : 'Aktifleştir'}
           </Button>
@@ -210,6 +234,20 @@ export function AdminUserDetail() {
         </Field>
         <Button className="mt-4" full loading={busy} disabled={newPassword.length < 6} onClick={handleResetPassword}>
           Şifreyi Kaydet
+        </Button>
+      </Modal>
+
+      <Modal open={suspendOpen} onClose={() => setSuspendOpen(false)} title="Kullanıcıyı askıya al">
+        <p className="mb-3 text-xs text-text-faint">
+          Hesap hemen kilitlenir, açık oturumları sonlandırılır. Seçtiğin gerekçe kullanıcıya gönderilen bilgilendirme e-postasında görünecek.
+        </p>
+        <Field label="Gerekçe">
+          <Select value={suspendReason} onChange={(e) => setSuspendReason(e.target.value)}>
+            {SUSPEND_REASONS.map((r) => <option key={r} value={r}>{r}</option>)}
+          </Select>
+        </Field>
+        <Button className="mt-4" variant="danger" full loading={busy} onClick={handleConfirmSuspend}>
+          Askıya Al
         </Button>
       </Modal>
 

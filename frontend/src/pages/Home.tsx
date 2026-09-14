@@ -145,7 +145,7 @@ export function Home() {
         </Container>
       </section>
 
-      <section className="border-b border-border bg-deep py-20">
+      <section id="nasil-calisir" className="border-b border-border bg-deep py-20 scroll-mt-20">
         <Container>
           <h2 className="text-center font-display text-2xl font-bold sm:text-3xl">Nasıl çalışır?</h2>
           <div className="mt-12 grid gap-10 lg:grid-cols-2">

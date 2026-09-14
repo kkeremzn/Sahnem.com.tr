@@ -56,14 +56,17 @@ async function silentRefresh(): Promise<boolean> {
           credentials: 'include',
         });
         if (!res.ok) {
-          setAccessToken(null);
+          // Sadece 401 (refresh token gerçekten geçersiz) elimizdeki access
+          // token'ı da geçersiz kılıyor. Ağ hatası/5xx/rate limit gibi geçici
+          // bir durumda eldeki token'ı silmek, tek bir başarısız istek
+          // yüzünden kullanıcının oturumunu boşuna bozar.
+          if (res.status === 401) setAccessToken(null);
           return false;
         }
         const data = await res.json();
         setAccessToken(data.accessToken as string);
         return true;
       } catch {
-        setAccessToken(null);
         return false;
       } finally {
         refreshInFlight = null;

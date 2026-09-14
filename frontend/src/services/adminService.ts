@@ -23,8 +23,9 @@ export async function getUserDetail(id: number): Promise<AdminUserDetail> {
   return adminApi.get<AdminUserDetail>(`/admin/users/${id}`);
 }
 
-export async function suspendUser(id: number): Promise<void> {
-  await adminApi.put(`/admin/users/${id}/suspend`);
+export async function suspendUser(id: number, reason?: string): Promise<void> {
+  const query = reason ? `?reason=${encodeURIComponent(reason)}` : '';
+  await adminApi.put(`/admin/users/${id}/suspend${query}`);
 }
 
 export async function reactivateUser(id: number): Promise<void> {

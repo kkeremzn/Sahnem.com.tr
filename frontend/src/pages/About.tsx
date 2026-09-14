@@ -3,6 +3,7 @@ import { Compass, Heart, ShieldCheck, Sparkles } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { useAuth } from '@/context/AuthContext';
 
 const VALUES = [
   { icon: Sparkles, title: 'Profesyonellik', desc: 'Her müzisyen ve organizasyon, hak ettiği ciddiyetle karşılanır.' },
@@ -13,6 +14,7 @@ const VALUES = [
 
 export function About() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   return (
     <div>
       <section className="border-b border-border bg-noise py-20">
@@ -63,13 +65,15 @@ export function About() {
         </Container>
       </section>
 
-      <section className="py-16">
-        <Container className="text-center">
-          <h2 className="font-display text-2xl font-bold">Bize katıl</h2>
-          <p className="mx-auto mt-2 max-w-md text-sm text-text-dim">Müzisyen, organizatör ya da mekan olarak Sahnem ailesine katılmak sadece bir dakika sürer.</p>
-          <Button size="lg" className="mt-6" onClick={() => navigate('/register')}>Ücretsiz Kayıt Ol</Button>
-        </Container>
-      </section>
+      {!user && (
+        <section className="py-16">
+          <Container className="text-center">
+            <h2 className="font-display text-2xl font-bold">Bize katıl</h2>
+            <p className="mx-auto mt-2 max-w-md text-sm text-text-dim">Müzisyen, organizatör ya da mekan olarak Sahnem ailesine katılmak sadece bir dakika sürer.</p>
+            <Button size="lg" className="mt-6" onClick={() => navigate('/register')}>Ücretsiz Kayıt Ol</Button>
+          </Container>
+        </section>
+      )}
     </div>
   );
 }

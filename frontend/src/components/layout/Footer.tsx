@@ -6,7 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 const PRODUCT_LINKS = [
   { label: 'Müzisyen Keşfet', to: '/explore' },
   { label: 'İlanları İncele', to: '/jobs' },
-  { label: 'Nasıl Çalışır', to: '/about' },
+  { label: 'Nasıl Çalışır', to: '/#nasil-calisir' },
 ];
 
 const COMPANY_LINKS = [
@@ -28,7 +28,7 @@ export function Footer() {
   // görünmez (daha önce burada oturum açıkken bile "Giriş Yap/Kayıt Ol" gösteriliyordu).
   const accountLinks = user
     ? [
-        { label: 'Anasayfam', to: '/dashboard' },
+        { label: 'Ana Sayfa', to: '/dashboard' },
         { label: 'Profilim', to: '/profile/edit' },
         { label: 'Ayarlar', to: '/settings' },
       ]

@@ -25,8 +25,22 @@ namespace Sahnem.Business.Email
             "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık",
         };
 
+        // Servis katmanından buraya hep DateTime.UtcNow/UTC bir zaman damgası
+        // geliyor ama e-postada olduğu gibi (3 saat geride) gösteriliyordu —
+        // Türkiye 2016'dan beri yaz saati uygulamadığı için sabit +3 yeterli,
+        // TimeZoneInfo.FindSystemTimeZoneById'nin sunucuya göre (Linux/Windows
+        // farklı ID'ler) kırılgan olmasından kaçınmak için elle ekleniyor.
+        private static DateTime ToTurkeyTime(DateTime dt)
+        {
+            var utc = dt.Kind == DateTimeKind.Unspecified ? DateTime.SpecifyKind(dt, DateTimeKind.Utc) : dt.ToUniversalTime();
+            return utc.AddHours(3);
+        }
+
         public static string FormatTurkishDateTime(DateTime dt)
-            => $"{dt.Day} {TurkishMonths[dt.Month - 1]} {dt.Year} · {dt:HH.mm}";
+        {
+            var local = ToTurkeyTime(dt);
+            return $"{local.Day} {TurkishMonths[local.Month - 1]} {local.Year} · {local:HH.mm}";
+        }
 
         // Ortak zarf: eyebrow kategori etiketi, <br> içerebilen başlık, önizleme
         // metni (gelen kutusunda görünür), gövde HTML'i ve isteğe bağlı alt not.
@@ -56,7 +70,14 @@ namespace Sahnem.Business.Email
             => $@"<table role=""presentation"" width=""100%"" cellspacing=""0"" cellpadding=""0"" style=""margin:26px 0;background:#f6f4f9;border:1px solid #e8e3ed;border-radius:14px""><tr><td style=""padding:22px""><p style=""color:#8b1fe0;font-size:11px;letter-spacing:1.5px;margin:0 0 12px"">{UpperTr(eyebrow)}</p><p style=""font-size:20px;line-height:28px;font-weight:bold;color:#19131f;margin:0 0 12px"">{title}</p><p style=""font-size:14px;color:#655d70;line-height:24px;margin:0"">{linesHtml}</p></td></tr></table>";
 
         private static string CtaButton(string url, string label)
-            => $@"<table role=""presentation"" cellspacing=""0"" cellpadding=""0"" style=""margin:28px 0 12px""><tr><td bgcolor=""#8322cd"" style=""border-radius:10px;mso-padding-alt:16px 26px""><a href=""{url}"" style=""display:inline-block;border:1px solid #8322cd;border-radius:10px;padding:16px 26px;font:bold 14px Arial,sans-serif;color:#ffffff;text-decoration:none"">{Encode(label)} &nbsp; →</a></td></tr></table><p style=""font-size:11px;line-height:18px;color:#776d83;overflow-wrap:anywhere"">Buton açılmıyorsa: <a href=""{url}"" style=""color:#776d83"">{url}</a></p>";
+        {
+            var button = $@"<table role=""presentation"" cellspacing=""0"" cellpadding=""0"" style=""margin:28px 0 12px""><tr><td bgcolor=""#8322cd"" style=""border-radius:10px;mso-padding-alt:16px 26px""><a href=""{url}"" style=""display:inline-block;border:1px solid #8322cd;border-radius:10px;padding:16px 26px;font:bold 14px Arial,sans-serif;color:#ffffff;text-decoration:none"">{Encode(label)} &nbsp; →</a></td></tr></table>";
+            // mailto: linki için "buton açılmıyorsa tıkla" yedek metni anlamsız —
+            // ya posta istemcisi açılır ya açılmaz, gösterilecek ayrı bir "yedek
+            // sayfa" yok.
+            if (url.StartsWith("mailto:", StringComparison.OrdinalIgnoreCase)) return button;
+            return button + $@"<p style=""font-size:11px;line-height:18px;color:#776d83;overflow-wrap:anywhere"">Buton açılmıyorsa: <a href=""{url}"" style=""color:#776d83"">{url}</a></p>";
+        }
 
         // ---- Hesap / doğrulama ----
 
@@ -117,7 +138,7 @@ namespace Sahnem.Business.Email
 
         // ---- Güvenlik bildirimleri ----
 
-        public static string PasswordChanged(string firstName, DateTime changedAtUtc, string actionUrl = "https://sahnem.com.tr/support")
+        public static string PasswordChanged(string firstName, DateTime changedAtUtc, string actionUrl = "mailto:support@sahnem.com.tr")
             => Shell(
                 "Güvenlik",
                 "Şifren<br>değiştirildi.",
@@ -125,7 +146,7 @@ namespace Sahnem.Business.Email
                 Paragraph($"Merhaba {Encode(firstName)}, hesabının şifresi {FormatTurkishDateTime(changedAtUtc)} tarihinde değiştirildi. Bu işlemi sen yapmadıysan destek ekibimizle hemen iletişime geç.")
                 + CtaButton(actionUrl, "Destekle iletişime geç"));
 
-        public static string AccountSuspended(string firstName, string reason, string actionUrl = "https://sahnem.com.tr/support")
+        public static string AccountSuspended(string firstName, string reason, string actionUrl = "mailto:support@sahnem.com.tr")
             => Shell(
                 "Güvenlik",
                 "Hesabın<br>askıya alındı.",

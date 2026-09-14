@@ -171,18 +171,30 @@ export function Messages() {
             </div>
 
             <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
-              {messages.map((m) => {
-                const mine = m.senderId === user?.id;
-                return (
-                  <div key={m.id} className={cn('flex', mine ? 'justify-end' : 'justify-start')}>
-                    <div className={cn('max-w-[75%] rounded-lg px-3.5 py-2.5 text-sm', mine ? 'bg-gold text-white' : 'border border-border bg-card text-text')}>
-                      <p>{m.body}</p>
-                      <p className={cn('mt-1 text-[10px]', mine ? 'text-white/70' : 'text-text-faint')}>{formatDateTime(m.sentAt)}</p>
-                    </div>
-                  </div>
-                );
-              })}
-              <div ref={bottomRef} />
+              {startingNew && messages.length === 0 ? (
+                <div className="flex h-full flex-col items-center justify-center gap-2.5 text-center">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-full bg-gold/10 text-gold-soft">
+                    <Send size={20} />
+                  </span>
+                  <p className="text-sm font-semibold text-text">{newRecipient!.name} ile yeni bir sohbet başlatıyorsun</p>
+                  <p className="max-w-xs text-xs text-text-faint">İlk mesajını yaz ve gönder — sohbet burada başlayacak.</p>
+                </div>
+              ) : (
+                <>
+                  {messages.map((m) => {
+                    const mine = m.senderId === user?.id;
+                    return (
+                      <div key={m.id} className={cn('flex', mine ? 'justify-end' : 'justify-start')}>
+                        <div className={cn('max-w-[75%] rounded-lg px-3.5 py-2.5 text-sm', mine ? 'bg-gold text-white' : 'border border-border bg-card text-text')}>
+                          <p>{m.body}</p>
+                          <p className={cn('mt-1 text-[10px]', mine ? 'text-white/70' : 'text-text-faint')}>{formatDateTime(m.sentAt)}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  <div ref={bottomRef} />
+                </>
+              )}
             </div>
 
             <div className="flex items-center gap-2 border-t border-border bg-card px-4 py-3">
