@@ -88,7 +88,7 @@ export function EmployerProfile() {
             {adverts.length === 0 ? (
               <EmptyState title="Aktif ilan yok" description="Bu profilin şu anda açık bir ilanı bulunmuyor." />
             ) : (
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              <div className="grid grid-cols-[repeat(auto-fit,minmax(min(320px,100%),1fr))] gap-5">
                 {adverts.map((a) => <AdvertCard key={a.id} advert={a} />)}
               </div>
             )}

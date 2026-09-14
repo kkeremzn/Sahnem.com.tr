@@ -1,20 +1,23 @@
 import { useEffect, useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Guitar, Mic2, Music4, Piano, Search, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowRight, Guitar, Mic2, Music4, Piano, Search, Sparkles } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { CardSkeleton } from '@/components/ui/Skeleton';
 import { MusicianCard } from '@/components/musician/MusicianCard';
-import { Select } from '@/components/ui/Select';
+import { MultiSelectChips } from '@/components/ui/MultiSelectChips';
 import { useAuth } from '@/context/AuthContext';
 import { getHomeRoute } from '@/lib/homeRoute';
 import * as profileService from '@/services/profileService';
 import { CITIES, CITY_LABELS, MUSIC_BRANCHES, MUSIC_BRANCH_LABELS, optionsFrom, type City, type MusicBranch, type MusicianProfile } from '@/types';
 
+// ProfileSetup sihirbazının müzisyenden gerçekten istediği bilgilerle birebir
+// eşleşiyor (branş, deneyim, tür, çalışma şekli, ekipman/seyahat, biyografi) —
+// önceki metin var olmayan alanlardan (fiyat aralığı, portfolyo) bahsediyordu.
 const STEPS_MUSICIAN = [
-  { title: 'Profilini oluştur', desc: 'Enstrümanını, deneyimini ve fiyat aralığını belirt, portfolyonu ekle.' },
+  { title: 'Profilini oluştur', desc: 'Branşını, deneyimini ve çalışma şeklini belirt, biyografini ekle.' },
   { title: 'İlanları keşfet', desc: 'Sana uygun ilanları filtrele, detaylarını incele.' },
   { title: 'Teklif gönder, sahneye çık', desc: 'Teklifini ilet, kabul edilince organizasyonu netleştir.' },
 ];
@@ -30,8 +33,8 @@ export function Home() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [musicians, setMusicians] = useState<MusicianProfile[] | null>(null);
-  const [searchBranch, setSearchBranch] = useState<MusicBranch | ''>('');
-  const [searchCity, setSearchCity] = useState<City | ''>('');
+  const [searchBranches, setSearchBranches] = useState<MusicBranch[]>([]);
+  const [searchCities, setSearchCities] = useState<City[]>([]);
 
   useEffect(() => {
     profileService.listMusicians({ pageSize: 4 }).then((res) => {
@@ -41,8 +44,8 @@ export function Home() {
 
   function handleSearch() {
     const params = new URLSearchParams({ tab: 'musicians' });
-    if (searchBranch) params.set('branch', searchBranch);
-    if (searchCity) params.set('city', searchCity);
+    if (searchBranches.length) params.set('branch', searchBranches.join(','));
+    if (searchCities.length) params.set('city', searchCities.join(','));
     navigate(`/explore?${params.toString()}`);
   }
 
@@ -88,18 +91,18 @@ export function Home() {
               <h3 className="font-display text-lg font-bold">Hızlı müzisyen ara</h3>
               <p className="mt-1 text-sm text-text-dim">Branş ve şehir seçerek anında sonuçlara ulaş.</p>
               <div className="mt-5 flex flex-col gap-3">
-                <Select value={searchBranch} onChange={(e) => setSearchBranch(e.target.value as MusicBranch)}>
-                  <option value="">Tüm branşlar</option>
-                  {optionsFrom(MUSIC_BRANCHES, MUSIC_BRANCH_LABELS).map((o) => (
-                    <option key={o.value} value={o.value}>{o.label}</option>
-                  ))}
-                </Select>
-                <Select value={searchCity} onChange={(e) => setSearchCity(e.target.value as City)}>
-                  <option value="">Tüm şehirler</option>
-                  {optionsFrom(CITIES, CITY_LABELS).map((o) => (
-                    <option key={o.value} value={o.value}>{o.label}</option>
-                  ))}
-                </Select>
+                <MultiSelectChips
+                  options={optionsFrom(MUSIC_BRANCHES, MUSIC_BRANCH_LABELS)}
+                  selected={searchBranches}
+                  onChange={setSearchBranches}
+                  placeholder="Branş ara ve ekle..."
+                />
+                <MultiSelectChips
+                  options={optionsFrom(CITIES, CITY_LABELS)}
+                  selected={searchCities}
+                  onChange={setSearchCities}
+                  placeholder="Şehir ara ve ekle..."
+                />
                 <Button onClick={handleSearch} icon={<Search size={16} />} full>
                   Ara
                 </Button>
@@ -184,33 +187,13 @@ export function Home() {
 
       <section className="border-b border-border bg-deep py-16">
         <Container>
-          <div className="grid gap-8 sm:grid-cols-3">
-            <div className="flex items-start gap-3.5">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold/15 text-gold-soft">
-                <ShieldCheck size={18} />
-              </span>
-              <div>
-                <h3 className="text-sm font-semibold text-text">E-posta doğrulamalı hesaplar</h3>
-                <p className="mt-1 text-sm text-text-dim">Her hesap, platforma tam erişimden önce e-posta doğrulamasından geçer.</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3.5">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold/15 text-gold-soft">
-                <Search size={18} />
-              </span>
-              <div>
-                <h3 className="text-sm font-semibold text-text">Yazışmalar platformda kalır</h3>
-                <p className="mt-1 text-sm text-text-dim">Teklif ve mesaj geçmişin Sahnem üzerinde kayıtlı kalır, ilanla ilgili her şeyi tek yerden takip edersin.</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3.5">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold/15 text-gold-soft">
-                <Sparkles size={18} />
-              </span>
-              <div>
-                <h3 className="text-sm font-semibold text-text">Bir sorun mu var?</h3>
-                <p className="mt-1 text-sm text-text-dim"><a href="mailto:support@sahnem.com.tr" className="text-gold-soft hover:underline">support@sahnem.com.tr</a> üzerinden ekibimize ulaşabilirsin.</p>
-              </div>
+          <div className="flex flex-col items-center gap-3.5 text-center">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold/15 text-gold-soft">
+              <Sparkles size={18} />
+            </span>
+            <div>
+              <h3 className="text-sm font-semibold text-text">Bir sorun mu var?</h3>
+              <p className="mt-1 text-sm text-text-dim"><a href="mailto:support@sahnem.com.tr" className="text-gold-soft hover:underline">support@sahnem.com.tr</a> üzerinden ekibimize ulaşabilirsin.</p>
             </div>
           </div>
         </Container>

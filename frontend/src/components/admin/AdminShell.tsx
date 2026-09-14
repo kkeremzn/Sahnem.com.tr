@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Navigate, NavLink, Outlet } from 'react-router-dom';
-import { Bell, KeyRound, LayoutDashboard, Loader2, Lock, LogOut, MessageSquare, Megaphone, Users } from 'lucide-react';
+import { Bell, KeyRound, LayoutDashboard, Lock, LogOut, MessageSquare, Megaphone, Users } from 'lucide-react';
 import { LogoMark } from '@/components/brand/LogoMark';
+import { AppBootLoader } from '@/components/layout/AppBootLoader';
 import { Modal } from '@/components/ui/Modal';
 import { Field } from '@/components/ui/Field';
 import { Input } from '@/components/ui/Input';
@@ -32,11 +33,7 @@ export function AdminShell() {
   const [changing, setChanging] = useState(false);
 
   if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-black">
-        <Loader2 className="animate-spin text-gold" size={26} />
-      </div>
-    );
+    return <AppBootLoader />;
   }
   if (!admin) {
     return <Navigate to="/backstage/login" replace />;

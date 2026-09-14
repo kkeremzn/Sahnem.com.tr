@@ -1,6 +1,6 @@
 import { Navigate, Outlet, Link } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
 import { LogoMark } from '@/components/brand/LogoMark';
+import { AppBootLoader } from './AppBootLoader';
 import { Container } from '@/components/ui/Container';
 import { useAuth } from '@/context/AuthContext';
 import { getHomeRoute } from '@/lib/homeRoute';
@@ -9,11 +9,7 @@ export function ProfileSetupLayout() {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-black">
-        <Loader2 className="animate-spin text-gold" size={28} />
-      </div>
-    );
+    return <AppBootLoader />;
   }
 
   if (!user) return <Navigate to="/login" replace />;

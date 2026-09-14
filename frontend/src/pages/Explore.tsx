@@ -4,7 +4,7 @@ import { Search, SlidersHorizontal, Users } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { Input } from '@/components/ui/Input';
-import { Select } from '@/components/ui/Select';
+import { MultiSelectChips } from '@/components/ui/MultiSelectChips';
 import { Field } from '@/components/ui/Field';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -23,7 +23,7 @@ import { CITIES, CITY_LABELS, MUSIC_BRANCHES, MUSIC_BRANCH_LABELS, optionsFrom, 
 const PAGE_SIZE = 8;
 
 export function Explore() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { isEmployer } = useAuth();
   const { toast } = useToast();
 
@@ -33,13 +33,27 @@ export function Explore() {
   // belirtmezlerse hangi sekmenin açılacağı belirsizleşiyordu. Hiç belirtilmemişse
   // role göre en anlamlı varsayılana düşer (kendi rolünü listelemenin anlamı yok).
   const tabParam = searchParams.get('tab');
-  const [tab, setTab] = useState<'musicians' | 'employers'>(
-    tabParam === 'musicians' || tabParam === 'employers' ? tabParam : isEmployer ? 'musicians' : 'employers',
-  );
+  const tab: 'musicians' | 'employers' =
+    tabParam === 'musicians' || tabParam === 'employers' ? tabParam : isEmployer ? 'musicians' : 'employers';
+
+  // Sekme değişince URL'e de yazılıyor — önceden sadece yerel bileşen state'i
+  // güncelleniyordu, bu yüzden sekmeyi değiştirdikten sonra sayfayı yenilemek
+  // ya da linki paylaşmak her zaman ilk (URL'deki) sekmeye dönüyordu.
+  function setTab(next: 'musicians' | 'employers') {
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+      params.set('tab', next);
+      return params;
+    }, { replace: true });
+  }
 
   const [search, setSearch] = useState('');
-  const [branch, setBranch] = useState<MusicBranch | ''>((searchParams.get('branch') as MusicBranch) ?? '');
-  const [city, setCity] = useState<City | ''>((searchParams.get('city') as City) ?? '');
+  // Ana sayfadaki hızlı arama gibi dış bağlantılar birden fazla branş/şehri
+  // virgülle ayrılmış tek bir query param olarak taşıyabiliyor.
+  const initialBranches = (searchParams.get('branch') ?? '').split(',').filter(Boolean) as MusicBranch[];
+  const initialCities = (searchParams.get('city') ?? '').split(',').filter(Boolean) as City[];
+  const [branches, setBranches] = useState<MusicBranch[]>(initialBranches);
+  const [cities, setCities] = useState<City[]>(initialCities);
   const [travelOnly, setTravelOnly] = useState(false);
   const [musicians, setMusicians] = useState<MusicianProfile[] | null>(null);
   const [employers, setEmployers] = useState<EmployerSummary[] | null>(null);
@@ -53,13 +67,13 @@ export function Explore() {
 
   useEffect(() => {
     setPage(1);
-  }, [tab, search, branch, city, travelOnly]);
+  }, [tab, search, branches, cities, travelOnly]);
 
   useEffect(() => {
     if (tab === 'musicians') {
       setMusicians(null);
       profileService
-        .listMusicians({ search, branch: branch || undefined, city: city || undefined, travelOnly, page, pageSize: PAGE_SIZE })
+        .listMusicians({ search, branches, cities, travelOnly, page, pageSize: PAGE_SIZE })
         .then((res) => {
           setMusicians(res.items);
           setTotalCount(res.totalCount);
@@ -68,14 +82,14 @@ export function Explore() {
     } else {
       setEmployers(null);
       profileService
-        .listEmployers({ search, city: city || undefined, page, pageSize: PAGE_SIZE })
+        .listEmployers({ search, cities, page, pageSize: PAGE_SIZE })
         .then((res) => {
           setEmployers(res.items);
           setTotalCount(res.totalCount);
           setTotalPages(Math.max(1, res.totalPages));
         });
     }
-  }, [tab, search, branch, city, travelOnly, page]);
+  }, [tab, search, branches, cities, travelOnly, page]);
 
   useEffect(() => {
     if (isEmployer) favoriteService.listFavoriteMusicianIds().then(setFavorites);
@@ -88,10 +102,12 @@ export function Explore() {
   }
 
   const loading = tab === 'musicians' ? musicians === null : employers === null;
-  const hasFilters = tab === 'musicians' ? !!(search || branch || city || travelOnly) : !!(search || city);
+  const hasFilters = tab === 'musicians'
+    ? !!(search || branches.length || cities.length || travelOnly)
+    : !!(search || cities.length);
 
   function clearFilters() {
-    setSearch(''); setBranch(''); setCity(''); setTravelOnly(false);
+    setSearch(''); setBranches([]); setCities([]); setTravelOnly(false);
   }
 
   return (
@@ -119,21 +135,21 @@ export function Explore() {
               </Field>
               {tab === 'musicians' && (
                 <Field label="Branş">
-                  <Select value={branch} onChange={(e) => setBranch(e.target.value as MusicBranch)}>
-                    <option value="">Tümü</option>
-                    {optionsFrom(MUSIC_BRANCHES, MUSIC_BRANCH_LABELS).map((o) => (
-                      <option key={o.value} value={o.value}>{o.label}</option>
-                    ))}
-                  </Select>
+                  <MultiSelectChips
+                    options={optionsFrom(MUSIC_BRANCHES, MUSIC_BRANCH_LABELS)}
+                    selected={branches}
+                    onChange={setBranches}
+                    placeholder="Branş ara ve ekle..."
+                  />
                 </Field>
               )}
               <Field label="Şehir">
-                <Select value={city} onChange={(e) => setCity(e.target.value as City)}>
-                  <option value="">Tümü</option>
-                  {optionsFrom(CITIES, CITY_LABELS).map((o) => (
-                    <option key={o.value} value={o.value}>{o.label}</option>
-                  ))}
-                </Select>
+                <MultiSelectChips
+                  options={optionsFrom(CITIES, CITY_LABELS)}
+                  selected={cities}
+                  onChange={setCities}
+                  placeholder="Şehir ara ve ekle..."
+                />
               </Field>
               {tab === 'musicians' && (
                 <label className="flex cursor-pointer items-center gap-2.5 text-sm text-text-dim">
@@ -155,7 +171,7 @@ export function Explore() {
             {loading ? 'Yükleniyor...' : `${totalCount} ${tab === 'musicians' ? 'müzisyen' : 'sonuç'} bulundu`}
           </p>
           {loading ? (
-            <div className="grid grid-cols-[repeat(auto-fit,minmax(min(360px,100%),1fr))] gap-5">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(min(360px,100%),440px))] gap-5">
               {Array.from({ length: 6 }, (_, i) => <CardSkeleton key={i} />)}
             </div>
           ) : tab === 'musicians' ? (
@@ -163,7 +179,7 @@ export function Explore() {
               <EmptyState icon={<Users size={22} />} title="Sonuç bulunamadı" description="Filtrelerini genişleterek tekrar dene." />
             ) : (
               <>
-                <div className="grid grid-cols-[repeat(auto-fit,minmax(min(360px,100%),1fr))] gap-5">
+                <div className="grid grid-cols-[repeat(auto-fit,minmax(min(360px,100%),440px))] gap-5">
                   {musicians!.map((m) => (
                     <MusicianCard
                       key={m.id}
@@ -182,7 +198,7 @@ export function Explore() {
             <EmptyState icon={<Users size={22} />} title="Sonuç bulunamadı" description="Filtrelerini genişleterek tekrar dene." />
           ) : (
             <>
-              <div className="grid grid-cols-[repeat(auto-fit,minmax(min(360px,100%),1fr))] gap-5">
+              <div className="grid grid-cols-[repeat(auto-fit,minmax(min(360px,100%),440px))] gap-5">
                 {employers!.map((e) => <EmployerCard key={`${e.kind}-${e.appUserId}`} employer={e} />)}
               </div>
               <div className="mt-8">

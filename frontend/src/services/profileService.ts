@@ -15,18 +15,19 @@ interface PagedResult<T> {
 
 export interface MusicianFilters {
   search?: string;
-  branch?: MusicBranch;
-  city?: City;
+  branches?: MusicBranch[];
+  cities?: City[];
   travelOnly?: boolean;
   page?: number;
   pageSize?: number;
 }
 
+// Backend virgülle ayrılmış enum adları bekliyor (MultiEnumField ile aynı kural).
 export async function listMusicians(filters: MusicianFilters = {}): Promise<PagedResult<MusicianProfile>> {
   return api.get<PagedResult<MusicianProfile>>('/profile/musicians', {
     search: filters.search,
-    branch: filters.branch,
-    city: filters.city,
+    branches: filters.branches?.length ? filters.branches.join(',') : undefined,
+    cities: filters.cities?.length ? filters.cities.join(',') : undefined,
     travelOnly: filters.travelOnly,
     page: filters.page ?? 1,
     pageSize: filters.pageSize ?? 20,
@@ -35,7 +36,7 @@ export async function listMusicians(filters: MusicianFilters = {}): Promise<Page
 
 export interface EmployerFilters {
   search?: string;
-  city?: City;
+  cities?: City[];
   page?: number;
   pageSize?: number;
 }
@@ -45,7 +46,7 @@ export interface EmployerFilters {
 export async function listEmployers(filters: EmployerFilters = {}): Promise<PagedResult<EmployerSummary>> {
   return api.get<PagedResult<EmployerSummary>>('/profile/employers', {
     search: filters.search,
-    city: filters.city,
+    cities: filters.cities?.length ? filters.cities.join(',') : undefined,
     page: filters.page ?? 1,
     pageSize: filters.pageSize ?? 20,
   });

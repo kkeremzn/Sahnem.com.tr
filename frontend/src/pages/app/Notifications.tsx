@@ -71,7 +71,15 @@ export function Notifications() {
                 </div>
               </Card>
             );
-            return n.linkTo ? <Link key={n.id} to={n.linkTo}>{content}</Link> : <div key={n.id}>{content}</div>;
+            // <Link> öntanımlı olarak inline bir <a> render ediyor — inline
+            // elemanlarda dikey margin (space-y'nin kullandığı margin-top)
+            // hiçbir etki yapmıyor. Bu yüzden linkTo'su olan bildirimler
+            // (Link'e sarılanlar) üstündeki boşluğu kaybediyor, olmayanlar
+            // (düz div'e sarılanlar) normal boşluğu koruyordu — kartlar arası
+            // boşluğun bazılarında olup bazılarında olmamasının sebebi buydu.
+            return n.linkTo
+              ? <Link key={n.id} to={n.linkTo} className="block">{content}</Link>
+              : <div key={n.id}>{content}</div>;
           })}
         </div>
       )}

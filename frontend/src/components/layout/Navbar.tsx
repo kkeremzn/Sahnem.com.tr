@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { Bell, LogOut, Menu, Settings, User, X } from 'lucide-react';
+import { Bell, Loader2, LogOut, Menu, Settings, User, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { LogoMark } from '@/components/brand/LogoMark';
 import { Avatar } from '@/components/ui/Avatar';
@@ -22,6 +22,7 @@ export function Navbar() {
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -32,10 +33,19 @@ export function Navbar() {
     return () => document.removeEventListener('mousedown', onClick);
   }, []);
 
-  function handleLogout() {
-    logout();
-    setMenuOpen(false);
-    navigate('/');
+  async function handleLogout() {
+    // Önceden logout() beklenmeden hemen navigate ediliyordu — istek devam
+    // ederken buton hiçbir geri bildirim vermediği için "donmuş" hissettiriyor,
+    // sonra istek bitince arayüz aniden değişiyordu. Artık istek bitene kadar
+    // butonda bir yükleniyor göstergesi var, yönlendirme ondan sonra oluyor.
+    setLoggingOut(true);
+    try {
+      await logout();
+      setMenuOpen(false);
+      navigate('/');
+    } finally {
+      setLoggingOut(false);
+    }
   }
 
   return (
@@ -105,8 +115,13 @@ export function Navbar() {
                       <Link to="/settings" onClick={() => setMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-dim hover:bg-card-hover hover:text-text">
                         <Settings size={16} /> Ayarlar
                       </Link>
-                      <button onClick={handleLogout} className="flex w-full items-center gap-2.5 border-t border-border px-4 py-2.5 text-left text-sm text-danger hover:bg-card-hover">
-                        <LogOut size={16} /> Çıkış Yap
+                      <button
+                        onClick={handleLogout}
+                        disabled={loggingOut}
+                        className="flex w-full items-center gap-2.5 border-t border-border px-4 py-2.5 text-left text-sm text-danger hover:bg-card-hover disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {loggingOut ? <Loader2 size={16} className="animate-spin" /> : <LogOut size={16} />}
+                        {loggingOut ? 'Çıkış yapılıyor...' : 'Çıkış Yap'}
                       </button>
                     </motion.div>
                   )}

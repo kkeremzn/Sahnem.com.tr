@@ -86,14 +86,14 @@ export function Jobs() {
             {adverts === null ? 'Yükleniyor...' : `${totalCount} açık ilan bulundu`}
           </p>
           {adverts === null ? (
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(min(340px,100%),440px))] gap-5">
               {Array.from({ length: 6 }, (_, i) => <CardSkeleton key={i} />)}
             </div>
           ) : adverts.length === 0 ? (
             <EmptyState icon={<Briefcase size={22} />} title="İlan bulunamadı" description="Filtrelerini genişleterek tekrar dene." />
           ) : (
             <>
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-[repeat(auto-fit,minmax(min(340px,100%),440px))] gap-5">
                 {adverts.map((a) => <AdvertCard key={a.id} advert={a} />)}
               </div>
               <div className="mt-8">

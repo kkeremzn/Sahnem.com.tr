@@ -113,7 +113,7 @@ function EmployerDashboard({ firstName }: { firstName: string }) {
     // Kendi şehrindeki müzisyenlerle öneriyi anlamlı kılmaya çalışıyoruz — hiç
     // sonuç yoksa şehir filtresi olmadan geneli gösteriyoruz.
     profileService.getMyProfile().then(async (profile) => {
-      const res = await profileService.listMusicians({ city: profile.city, pageSize: 4 });
+      const res = await profileService.listMusicians({ cities: [profile.city], pageSize: 4 });
       if (res.items.length > 0) {
         setMusicians(res.items);
         setPersonalized(true);

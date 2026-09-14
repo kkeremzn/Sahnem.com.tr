@@ -53,7 +53,7 @@ export function Offers() {
       ) : (
         <div className="space-y-3">
           {filtered.map((o) => (
-            <Link key={o.id} to={`/offers/${o.id}`}>
+            <Link key={o.id} to={`/offers/${o.id}`} className="block">
               <Card hover className="flex flex-wrap items-center justify-between gap-3">
                 <div className="min-w-0">
                   <p className="truncate font-semibold text-text">{o.advertTitle}</p>

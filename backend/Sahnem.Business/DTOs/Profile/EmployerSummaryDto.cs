@@ -21,7 +21,9 @@ namespace Sahnem.Business.DTOs.Profile
     public class EmployerFilterDto
     {
         public string? Search { get; set; }
-        public City? City { get; set; }
+        // Virgülle ayrılmış City adları — MultiEnumField ile aynı kural, birden
+        // fazla şehir aynı anda seçilebilsin diye.
+        public string? Cities { get; set; }
         public int Page { get; set; } = 1;
         public int PageSize { get; set; } = 20;
     }

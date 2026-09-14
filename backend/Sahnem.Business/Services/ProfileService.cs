@@ -244,16 +244,18 @@ namespace Sahnem.Business.Services
                         m.Bio.ToLowerInvariant().Contains(search) ||
                         nameMatchIds.Contains(m.AppUserId));
                 }
-                if (filter.Branch.HasValue)
+                var branchFilters = MultiEnumField.Parse<MusicBranch>(filter.Branches);
+                if (branchFilters.Count > 0)
                 {
-                    musicians = musicians.Where(m => MultiEnumField.Parse<MusicBranch>(m.Branch).Contains(filter.Branch.Value));
+                    musicians = musicians.Where(m => MultiEnumField.Parse<MusicBranch>(m.Branch).Any(b => branchFilters.Contains(b)));
                 }
-                if (filter.City.HasValue)
+                var cityFilters = MultiEnumField.Parse<City>(filter.Cities);
+                if (cityFilters.Count > 0)
                 {
                     // Ana şehri ya da hizmet verdiği ek şehirlerden biri eşleşiyorsa bulunabilir.
                     musicians = musicians.Where(m =>
-                        m.City == filter.City.Value ||
-                        MultiEnumField.Parse<City>(m.AdditionalCities).Contains(filter.City.Value));
+                        cityFilters.Contains(m.City) ||
+                        MultiEnumField.Parse<City>(m.AdditionalCities).Any(c => cityFilters.Contains(c)));
                 }
                 if (filter.TravelOnly == true)
                 {
@@ -325,15 +327,16 @@ namespace Sahnem.Business.Services
             var organizers = (await _organizerProfileRepository.GetAllAsync()).AsEnumerable();
             var venues = (await _venueProfileRepository.GetAllAsync()).AsEnumerable();
 
-            if (filter?.City is { } cityFilter)
+            var cityFilters = MultiEnumField.Parse<City>(filter?.Cities);
+            if (cityFilters.Count > 0)
             {
                 // Mekan tek bir fiziksel konuma bağlı (AdditionalCities yok), ama
                 // organizatör müzisyen gibi ek şehirlerde de hizmet verebiliyor —
                 // filtre bunu dikkate almazsa organizatörün ek şehirlerinden biri
                 // aranınca hiç bulunamıyordu.
                 organizers = organizers.Where(o =>
-                    o.City == cityFilter || MultiEnumField.Parse<City>(o.AdditionalCities).Contains(cityFilter));
-                venues = venues.Where(v => v.City == cityFilter);
+                    cityFilters.Contains(o.City) || MultiEnumField.Parse<City>(o.AdditionalCities).Any(c => cityFilters.Contains(c)));
+                venues = venues.Where(v => cityFilters.Contains(v.City));
             }
 
             var combined = organizers.Select(o => new EmployerSummaryDto
