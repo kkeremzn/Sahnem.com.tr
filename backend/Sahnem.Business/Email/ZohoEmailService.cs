@@ -49,18 +49,14 @@ namespace Sahnem.Business.Email
 
                 var request = new HttpRequestMessage(HttpMethod.Post, $"{ApiDomain}/api/accounts/{_settings.AccountId}/messages")
                 {
-                    // fromAddress'e sadece e-posta adresi verilince Zoho, gönderen adı
-                    // olarak hesabın kendi profil adını kullanıyor — Zoho Mail
-                    // arayüzünde "Send Mail As" için elle ayarlanan görünen ad (ör.
-                    // "Sahnem Support") sadece webmail'den elle yazılan postalara
-                    // uygulanıyor, API üzerinden gönderilenlere değil. RFC 5322
-                    // "Ad <e-posta>" biçimini gönderip görünen adı burada da
-                    // zorluyoruz.
+                    // Zoho Mail API'nin resmi dokümantasyonu doğrulandı: bu uçtaki
+                    // fromAddress çıplak bir e-posta adresi bekliyor, "Ad <e-posta>"
+                    // biçimini desteklemiyor (denendi, çalışmadı) — görünen ad API'den
+                    // bağımsız, hesabın Zoho tarafındaki kendi ayarından geliyor.
+                    // O yüzden burada FromName'i artık kullanmıyoruz.
                     Content = JsonContent.Create(new
                     {
-                        fromAddress = string.IsNullOrWhiteSpace(_settings.FromName)
-                            ? _settings.FromEmail
-                            : $"{_settings.FromName} <{_settings.FromEmail}>",
+                        fromAddress = _settings.FromEmail,
                         toAddress = toEmail,
                         subject,
                         content = htmlBody,
