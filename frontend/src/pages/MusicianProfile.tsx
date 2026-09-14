@@ -28,7 +28,10 @@ export function MusicianProfile() {
   const { isEmployer, user } = useAuth();
   const { toast } = useToast();
   const [musician, setMusician] = useState<MusicianProfileType | null | undefined>(null);
-  const [favorite, setFavorite] = useState(false);
+  // undefined = favori durumu henüz kontrol edilmedi — bunu "false" ile aynı
+  // değer üzerinden taşımak, favorilenmiş bir profilde bile butonun bir an
+  // "Favorile" gösterip hemen "Favoride"ye dönmesine yol açıyordu.
+  const [favorite, setFavorite] = useState<boolean | undefined>();
 
   useEffect(() => {
     profileService.getMusicianByUserId(Number(id)).then((m) => setMusician(m ?? undefined));
@@ -98,9 +101,11 @@ export function MusicianProfile() {
           </div>
           {isEmployer && (
             <div className="flex gap-2">
-              <Button variant={favorite ? 'primary' : 'secondary'} icon={<Star size={15} fill={favorite ? 'currentColor' : 'none'} />} onClick={handleToggleFavorite}>
-                {favorite ? 'Favoride' : 'Favorile'}
-              </Button>
+              {favorite !== undefined && (
+                <Button variant={favorite ? 'primary' : 'secondary'} icon={<Star size={15} fill={favorite ? 'currentColor' : 'none'} />} onClick={handleToggleFavorite}>
+                  {favorite ? 'Favoride' : 'Favorile'}
+                </Button>
+              )}
               <Button icon={<MessageCircle size={15} />} onClick={handleMessage}>Mesaj Gönder</Button>
             </div>
           )}

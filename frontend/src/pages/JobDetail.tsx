@@ -13,7 +13,7 @@ import { Field } from '@/components/ui/Field';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { AdvertStatusBadge, OfferStatusBadge } from '@/components/ui/StatusBadge';
-import { DetailPageSkeleton } from '@/components/ui/Skeleton';
+import { DetailPageSkeleton, Skeleton } from '@/components/ui/Skeleton';
 import { FadeIn } from '@/components/ui/FadeIn';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
@@ -36,7 +36,12 @@ export function JobDetail() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [advert, setAdvert] = useState<Advert | null | undefined>(null);
-  const [existingOffer, setExistingOffer] = useState<Offer | undefined>();
+  // undefined = henüz kontrol edilmedi (yükleniyor), null = kontrol edildi ve
+  // teklif yok, Offer = kontrol edildi ve teklif bulundu — "henüz bilmiyoruz"
+  // ile "bildik, teklif yok" durumlarını aynı değerle (undefined) karıştırmak,
+  // sayfa her açıldığında teklif formunun bir an görünüp sonra "zaten
+  // gönderildi" durumuna dönmesine (düzen sıçramasına) yol açıyordu.
+  const [existingOffer, setExistingOffer] = useState<Offer | null | undefined>();
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<OfferFormInput, unknown, OfferFormData>({
     resolver: zodResolver(offerSchema),
@@ -49,7 +54,7 @@ export function JobDetail() {
   useEffect(() => {
     if (user?.role === 'Musician' && advert) {
       offerService.listMyOffers().then((offers) => {
-        setExistingOffer(offers.find((o) => o.advertId === advert.id));
+        setExistingOffer(offers.find((o) => o.advertId === advert.id) ?? null);
       });
     }
   }, [user, advert]);
@@ -156,6 +161,11 @@ export function JobDetail() {
                 <p className="text-sm text-text-dim">Bu ilana yalnızca müzisyenler teklif gönderebilir.</p>
               ) : advert.status !== 'Open' ? (
                 <p className="text-sm text-text-dim">Bu ilan artık teklif kabul etmiyor.</p>
+              ) : existingOffer === undefined ? (
+                <div className="space-y-3">
+                  <Skeleton className="h-4 w-2/3" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
               ) : existingOffer ? (
                 <div>
                   <p className="mb-2 text-sm text-text-dim">Bu ilana teklif gönderdin.</p>

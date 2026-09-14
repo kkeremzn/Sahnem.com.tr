@@ -45,7 +45,10 @@ export function Explore() {
   const [employers, setEmployers] = useState<EmployerSummary[] | null>(null);
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
-  const [favorites, setFavorites] = useState<number[]>([]);
+  // null = favori listesi henüz gelmedi — "[]" ile aynı değeri kullanmak,
+  // aslında favorilenmiş bir müzisyenin kalbinin bir an boş görünüp sonra
+  // dolmasına (yanlış durumun bir an gösterilmesine) yol açıyordu.
+  const [favorites, setFavorites] = useState<number[] | null>(null);
   const [page, setPage] = useState(1);
 
   useEffect(() => {
@@ -80,7 +83,7 @@ export function Explore() {
 
   async function handleToggleFavorite(appUserId: number) {
     const nowFavorite = await favoriteService.toggleFavorite(appUserId);
-    setFavorites((prev) => (nowFavorite ? [...prev, appUserId] : prev.filter((f) => f !== appUserId)));
+    setFavorites((prev) => (nowFavorite ? [...(prev ?? []), appUserId] : (prev ?? []).filter((f) => f !== appUserId)));
     toast(nowFavorite ? 'Favorilere eklendi.' : 'Favorilerden çıkarıldı.', 'success');
   }
 
@@ -165,8 +168,8 @@ export function Explore() {
                     <MusicianCard
                       key={m.id}
                       musician={m}
-                      favorite={isEmployer ? favorites.includes(m.appUserId) : undefined}
-                      onToggleFavorite={isEmployer ? handleToggleFavorite : undefined}
+                      favorite={isEmployer && favorites ? favorites.includes(m.appUserId) : undefined}
+                      onToggleFavorite={isEmployer && favorites ? handleToggleFavorite : undefined}
                     />
                   ))}
                 </div>
