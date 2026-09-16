@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { ChevronDown, FileText, Lock, Mail, ShieldCheck } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
@@ -14,9 +15,9 @@ const FAQS = [
 ];
 
 const LEGAL = [
-  { icon: FileText, title: 'Kullanım Koşulları', desc: 'Platformu kullanırken uyman gereken kurallar.' },
-  { icon: Lock, title: 'Gizlilik Politikası', desc: 'Verilerini nasıl işlediğimizi öğren.' },
-  { icon: ShieldCheck, title: 'KVKK Aydınlatma Metni', desc: 'Kişisel verilerin korunması hakkında bilgi.' },
+  { icon: FileText, title: 'Kullanım Koşulları', desc: 'Platformu kullanırken uyman gereken kurallar.', to: '/kullanim-kosullari' },
+  { icon: Lock, title: 'Gizlilik Politikası', desc: 'Verilerini nasıl işlediğimizi öğren.', to: '/gizlilik-politikasi' },
+  { icon: ShieldCheck, title: 'KVKK Aydınlatma Metni', desc: 'Kişisel verilerin korunması hakkında bilgi.', to: '/kvkk-aydinlatma-metni' },
 ];
 
 export function Help() {
@@ -45,14 +46,13 @@ export function Help() {
         <h2 className="mb-4 font-display text-lg font-bold">Yasal Belgeler</h2>
         <div className="grid gap-4 sm:grid-cols-3">
           {LEGAL.map((item) => (
-            <Card key={item.title}>
-              <div className="flex items-start justify-between">
+            <Link key={item.title} to={item.to}>
+              <Card className="h-full transition-colors hover:border-gold/40">
                 <item.icon size={18} className="text-gold-soft" />
-                <span className="rounded-full bg-card-hover px-2 py-0.5 text-[10px] font-medium text-text-faint">Yakında</span>
-              </div>
-              <h3 className="mt-2.5 text-sm font-semibold">{item.title}</h3>
-              <p className="mt-1 text-xs text-text-dim">{item.desc}</p>
-            </Card>
+                <h3 className="mt-2.5 text-sm font-semibold">{item.title}</h3>
+                <p className="mt-1 text-xs text-text-dim">{item.desc}</p>
+              </Card>
+            </Link>
           ))}
         </div>
       </div>

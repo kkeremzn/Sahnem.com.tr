@@ -131,11 +131,24 @@ export function Register() {
         <label className="flex items-start gap-2.5 text-xs text-text-dim">
           <input type="checkbox" className="mt-0.5 h-4 w-4 accent-gold" {...register('terms')} />
           <span>
-            <Link to="/help" className="text-gold-soft hover:underline">Kullanım Koşulları</Link> ve{' '}
-            <Link to="/help" className="text-gold-soft hover:underline">Gizlilik Politikası</Link>'nı okudum, kabul ediyorum.
+            <Link to="/kullanim-kosullari" target="_blank" rel="noopener noreferrer" className="text-gold-soft hover:underline">
+              Kullanım Koşulları
+            </Link>
+            'nı okudum ve kabul ediyorum.
           </span>
         </label>
         {errors.terms && <p className="-mt-2 text-xs text-danger">{errors.terms.message}</p>}
+        <p className="-mt-2 text-xs text-text-faint">
+          Kişisel verilerinin işlenmesine ilişkin açıklamalar için{' '}
+          <Link to="/kvkk-aydinlatma-metni" target="_blank" rel="noopener noreferrer" className="text-gold-soft hover:underline">
+            KVKK Aydınlatma Metni
+          </Link>
+          'ni ve{' '}
+          <Link to="/gizlilik-politikasi" target="_blank" rel="noopener noreferrer" className="text-gold-soft hover:underline">
+            Gizlilik Politikası
+          </Link>
+          'nı inceleyebilirsin.
+        </p>
         {role === 'Musician' && (
           <label className="flex items-start gap-2.5 text-xs text-text-dim">
             <input type="checkbox" className="mt-0.5 h-4 w-4 accent-gold" {...register('allowCityAdvertAlerts')} />

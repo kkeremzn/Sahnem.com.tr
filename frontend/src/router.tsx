@@ -16,6 +16,9 @@ import { EmployerProfile } from '@/pages/EmployerProfile';
 import { About } from '@/pages/About';
 import { Help } from '@/pages/Help';
 import { NotFound } from '@/pages/NotFound';
+import { Terms } from '@/pages/legal/Terms';
+import { Privacy } from '@/pages/legal/Privacy';
+import { Kvkk } from '@/pages/legal/Kvkk';
 
 import { Login } from '@/pages/auth/Login';
 import { Register } from '@/pages/auth/Register';
@@ -62,6 +65,9 @@ export const router = createBrowserRouter([
       { path: '/employers/:id', element: <EmployerProfile /> },
       { path: '/about', element: <About /> },
       { path: '/help', element: <Help /> },
+      { path: '/kullanim-kosullari', element: <Terms /> },
+      { path: '/gizlilik-politikasi', element: <Privacy /> },
+      { path: '/kvkk-aydinlatma-metni', element: <Kvkk /> },
     ],
   },
   {

@@ -15,9 +15,9 @@ const COMPANY_LINKS = [
 ];
 
 const LEGAL_LINKS = [
-  { label: 'Kullanım Koşulları', to: '/help' },
-  { label: 'Gizlilik Politikası', to: '/help' },
-  { label: 'KVKK', to: '/help' },
+  { label: 'Kullanım Koşulları', to: '/kullanim-kosullari' },
+  { label: 'Gizlilik Politikası', to: '/gizlilik-politikasi' },
+  { label: 'KVKK', to: '/kvkk-aydinlatma-metni' },
 ];
 
 export function Footer() {
