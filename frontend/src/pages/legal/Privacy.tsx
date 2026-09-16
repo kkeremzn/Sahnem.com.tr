@@ -1,6 +1,6 @@
 import { Container } from '@/components/ui/Container';
 import { LegalHero } from '@/components/legal/LegalHero';
-import { LegalProse, LegalTable } from '@/components/legal/LegalProse';
+import { LegalProse } from '@/components/legal/LegalProse';
 
 export function Privacy() {
   return (
@@ -70,15 +70,6 @@ export function Privacy() {
             araçları kullanılır. Platformda şu anda analitik, reklam veya pazarlama amaçlı bir izleme aracı
             bulunmamaktadır; kullanılan tüm çerez ve depolama kayıtları hizmetin çalışması için zorunludur.
           </p>
-          <LegalTable
-            head={['Ad', 'Sağlayıcı / alan adı', 'Amaç', 'Tür / hukuki sebep', 'Süre']}
-            rows={[
-              ['sahnem_refresh_token', 'Sahnem (api.sahnem.com.tr) — HttpOnly çerez', 'Oturumu yenilemek ve giriş durumunu sürdürmek', 'Zorunlu — hizmetin ifası için gereklilik (KVKK m.5/2-c), açık rızaya tabi değil', '30 güne kadar veya çıkış yapıldığında'],
-              ['sahnem_admin_refresh_token', 'Sahnem (api.sahnem.com.tr) — HttpOnly çerez', 'Yönetim paneli oturumunu sürdürmek', 'Zorunlu, yalnızca yetkili yönetici hesapları için', '14 güne kadar veya çıkış yapıldığında'],
-              ['sahnem_pending_role', 'Sahnem (sahnem.com.tr) — tarayıcı sessionStorage', 'Kayıt akışında seçilen hesap rolünün (müzisyen/organizatör/mekân) geçici tutulması', 'Zorunlu, işlevsel', 'Tarayıcı sekmesi kapanana kadar'],
-              ['Google Fonts', 'fonts.googleapis.com / fonts.gstatic.com (Google)', 'Sayfada kullanılan yazı tiplerinin yüklenmesi', 'Çerez oluşturmaz; sayfa yüklenirken ziyaretçinin IP adresi Google sunucularına ulaşır', 'İlgili sayfa görüntüleme süresince'],
-            ]}
-          />
 
           <h2>6. Hizmet sağlayıcılar ve yurt dışı işlemler</h2>
           <p>
