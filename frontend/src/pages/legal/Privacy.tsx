@@ -79,13 +79,6 @@ export function Privacy() {
               ['Google Fonts', 'fonts.googleapis.com / fonts.gstatic.com (Google)', 'Sayfada kullanılan yazı tiplerinin yüklenmesi', 'Çerez oluşturmaz; sayfa yüklenirken ziyaretçinin IP adresi Google sunucularına ulaşır', 'İlgili sayfa görüntüleme süresince'],
             ]}
           />
-          <p>
-            Yukarıdaki kayıtların tamamı hizmetin çalışması için zorunlu olduğundan ayrı bir çerez tercih/onay paneli
-            bulunmamaktadır. Tarayıcı ayarlarınızdan çerezleri ve tarayıcı depolamasını istediğiniz zaman silebilir
-            veya engelleyebilirsiniz; bu durumda oturumunuz sonlanabilir ve bazı işlevler çalışmayabilir. Pazarlama
-            veya analitik amaçlı bir araç eklenmesi hâlinde bu bölüm önceden güncellenir ve gereken hâllerde açık
-            rızanız alınır.
-          </p>
 
           <h2>6. Hizmet sağlayıcılar ve yurt dışı işlemler</h2>
           <p>

@@ -87,17 +87,19 @@ export function Settings() {
 
       {tab === 'notifications' && (
         <div className="max-w-xl space-y-3">
-          {user.role === 'Musician' && (
-            <Card>
-              <Switch
-                checked={user.allowCityAdvertAlerts}
-                disabled={savingCityAlerts}
-                onChange={handleCityAlertsToggle}
-                label="Şehrimde yeni ilan bildirimi"
-                description="Şehrinde yeni bir ilan açıldığında bildirim ve e-posta al."
-              />
-            </Card>
-          )}
+          <Card>
+            <Switch
+              checked={user.allowCityAdvertAlerts}
+              disabled={savingCityAlerts}
+              onChange={handleCityAlertsToggle}
+              label={user.role === 'Musician' ? 'Şehrimde yeni ilan bildirimi' : 'Fırsat ve öneri bildirimleri'}
+              description={
+                user.role === 'Musician'
+                  ? 'Şehrinde yeni bir ilan açıldığında bildirim ve e-posta al.'
+                  : 'Sana uygun müzisyen önerileri ve platform güncellemelerinde bildirim ve e-posta al.'
+              }
+            />
+          </Card>
           <p className="text-xs text-text-faint">Aşağıdaki tercihler yakında aktif olacak, şu an uygulama tüm bildirimleri gönderiyor.</p>
           <Card className="divide-y divide-border">
             <div className="pb-4">

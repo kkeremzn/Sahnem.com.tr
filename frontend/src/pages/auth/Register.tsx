@@ -43,17 +43,29 @@ const schema = z
   });
 type FormData = z.infer<typeof schema>;
 
-const ROLES: { value: UserType; icon: typeof Mic2 }[] = [
+type RegisterRole = Exclude<UserType, 'Admin'>;
+
+const ROLES: { value: RegisterRole; icon: typeof Mic2 }[] = [
   { value: 'Musician', icon: Mic2 },
   { value: 'Organizer', icon: Building2 },
   { value: 'Venue', icon: Store },
 ];
 
+// Alan adı (AllowCityAdvertAlerts) şu an sadece müzisyenlere "şehrimde yeni ilan"
+// e-postası göndermek için kullanılıyor, ama onayı kayıt anında her rolden
+// alıyoruz ki organizatör/mekan için müzisyen önerisi vb. bildirimler
+// eklendiğinde ayrıca izin istemeye gerek kalmasın.
+const NOTIFICATION_OPT_IN_COPY: Record<RegisterRole, string> = {
+  Musician: 'Şehrimde yeni ilan açıldığında ve bana uygun fırsatlardan e-posta ile haberdar olmak istiyorum.',
+  Organizer: 'Bana uygun müzisyen önerilerinden ve platform güncellemelerinden e-posta ile haberdar olmak istiyorum.',
+  Venue: 'Bana uygun müzisyen önerilerinden ve platform güncellemelerinden e-posta ile haberdar olmak istiyorum.',
+};
+
 export function Register() {
   const { register: registerUser } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [role, setRole] = useState<UserType>('Musician');
+  const [role, setRole] = useState<RegisterRole>('Musician');
   const { register, handleSubmit, formState: { errors, isSubmitting }, setError } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: { allowCityAdvertAlerts: false },
@@ -149,12 +161,10 @@ export function Register() {
           </Link>
           'nı inceleyebilirsin.
         </p>
-        {role === 'Musician' && (
-          <label className="flex items-start gap-2.5 text-xs text-text-dim">
-            <input type="checkbox" className="mt-0.5 h-4 w-4 accent-gold" {...register('allowCityAdvertAlerts')} />
-            <span>Bana uygun yeni ilan ve fırsatlardan e-posta ile haberdar olmak istiyorum.</span>
-          </label>
-        )}
+        <label className="flex items-start gap-2.5 text-xs text-text-dim">
+          <input type="checkbox" className="mt-0.5 h-4 w-4 accent-gold" {...register('allowCityAdvertAlerts')} />
+          <span>{NOTIFICATION_OPT_IN_COPY[role]}</span>
+        </label>
         {errors.root && <p className="text-sm text-danger">{errors.root.message}</p>}
         <Button type="submit" full size="lg" icon={<UserPlus size={16} />} loading={isSubmitting}>
           Kayıt Ol
