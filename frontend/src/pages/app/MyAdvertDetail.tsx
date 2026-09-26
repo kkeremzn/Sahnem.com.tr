@@ -74,6 +74,8 @@ export function MyAdvertDetail() {
     );
   }
 
+  const eventHasPassed = new Date(advert.eventTime) < new Date();
+
   return (
     <FadeIn>
       <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
@@ -119,10 +121,14 @@ export function MyAdvertDetail() {
                   </div>
                   <p className="mt-3 text-sm text-text-dim">{o.message}</p>
                   {o.offerStatus === 'Pending' && (
-                    <div className="mt-4 flex gap-2 border-t border-border pt-4">
-                      <Button size="sm" onClick={() => setPendingOfferAction({ offerId: o.id, status: 'Accepted', musicianName: o.musicianName })} loading={busyId === o.id}>Kabul Et</Button>
-                      <Button size="sm" variant="secondary" onClick={() => setPendingOfferAction({ offerId: o.id, status: 'Rejected', musicianName: o.musicianName })} loading={busyId === o.id}>Reddet</Button>
-                    </div>
+                    eventHasPassed ? (
+                      <p className="mt-4 border-t border-border pt-4 text-xs text-text-faint">Etkinlik tarihi geçtiği için bu teklife artık yanıt verilemiyor.</p>
+                    ) : (
+                      <div className="mt-4 flex gap-2 border-t border-border pt-4">
+                        <Button size="sm" onClick={() => setPendingOfferAction({ offerId: o.id, status: 'Accepted', musicianName: o.musicianName })} loading={busyId === o.id}>Kabul Et</Button>
+                        <Button size="sm" variant="secondary" onClick={() => setPendingOfferAction({ offerId: o.id, status: 'Rejected', musicianName: o.musicianName })} loading={busyId === o.id}>Reddet</Button>
+                      </div>
+                    )
                   )}
                 </Card>
               ))}

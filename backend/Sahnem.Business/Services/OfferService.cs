@@ -195,6 +195,14 @@ namespace Sahnem.Business.Services
             {
                 throw new Exception("This advert is no longer open, so its offers can't be responded to");
             }
+            // Etkinlik tarihi geçtiyse (AdvertLifecycleService bunu ayrıca
+            // periyodik olarak otomatik reddeder ama arada bir gecikme
+            // penceresi var) bir teklifi "kabul etmek" artık anlamsız —
+            // arka plan işinin yetişmesini beklemeden burada da engelle.
+            if (advert.EventTime < DateTime.UtcNow)
+            {
+                throw new Exception("This advert's event date has already passed, its offers can no longer be responded to");
+            }
 
             offer.OfferStatus = status;
 
