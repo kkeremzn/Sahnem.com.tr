@@ -68,6 +68,19 @@ namespace Sahnem.API.Services
             return $"{_settings.PublicUrlBase.TrimEnd('/')}/{key}";
         }
 
+        public async Task<(Stream Content, string ContentType)?> GetFileAsync(string key)
+        {
+            try
+            {
+                var response = await _client.GetObjectAsync(_settings.Bucket, key);
+                return (response.ResponseStream, response.Headers.ContentType ?? "application/octet-stream");
+            }
+            catch (Amazon.S3.AmazonS3Exception ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+        }
+
         // Avatar değiştirildiğinde/hesap silindiğinde eski R2 nesnesi hiç
         // temizlenmiyordu — bucket'ta süresiz artan, kullanılmayan dosyalar
         // birikiyordu. En iyi çaba (best-effort) temizlik: bilinen public URL

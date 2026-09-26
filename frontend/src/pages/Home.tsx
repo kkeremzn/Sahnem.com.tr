@@ -37,7 +37,7 @@ export function Home() {
   const [searchBranches, setSearchBranches] = useState<MusicBranch[]>([]);
   const [searchCities, setSearchCities] = useState<City[]>([]);
   usePageSeo({
-    title: 'Sahnem — Müzisyen, Mekan ve Organizatörleri Buluşturan Platform',
+    title: 'Sahnem | Müzik Profesyonelleri Ağı',
     description: 'Müzisyenleri organizatör ve mekanlarla buluşturan müzik profesyonelleri ağı. İlan aç, teklif ver, doğru ismi bul.',
     canonicalPath: '/',
   });

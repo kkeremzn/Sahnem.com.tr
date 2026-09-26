@@ -49,7 +49,7 @@ export function Jobs() {
   }
 
   usePageSeo({
-    title: 'Müzisyen Arayan İlanlar | Sahnem',
+    title: 'İlanlar | Sahnem',
     description: 'Organizatör ve mekanların yayınladığı açık ilanları incele, müzisyen olarak teklifini gönder.',
     canonicalPath: page > 1 ? `/jobs?page=${page}` : '/jobs',
   });

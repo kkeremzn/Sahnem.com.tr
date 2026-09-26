@@ -7,5 +7,10 @@ namespace Sahnem.Business.Interfaces
     {
         Task<string> SaveFileAsync(Stream content, string fileName, string subFolder);
         Task DeleteFileAsync(string publicUrl);
+        // R2'nin herkese açık pub-xxxx.r2.dev adresi reklam engelleyiciler/Chrome
+        // Safe Browsing tarafından tutarsız şekilde engelleniyor (bkz. UploadController
+        // GetFile) — bu yüzden dosyalar artık API üzerinden okunup istemciye
+        // aktarılıyor (proxy). null dönerse dosya bulunamamış demektir.
+        Task<(Stream Content, string ContentType)?> GetFileAsync(string key);
     }
 }

@@ -75,6 +75,40 @@ namespace Sahnem.API.Controllers
             return Ok(new { url });
         }
 
+        // Profil fotoğrafları önceden doğrudan R2'nin herkese açık pub-xxxx.r2.dev
+        // adresinden servis ediliyordu — bu adres reklam engelleyiciler ve Chrome'un
+        // Safe Browsing'i tarafından tutarsız biçimde engelleniyor (Cloudflare'in
+        // kendi dokümantasyonu da bu adresi "yalnızca geliştirme amaçlı, production
+        // için önerilmiyor" diye işaretliyor). Kalıcı çözüm bir custom domain
+        // bağlamak ama bu, alan adının DNS'i Cloudflare'de olmayan bir hesapta
+        // (bkz. Vercel) gerçek bir DNS/Cloudflare kurulumu gerektiriyor. Bunun
+        // yerine dosyayı burada okuyup zaten güvenilir olan api.sahnem.com.tr
+        // üzerinden aktarıyoruz — hiçbir DNS değişikliği gerekmiyor, mevcut tüm
+        // avatarUrl değerleri (frontend'deki resolveAssetUrl üzerinden) otomatik
+        // bu uca yönleniyor.
+        [HttpGet("file/{**key}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetFile(string key)
+        {
+            // avatars/ dışına ve üst dizine çıkışa (path traversal) izin verilmiyor —
+            // bu uç kimlik doğrulaması istemiyor, bucket'taki başka bir şeyin
+            // sızdırılmasının önüne geçmek için kapsam sıkı tutuluyor.
+            if (string.IsNullOrWhiteSpace(key) || key.Contains("..") || !key.StartsWith("avatars/"))
+            {
+                return NotFound();
+            }
+
+            var result = await _fileStorageService.GetFileAsync(key);
+            if (result == null)
+            {
+                return NotFound();
+            }
+
+            var (content, contentType) = result.Value;
+            Response.Headers.CacheControl = "public, max-age=31536000, immutable";
+            return File(content, contentType);
+        }
+
         private static async Task<bool> LooksLikeImageAsync(Stream stream, string declaredContentType)
         {
             var header = new byte[12];

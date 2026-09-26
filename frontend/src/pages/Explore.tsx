@@ -85,7 +85,7 @@ export function Explore() {
   // belirtiyor; aksi halde aynı bare /explore adresi farklı ziyaretçilere
   // farklı içerik gösterirken tek, belirsiz bir canonical'a sahip olurdu.
   usePageSeo({
-    title: `${tab === 'musicians' ? 'Müzisyen' : 'Mekan ve Organizatör'} Keşfet | Sahnem`,
+    title: 'Keşfet | Sahnem',
     description: 'Branşa ve şehre göre müzisyenleri, mekanları ve organizatörleri keşfet, doğrudan iletişime geç.',
     canonicalPath: `/explore?tab=${tab}${page > 1 ? `&page=${page}` : ''}`,
   });

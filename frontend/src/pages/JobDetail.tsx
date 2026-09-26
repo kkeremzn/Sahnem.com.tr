@@ -58,7 +58,7 @@ export function JobDetail() {
   // bu durumda Google'a "bunu indeksleme" diyoruz, aksi halde her ilan
   // kaldırıldığında/iptal edildiğinde arkasında ölü, boş bir sayfa kalırdı.
   usePageSeo({
-    title: advert ? `${advert.title} | Sahnem İlanları` : 'İlan | Sahnem',
+    title: advert ? `${advert.title} | Sahnem` : 'İlan | Sahnem',
     description: advert ? advert.description.slice(0, 155) : undefined,
     canonicalPath: id ? `/jobs/${id}` : undefined,
     noindex: advert === undefined,

@@ -3,11 +3,23 @@ import { getAccessToken, setAccessToken } from './tokenStore';
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5080/api';
 const API_ORIGIN = API_URL.replace(/\/api\/?$/, '');
 
+// Avatar'lar önceden doğrudan R2'nin herkese açık pub-xxxx.r2.dev adresinden
+// gösteriliyordu — bu adres birçok reklam engelleyici/Chrome Safe Browsing
+// tarafından tutarsız biçimde engelleniyor (canlıda doğrulandı: net::ERR_BLOCKED_BY_CLIENT,
+// Cloudflare'in kendi dokümantasyonu da bu adresi production için önermiyor).
+// Veritabanındaki eski AvatarUrl değerlerini değiştirmeden (migration gerekmeden)
+// düzeltmek için, r2.dev adresine denk gelen her URL burada zaten güvenilir
+// olan api.sahnem.com.tr üzerinden akan yeni proxy ucuna (bkz. UploadController.GetFile)
+// yönlendiriliyor.
+const R2_DEV_PATTERN = /^https?:\/\/[^/]+\.r2\.dev\/(.+)$/;
+
 // Backend'in döndürdüğü yüklenmiş dosya yolları (/uploads/avatars/...) API'nin
 // kendi origin'ine göre relative — frontend'in origin'inden farklı olduğu için
 // <img> gibi yerlerde kullanılmadan önce API origin'iyle birleştirilmeli.
 export function resolveAssetUrl(path?: string | null): string | undefined {
   if (!path) return undefined;
+  const r2Match = path.match(R2_DEV_PATTERN);
+  if (r2Match) return `${API_ORIGIN}/api/upload/file/${r2Match[1]}`;
   if (/^(https?:)?\/\//.test(path) || path.startsWith('data:')) return path;
   return `${API_ORIGIN}${path}`;
 }

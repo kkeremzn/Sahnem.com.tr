@@ -39,8 +39,10 @@ export function MusicianProfile() {
   const [fetchError, setFetchError] = useState(false);
 
   usePageSeo({
-    title: musician ? `${musician.firstName} ${musician.lastName} — ${musician.branch.map((b) => MUSIC_BRANCH_LABELS[b]).join(', ')} | Sahnem` : 'Müzisyen Profili | Sahnem',
-    description: musician?.bio ? musician.bio.slice(0, 155) : undefined,
+    title: musician ? `${musician.firstName} ${musician.lastName} | Sahnem` : 'Müzisyen Profili | Sahnem',
+    description: musician
+      ? (musician.bio || `${musician.branch.map((b) => MUSIC_BRANCH_LABELS[b]).join(', ')} — Sahnem'de ${musician.firstName} ${musician.lastName}'in profilini incele.`).slice(0, 155)
+      : undefined,
     canonicalPath: id ? `/musicians/${id}` : undefined,
     noindex: musician === undefined,
   });
