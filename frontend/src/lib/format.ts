@@ -10,6 +10,12 @@ export function formatDateTime(iso: string): string {
   return new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(iso));
 }
 
+// İlan etkinlik tarihi/son başvuru gibi ileri tarihli, yıl bilgisinin de
+// önemli olduğu alanlar için — formatDateTime'ın aksine yılı da gösterir.
+export function formatDateTimeLong(iso: string): string {
+  return new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(iso));
+}
+
 export function formatRelativeTime(iso: string): string {
   const diffMs = Date.now() - new Date(iso).getTime();
   const diffMin = Math.round(diffMs / 60000);

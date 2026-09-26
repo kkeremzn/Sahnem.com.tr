@@ -14,7 +14,7 @@ import { useToast } from '@/context/ToastContext';
 import * as advertService from '@/services/advertService';
 import * as offerService from '@/services/offerService';
 import { CITY_LABELS, EVENT_DURATION_LABELS, MUSIC_BRANCH_LABELS, type Advert, type Offer } from '@/types';
-import { formatDate, formatPrice } from '@/lib/format';
+import { formatDateTimeLong, formatPrice } from '@/lib/format';
 import { resolveAssetUrl } from '@/lib/apiClient';
 
 export function MyAdvertDetail() {
@@ -86,7 +86,7 @@ export function MyAdvertDetail() {
           </div>
           <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-text-dim">
             <span className="inline-flex items-center gap-1.5"><MapPin size={14} /> {CITY_LABELS[advert.city]}</span>
-            <span className="inline-flex items-center gap-1.5"><CalendarDays size={14} /> {formatDate(advert.eventTime)}</span>
+            <span className="inline-flex items-center gap-1.5"><CalendarDays size={14} /> {formatDateTimeLong(advert.eventTime)}</span>
             {EVENT_DURATION_LABELS[advert.eventDuration] && (
               <span className="inline-flex items-center gap-1.5"><Clock size={14} /> {EVENT_DURATION_LABELS[advert.eventDuration]}</span>
             )}
@@ -144,7 +144,7 @@ export function MyAdvertDetail() {
             </div>
             <div className="border-t border-border pt-3">
               <p className="text-xs text-text-faint">Son başvuru</p>
-              <p className="text-text-dim">{formatDate(advert.applicationDeadline)}</p>
+              <p className="text-text-dim">{formatDateTimeLong(advert.applicationDeadline)}</p>
             </div>
             <div className="border-t border-border pt-3">
               <p className="text-xs text-text-faint">Adres</p>

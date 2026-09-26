@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { CalendarDays, MapPin, MessageCircle } from 'lucide-react';
+import { CalendarClock, CalendarDays, Clock, MapPin, MessageCircle } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -10,8 +10,8 @@ import { FadeIn } from '@/components/ui/FadeIn';
 import * as offerService from '@/services/offerService';
 import * as advertService from '@/services/advertService';
 import type { Advert, Offer } from '@/types';
-import { CITY_LABELS } from '@/types';
-import { formatDate, formatPrice } from '@/lib/format';
+import { CITY_LABELS, EVENT_DURATION_LABELS } from '@/types';
+import { formatDate, formatDateTimeLong, formatPrice } from '@/lib/format';
 
 export function OfferDetail() {
   const { id } = useParams();
@@ -64,7 +64,11 @@ export function OfferDetail() {
               <h3 className="mb-3 font-display text-base font-bold">İlan detayları</h3>
               <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-text-dim">
                 <span className="inline-flex items-center gap-1.5"><MapPin size={14} /> {CITY_LABELS[advert.city]}</span>
-                <span className="inline-flex items-center gap-1.5"><CalendarDays size={14} /> {formatDate(advert.eventTime)}</span>
+                <span className="inline-flex items-center gap-1.5"><CalendarDays size={14} /> {formatDateTimeLong(advert.eventTime)}</span>
+                {EVENT_DURATION_LABELS[advert.eventDuration] && (
+                  <span className="inline-flex items-center gap-1.5"><Clock size={14} /> {EVENT_DURATION_LABELS[advert.eventDuration]}</span>
+                )}
+                <span className="inline-flex items-center gap-1.5"><CalendarClock size={14} /> Son başvuru: {formatDateTimeLong(advert.applicationDeadline)}</span>
               </div>
               <p className="mt-3 text-sm text-text-dim">{advert.description}</p>
               <Link to={`/jobs/${advert.id}`} className="mt-3 inline-block text-sm font-semibold text-gold-soft hover:underline">

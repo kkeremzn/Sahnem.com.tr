@@ -20,7 +20,7 @@ import { useToast } from '@/context/ToastContext';
 import * as advertService from '@/services/advertService';
 import * as offerService from '@/services/offerService';
 import { CITY_LABELS, EVENT_DURATION_LABELS, MUSIC_BRANCH_LABELS, type Advert, type Offer } from '@/types';
-import { formatDate, formatPrice } from '@/lib/format';
+import { formatDateTimeLong, formatPrice } from '@/lib/format';
 import { formatApiError } from '@/lib/apiClient';
 
 const offerSchema = z.object({
@@ -105,11 +105,11 @@ export function JobDetail() {
           <h1 className="font-display text-2xl font-bold sm:text-3xl">{advert.title}</h1>
           <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm text-text-dim">
             <span className="inline-flex items-center gap-1.5"><MapPin size={14} /> {CITY_LABELS[advert.city]}{advert.district ? `, ${advert.district}` : ''}</span>
-            <span className="inline-flex items-center gap-1.5"><CalendarDays size={14} /> {formatDate(advert.eventTime)}</span>
+            <span className="inline-flex items-center gap-1.5"><CalendarDays size={14} /> {formatDateTimeLong(advert.eventTime)}</span>
             {EVENT_DURATION_LABELS[advert.eventDuration] && (
               <span className="inline-flex items-center gap-1.5"><Clock size={14} /> {EVENT_DURATION_LABELS[advert.eventDuration]}</span>
             )}
-            <span className="inline-flex items-center gap-1.5"><CalendarClock size={14} /> Son başvuru: {formatDate(advert.applicationDeadline)}</span>
+            <span className="inline-flex items-center gap-1.5"><CalendarClock size={14} /> Son başvuru: {formatDateTimeLong(advert.applicationDeadline)}</span>
           </div>
 
           <Card className="mt-6">

@@ -30,7 +30,7 @@ const schema = z
     branch: z.string().optional(),
     eventTime: z.string().min(1, 'Etkinlik tarihi gerekli.'),
     eventDuration: z.string().min(1, 'Etkinlik süresini seç.'),
-    applicationDeadline: z.string().min(1, 'Son başvuru tarihi gerekli.'),
+    applicationDeadline: z.string().min(1, 'Son başvuru tarihi ve saati gerekli.'),
     budget: z.coerce.number().min(1, 'Geçerli bir bütçe gir.'),
     minimumExperienceYears: z.coerce.number().min(0).max(50, 'En fazla 50 yıl girilebilir.').optional(),
   })
@@ -39,7 +39,7 @@ const schema = z
     path: ['eventTime'],
   })
   .refine((data) => new Date(data.applicationDeadline).getTime() > Date.now(), {
-    message: 'Son başvuru tarihi gelecekte olmalı.',
+    message: 'Son başvuru tarihi ve saati gelecekte olmalı.',
     path: ['applicationDeadline'],
   })
   .refine((data) => new Date(data.applicationDeadline).getTime() < new Date(data.eventTime).getTime(), {
@@ -158,8 +158,8 @@ export function PostAdvert() {
                 {optionsFrom(EVENT_DURATIONS, EVENT_DURATION_LABELS).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
               </Select>
             </Field>
-            <Field label="Son başvuru tarihi" required error={errors.applicationDeadline?.message}>
-              <Input type="date" {...register('applicationDeadline')} invalid={!!errors.applicationDeadline} />
+            <Field label="Son başvuru tarihi & saati" required error={errors.applicationDeadline?.message}>
+              <Input type="datetime-local" {...register('applicationDeadline')} invalid={!!errors.applicationDeadline} />
             </Field>
             <Field label="Bütçe (₺)" required error={errors.budget?.message}>
               <Input type="number" min={0} placeholder="15000" {...register('budget')} invalid={!!errors.budget} />
