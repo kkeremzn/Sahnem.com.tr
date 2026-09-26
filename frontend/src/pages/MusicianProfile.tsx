@@ -33,6 +33,10 @@ export function MusicianProfile() {
   // değer üzerinden taşımak, favorilenmiş bir profilde bile butonun bir an
   // "Favorile" gösterip hemen "Favoride"ye dönmesine yol açıyordu.
   const [favorite, setFavorite] = useState<boolean | undefined>();
+  // Bkz. JobDetail.tsx — backend'e ulaşılamaması "profil yok" ile aynı şey
+  // değil, geçici bir hata yüzünden canlı bir profili yanlışlıkla noindex
+  // etmemek için ayrı tutuluyor.
+  const [fetchError, setFetchError] = useState(false);
 
   usePageSeo({
     title: musician ? `${musician.firstName} ${musician.lastName} — ${musician.branch.map((b) => MUSIC_BRANCH_LABELS[b]).join(', ')} | Sahnem` : 'Müzisyen Profili | Sahnem',
@@ -41,9 +45,16 @@ export function MusicianProfile() {
     noindex: musician === undefined,
   });
 
-  useEffect(() => {
-    profileService.getMusicianByUserId(Number(id)).then((m) => setMusician(m ?? undefined));
-  }, [id]);
+  function loadMusician() {
+    setFetchError(false);
+    profileService.fetchMusicianByUserId(Number(id)).then((res) => {
+      if (res.kind === 'found') setMusician(res.data);
+      else if (res.kind === 'not-found') setMusician(undefined);
+      else setFetchError(true);
+    });
+  }
+
+  useEffect(loadMusician, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (isEmployer && musician) {
@@ -63,6 +74,15 @@ export function MusicianProfile() {
     navigate('/messages', { state: { recipient: { id: musician.appUserId, name: `${musician.firstName} ${musician.lastName}` } } });
   }
 
+  if (musician === null && fetchError) {
+    return (
+      <Container className="py-20 text-center">
+        <h2 className="font-display text-xl font-bold">Şu an yüklenemedi</h2>
+        <p className="mt-2 text-sm text-text-dim">Geçici bir bağlantı sorunu olabilir, birazdan tekrar dene.</p>
+        <Button className="mt-5" onClick={loadMusician}>Tekrar Dene</Button>
+      </Container>
+    );
+  }
   if (musician === null) {
     return <ProfileDetailSkeleton />;
   }

@@ -1,5 +1,6 @@
 import { api } from '@/lib/apiClient';
 import { setAccessToken } from '@/lib/tokenStore';
+import { fetchEntity, type EntityFetchResult } from '@/lib/fetchEntity';
 import type {
   City, EmployerProfile, EmployerSummary, MusicBranch, MusicianProfile, MusicianProfileInput,
   OrganizerProfile, OrganizerProfileInput, VenueProfile, VenueProfileInput,
@@ -62,6 +63,13 @@ export async function getMusicianByUserId(userId: number): Promise<MusicianProfi
   }
 }
 
+// getMusicianByUserId'nin aksine "bulunamadı" ile "backend'e şu an
+// ulaşılamadı" durumlarını ayırt eder — herkese açık müzisyen profili
+// (MusicianProfile.tsx) bunu kullanıyor.
+export async function fetchMusicianByUserId(userId: number): Promise<EntityFetchResult<MusicianProfile>> {
+  return fetchEntity(() => api.get<MusicianProfile>(`/profile/musician/by-user/${userId}`));
+}
+
 export async function createMusicianProfile(input: MusicianProfileInput): Promise<void> {
   const res = await api.post<{ accessToken: string }>('/profile/musician', input);
   setAccessToken(res.accessToken);
@@ -104,4 +112,16 @@ export async function getEmployerByUserId(userId: number): Promise<EmployerProfi
   } catch {
     return undefined;
   }
+}
+
+// getEmployerByUserId'nin aksine "bulunamadı" ile "backend'e şu an
+// ulaşılamadı" durumlarını ayırt eder — herkese açık mekan/organizatör
+// profili (EmployerProfile.tsx) bunu kullanıyor.
+export async function fetchEmployerByUserId(userId: number): Promise<EntityFetchResult<EmployerProfile>> {
+  return fetchEntity(async () => {
+    const res = await api.get<{ kind: 'Organizer' | 'Venue'; profile: OrganizerProfile | VenueProfile }>(
+      `/profile/employer/${userId}`,
+    );
+    return { kind: res.kind, ...res.profile } as EmployerProfile;
+  });
 }

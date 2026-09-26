@@ -43,6 +43,11 @@ export function JobDetail() {
   // sayfa her açıldığında teklif formunun bir an görünüp sonra "zaten
   // gönderildi" durumuna dönmesine (düzen sıçramasına) yol açıyordu.
   const [existingOffer, setExistingOffer] = useState<Offer | null | undefined>();
+  // Backend'e ulaşılamaması (ör. Render soğuk başlangıcı, geçici 500) "kayıt
+  // yok" ile aynı şey değil — advert bu durumda null (yükleniyor UI'ı) kalır,
+  // sadece bu bayrak true olur; aksi halde canlı bir ilan geçici bir aksaklık
+  // yüzünden "bulunamadı" gösterilip yanlışlıkla noindex olurdu.
+  const [fetchError, setFetchError] = useState(false);
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<OfferFormInput, unknown, OfferFormData>({
     resolver: zodResolver(offerSchema),
@@ -59,9 +64,16 @@ export function JobDetail() {
     noindex: advert === undefined,
   });
 
-  useEffect(() => {
-    advertService.getAdvertById(Number(id)).then((a) => setAdvert(a ?? undefined));
-  }, [id]);
+  function loadAdvert() {
+    setFetchError(false);
+    advertService.fetchAdvertById(Number(id)).then((res) => {
+      if (res.kind === 'found') setAdvert(res.data);
+      else if (res.kind === 'not-found') setAdvert(undefined);
+      else setFetchError(true);
+    });
+  }
+
+  useEffect(loadAdvert, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (user?.role === 'Musician' && advert) {
@@ -84,6 +96,15 @@ export function JobDetail() {
     }
   }
 
+  if (advert === null && fetchError) {
+    return (
+      <Container className="py-20 text-center">
+        <h2 className="font-display text-xl font-bold">Şu an yüklenemedi</h2>
+        <p className="mt-2 text-sm text-text-dim">Geçici bir bağlantı sorunu olabilir, birazdan tekrar dene.</p>
+        <Button className="mt-5" onClick={loadAdvert}>Tekrar Dene</Button>
+      </Container>
+    );
+  }
   if (advert === null) {
     return (
       <Container className="max-w-5xl py-10">

@@ -24,6 +24,10 @@ export function EmployerProfile() {
   const { user } = useAuth();
   const [employer, setEmployer] = useState<EmployerProfileType | null | undefined>(null);
   const [adverts, setAdverts] = useState<Advert[]>([]);
+  // Bkz. JobDetail.tsx — backend'e ulaşılamaması "profil yok" ile aynı şey
+  // değil, geçici bir hata yüzünden canlı bir profili yanlışlıkla noindex
+  // etmemek için ayrı tutuluyor.
+  const [fetchError, setFetchError] = useState(false);
 
   // Bu profile /organizers/:id, /venues/:id ve (eski bağlantılar için)
   // /employers/:id üzerinden birebir aynı içerikle ulaşılabiliyor (bkz. SEO
@@ -36,11 +40,27 @@ export function EmployerProfile() {
     noindex: employer === undefined,
   });
 
-  useEffect(() => {
-    profileService.getEmployerByUserId(Number(id)).then((e) => setEmployer(e ?? undefined));
+  function loadEmployer() {
+    setFetchError(false);
+    profileService.fetchEmployerByUserId(Number(id)).then((res) => {
+      if (res.kind === 'found') setEmployer(res.data);
+      else if (res.kind === 'not-found') setEmployer(undefined);
+      else setFetchError(true);
+    });
     advertService.listAdvertsByCreator(Number(id)).then((list) => setAdverts(list.filter((a) => a.status === 'Open')));
-  }, [id]);
+  }
 
+  useEffect(loadEmployer, [id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (employer === null && fetchError) {
+    return (
+      <Container className="py-20 text-center">
+        <h2 className="font-display text-xl font-bold">Şu an yüklenemedi</h2>
+        <p className="mt-2 text-sm text-text-dim">Geçici bir bağlantı sorunu olabilir, birazdan tekrar dene.</p>
+        <Button className="mt-5" onClick={loadEmployer}>Tekrar Dene</Button>
+      </Container>
+    );
+  }
   if (employer === null) {
     return <ProfileDetailSkeleton />;
   }
