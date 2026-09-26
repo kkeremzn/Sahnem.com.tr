@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Briefcase, Search, SlidersHorizontal } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
@@ -19,26 +19,55 @@ import { usePageSeo } from '@/lib/seo';
 const PAGE_SIZE = 8;
 
 export function Jobs() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState('');
   const [branch, setBranch] = useState<MusicBranch | ''>((searchParams.get('branch') as MusicBranch) ?? '');
   const [city, setCity] = useState<City | ''>('');
   const [adverts, setAdverts] = useState<Advert[] | null>(null);
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
-  const [page, setPage] = useState(1);
-  // Branş/şehir/sayfa filtreleri aynı temel listeyi farklı query string'lerle
-  // sunuyor — hepsi Google'a "asıl sayfa /jobs'tır" demesi için sabit bir
-  // canonical'a bağlanıyor (filtre kombinasyonu başına ayrı URL indekslenmesin).
+  // page (branş/şehir'in aksine) URL'de tutuluyor — 2. ve sonraki sayfalar
+  // önceki sayfalardan tamamen farklı ilanlar gösteriyor, bunların gerçek,
+  // paylaşılabilir bir adresi olmalı. Google'ın kendi rehberi, sayfalanmış
+  // sayfaları 1. sayfaya canonical yapmayı "en yıkıcı sayfalama hatası"
+  // olarak tanımlıyor (2+ sayfadaki içeriği index'ten düşürüyor) — bu yüzden
+  // aşağıda sadece 1. sayfa /jobs'a, 2+ kendine referans veriyor. Branş/şehir
+  // filtreleri ise bilinçli olarak URL'e yazılmıyor (bkz. usePageSeo) —
+  // bunlar aynı ilanların alt kümesi, ayrı ayrı indekslenmeye değecek kadar
+  // içerik hacmi yok, her ilan zaten kendi /jobs/:id adresinden indeksleniyor.
+  const initialPage = Number(searchParams.get('page')) || 1;
+  const [page, setPageState] = useState(initialPage);
+
+  function setPage(next: number) {
+    setPageState(next);
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+      if (next > 1) params.set('page', String(next));
+      else params.delete('page');
+      return params;
+    }, { replace: true });
+  }
+
   usePageSeo({
     title: 'Müzisyen Arayan İlanlar | Sahnem',
     description: 'Organizatör ve mekanların yayınladığı açık ilanları incele, müzisyen olarak teklifini gönder.',
-    canonicalPath: '/jobs',
+    canonicalPath: page > 1 ? `/jobs?page=${page}` : '/jobs',
   });
 
+  // İlk mount'ta bu efekt çalışırsa (search/branch/city bağımlılıkları her
+  // zaman ilk render'da da "değişmiş" sayılır) URL'deki ?page=3 gibi paylaşılmış
+  // bir bağlantı, veri daha yüklenmeden sayfa 1'e sıfırlanırdı. Basit bir
+  // "ilk çalışmayı atla" bayrağı React 18 StrictMode'un geliştirmede
+  // efektleri iki kez çalıştırmasıyla kırılıyor (bayrak ilk çalışmada false
+  // olup kalıyor, ikinci çalışma "değişmiş" sanıyor) — bunun yerine gerçek
+  // başlangıç değerleriyle karşılaştırıyoruz, kaç kez çalışırsa çalışsın
+  // filtreler gerçekten değişmediyse sıfırlamıyor.
+  const initialFilters = useRef({ search, branch, city });
   useEffect(() => {
+    const initial = initialFilters.current;
+    if (search === initial.search && branch === initial.branch && city === initial.city) return;
     setPage(1);
-  }, [search, branch, city]);
+  }, [search, branch, city]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     setAdverts(null);
@@ -106,7 +135,7 @@ export function Jobs() {
                 {adverts.map((a) => <AdvertCard key={a.id} advert={a} />)}
               </div>
               <div className="mt-8">
-                <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+                <Pagination page={page} totalPages={totalPages} onChange={setPage} hrefFor={(p) => (p > 1 ? `/jobs?page=${p}` : '/jobs')} />
               </div>
             </>
           )}

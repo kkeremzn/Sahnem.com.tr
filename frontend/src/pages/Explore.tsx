@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search, SlidersHorizontal, Users } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
@@ -64,16 +64,40 @@ export function Explore() {
   // aslında favorilenmiş bir müzisyenin kalbinin bir an boş görünüp sonra
   // dolmasına (yanlış durumun bir an gösterilmesine) yol açıyordu.
   const [favorites, setFavorites] = useState<number[] | null>(null);
-  const [page, setPage] = useState(1);
+  // page (branş/şehir'in aksine) URL'de tutuluyor — Google'ın kendi rehberi
+  // sayfalanmış sayfaları 1. sayfaya canonical yapmayı "en yıkıcı sayfalama
+  // hatası" sayıyor (bkz. Jobs.tsx'teki aynı desen ve gerekçe).
+  const [page, setPageState] = useState(Number(searchParams.get('page')) || 1);
+
+  function setPage(next: number) {
+    setPageState(next);
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+      if (next > 1) params.set('page', String(next));
+      else params.delete('page');
+      return params;
+    }, { replace: true });
+  }
+
+  // Sekme belirtilmeden (?tab= yok) girildiğinde hangi sekmenin gösterildiği
+  // ziyaretçinin rolüne göre değişiyor (yukarıdaki `tab` hesaplaması) — bu
+  // yüzden canonical her zaman ekranda GERÇEKTEN gösterilen sekmeyi açıkça
+  // belirtiyor; aksi halde aynı bare /explore adresi farklı ziyaretçilere
+  // farklı içerik gösterirken tek, belirsiz bir canonical'a sahip olurdu.
   usePageSeo({
-    title: 'Müzisyen, Mekan ve Organizatör Keşfet | Sahnem',
+    title: `${tab === 'musicians' ? 'Müzisyen' : 'Mekan ve Organizatör'} Keşfet | Sahnem`,
     description: 'Branşa ve şehre göre müzisyenleri, mekanları ve organizatörleri keşfet, doğrudan iletişime geç.',
-    canonicalPath: '/explore',
+    canonicalPath: `/explore?tab=${tab}${page > 1 ? `&page=${page}` : ''}`,
   });
 
+  // Bkz. Jobs.tsx — basit "ilk çalışmayı atla" bayrağı yerine gerçek başlangıç
+  // değerleriyle karşılaştırma; React 18 StrictMode'un geliştirmede efektleri
+  // iki kez çalıştırmasında da doğru sonuç veriyor.
+  const initialFilters = useRef(JSON.stringify({ tab, search, branches, cities, travelOnly }));
   useEffect(() => {
+    if (JSON.stringify({ tab, search, branches, cities, travelOnly }) === initialFilters.current) return;
     setPage(1);
-  }, [tab, search, branches, cities, travelOnly]);
+  }, [tab, search, branches, cities, travelOnly]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (tab === 'musicians') {
@@ -196,7 +220,7 @@ export function Explore() {
                   ))}
                 </div>
                 <div className="mt-8">
-                  <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+                  <Pagination page={page} totalPages={totalPages} onChange={setPage} hrefFor={(p) => `/explore?tab=${tab}${p > 1 ? `&page=${p}` : ''}`} />
                 </div>
               </>
             )
@@ -208,7 +232,7 @@ export function Explore() {
                 {employers!.map((e) => <EmployerCard key={`${e.kind}-${e.appUserId}`} employer={e} />)}
               </div>
               <div className="mt-8">
-                <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+                <Pagination page={page} totalPages={totalPages} onChange={setPage} hrefFor={(p) => `/explore?tab=${tab}${p > 1 ? `&page=${p}` : ''}`} />
               </div>
             </>
           )}

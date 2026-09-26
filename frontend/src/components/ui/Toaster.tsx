@@ -20,7 +20,11 @@ export function Toaster() {
   const { toasts, dismiss } = useToast();
 
   return createPortal(
-    <div className="pointer-events-none fixed bottom-5 right-5 z-[200] flex w-full max-w-sm flex-col gap-2.5">
+    <div
+      role="status"
+      aria-live="polite"
+      className="pointer-events-none fixed bottom-5 right-5 z-[200] flex w-full max-w-sm flex-col gap-2.5"
+    >
       <AnimatePresence>
         {toasts.map((t) => {
           const Icon = ICONS[t.kind];
@@ -38,7 +42,7 @@ export function Toaster() {
             >
               <Icon size={18} className="mt-0.5 shrink-0" />
               <p className="flex-1 text-sm text-text">{t.message}</p>
-              <button onClick={() => dismiss(t.id)} className="text-text-faint hover:text-text">
+              <button onClick={() => dismiss(t.id)} aria-label="Bildirimi kapat" className="text-text-faint hover:text-text">
                 <X size={15} />
               </button>
             </motion.div>

@@ -1,4 +1,5 @@
 import { api } from '@/lib/apiClient';
+import { fetchEntity, type EntityFetchResult } from '@/lib/fetchEntity';
 import type { Advert, AdvertCreateInput, AdvertStatus, AdvertUpdateInput, City, MusicBranch } from '@/types';
 
 interface PagedResult<T> {
@@ -63,6 +64,17 @@ export async function getAdvertById(id: number): Promise<Advert | undefined> {
   } catch {
     return undefined;
   }
+}
+
+// getAdvertById'nin aksine "bulunamadı" ile "backend'e şu an ulaşılamadı"
+// durumlarını ayırt eder — herkese açık, SEO açısından hassas ilan detay
+// sayfası (JobDetail) bunu kullanıyor. Diğer (giriş gerektiren, zaten noindex
+// olan) ekranlar hâlâ basit getAdvertById'yi kullanmaya devam ediyor.
+export async function fetchAdvertById(id: number): Promise<EntityFetchResult<Advert>> {
+  return fetchEntity(async () => {
+    const dto = await api.get<AdvertDto>('/advert/getbyid', { advertId: id });
+    return fromDto(dto);
+  });
 }
 
 export async function listMyAdverts(): Promise<Advert[]> {
