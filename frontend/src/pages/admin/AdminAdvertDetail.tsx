@@ -80,7 +80,7 @@ export function AdminAdvertDetail() {
             <span>{advert.creatorName} ({advert.creatorRole})</span>
           </div>
         </div>
-        {advert.status === 'Open' && (
+        {(advert.status === 'Open' || advert.status === 'Expired') && (
           <Button variant="danger" icon={<Ban size={15} />} onClick={() => setCancelOpen(true)}>Admin Olarak İptal Et</Button>
         )}
       </div>

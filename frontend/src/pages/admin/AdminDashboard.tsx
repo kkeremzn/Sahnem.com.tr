@@ -64,7 +64,7 @@ export function AdminDashboard() {
         <StatCard
           label="Toplam İlan"
           value={stats.totalAdverts}
-          hint={`${stats.openAdverts} açık · ${stats.closedAdverts} kapalı · ${stats.cancelledAdverts} iptal`}
+          hint={`${stats.openAdverts} açık · ${stats.expiredAdverts} süresi doldu · ${stats.closedAdverts} kapalı · ${stats.completedAdverts} tamamlandı · ${stats.cancelledAdverts} iptal`}
           onClick={() => navigate('/backstage/adverts')}
         />
         <StatCard

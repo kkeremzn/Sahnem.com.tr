@@ -32,6 +32,8 @@ export interface AdminStats {
   openAdverts: number;
   closedAdverts: number;
   cancelledAdverts: number;
+  expiredAdverts: number;
+  completedAdverts: number;
 
   totalOffers: number;
   pendingOffers: number;

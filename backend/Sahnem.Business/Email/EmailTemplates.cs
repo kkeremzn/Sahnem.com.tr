@@ -215,6 +215,30 @@ namespace Sahnem.Business.Email
                 Paragraph($"Merhaba {Encode(firstName)}, teklif verdiğin \"{Encode(advertTitle)}\" ilanı sahibi tarafından iptal edildi. Bu ilan için süreç sona erdi. Diğer fırsatları inceleyebilirsin.")
                 + CtaButton("https://sahnem.com.tr/jobs", "Diğer ilanları gör"));
 
+        public static string AdvertExpiredWithOffers(string firstName, string advertTitle, int offerCount, int advertId)
+            => Shell(
+                "İlan ve teklif",
+                "Başvuru süresi<br>doldu, sıra sende.",
+                "İlanının başvuru süresi doldu, aldığın teklifleri değerlendirmenin zamanı geldi.",
+                Paragraph($"Merhaba {Encode(firstName)}, \"{Encode(advertTitle)}\" ilanının son başvuru tarihi geçti; artık yeni teklif kabul etmiyor. {offerCount} teklif aldın ve henüz hiçbirini kabul etmedin. Dilediğin zaman içlerinden birini seçebilirsin.")
+                + CtaButton($"https://sahnem.com.tr/my-adverts/{advertId}", "Teklifleri incele"));
+
+        public static string AdvertExpiredNoOffers(string firstName, string advertTitle)
+            => Shell(
+                "İlan ve teklif",
+                "Başvuru süresi<br>doldu.",
+                "İlanının başvuru süresi doldu, henüz teklif alamadın.",
+                Paragraph($"Merhaba {Encode(firstName)}, \"{Encode(advertTitle)}\" ilanının son başvuru tarihi geçti ve maalesef hiç teklif alamadın. İstersen yeni bir ilan açarak tekrar deneyebilirsin.")
+                + CtaButton("https://sahnem.com.tr/post-advert", "Yeni ilan aç"));
+
+        public static string AdvertExpiredOfferPending(string firstName, string advertTitle)
+            => Shell(
+                "İlan ve teklif",
+                "Başvuru süresi<br>sona erdi.",
+                "Teklif verdiğin ilanın başvuru süresi sona erdi, teklifin hâlâ değerlendiriliyor.",
+                Paragraph($"Merhaba {Encode(firstName)}, teklif verdiğin \"{Encode(advertTitle)}\" ilanının son başvuru tarihi geçti. Bu, teklifinin reddedildiği anlamına gelmiyor — ilan sahibi aldığı teklifleri hâlâ değerlendirebiliyor. Bir karar verildiğinde sana ayrıca haber vereceğiz.")
+                + CtaButton("https://sahnem.com.tr/offers", "Tekliflerimi görüntüle"));
+
         // ---- Mesaj ----
 
         public static string NewMessage(string firstName, string senderName, int conversationId)

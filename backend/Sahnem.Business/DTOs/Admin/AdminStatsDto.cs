@@ -15,6 +15,8 @@ namespace Sahnem.Business.DTOs.Admin
         public int OpenAdverts {get; set;}
         public int ClosedAdverts {get; set;}
         public int CancelledAdverts {get; set;}
+        public int ExpiredAdverts {get; set;}
+        public int CompletedAdverts {get; set;}
 
         public int TotalOffers {get; set;}
         public int PendingOffers {get; set;}

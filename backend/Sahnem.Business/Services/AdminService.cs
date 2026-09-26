@@ -102,6 +102,8 @@ namespace Sahnem.Business.Services
                 OpenAdverts = adverts.Count(a => a.Status == AdvertStatus.Open),
                 ClosedAdverts = adverts.Count(a => a.Status == AdvertStatus.Closed),
                 CancelledAdverts = adverts.Count(a => a.Status == AdvertStatus.Cancelled),
+                ExpiredAdverts = adverts.Count(a => a.Status == AdvertStatus.Expired),
+                CompletedAdverts = adverts.Count(a => a.Status == AdvertStatus.Completed),
 
                 TotalOffers = offers.Count,
                 PendingOffers = offers.Count(o => o.OfferStatus == OfferStatus.Pending),

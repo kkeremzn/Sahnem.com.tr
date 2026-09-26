@@ -86,6 +86,7 @@ builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<IAdminAuthService, AdminAuthService>();
 builder.Services.AddScoped<ICurrentAdminService, CurrentAdminService>();
 builder.Services.AddHostedService<RegistrationCleanupService>();
+builder.Services.AddHostedService<AdvertLifecycleService>();
 builder.Services.AddAutoMapper(typeof(AppUserProfileMapping));
 
 builder.Services.AddValidatorsFromAssemblyContaining<AppUserRegisterValidator>();

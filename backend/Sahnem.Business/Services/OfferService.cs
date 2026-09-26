@@ -186,8 +186,12 @@ namespace Sahnem.Business.Services
             }
             // Teklif hâlâ Pending görünse bile ilan iptal/kapanmış olabilir (ör.
             // ilan sahibi başka bir teklifi kabul etti ya da ilanı iptal etti) —
-            // böyle bir ilana artık kabul/red yanıtı verilememeli.
-            if (advert.Status != AdvertStatus.Open)
+            // böyle bir ilana artık kabul/red yanıtı verilememeli. Expired ise
+            // (başvuru süresi doldu ama henüz kimse seçilmedi) buna dahil
+            // değil — "başvuru penceresi" ile "ilan sahibinin karar penceresi"
+            // aynı şey değil, süresi dolmuş bir ilanda bile elindeki teklifler
+            // arasından seçim yapabilmeli.
+            if (advert.Status != AdvertStatus.Open && advert.Status != AdvertStatus.Expired)
             {
                 throw new Exception("This advert is no longer open, so its offers can't be responded to");
             }
@@ -243,6 +247,18 @@ namespace Sahnem.Business.Services
                     "Teklifiniz reddedildi",
                     $"\"{advert.Title}\" ilanı başka bir müzisyenle anlaştığı için teklifiniz otomatik olarak reddedildi.",
                     $"/offers/{other.Id}");
+
+                // Doğrudan yanıtlanan kişi hem bildirim hem mail alıyor — ilan
+                // başka biriyle kapandığı için otomatik reddedilenler de aynı
+                // gerçeği sadece bildirim ziliyle değil, mailiyle de duymalı.
+                var otherMusicianUser = await _userRepository.GetByIdAsync(other.MusicianId);
+                if (otherMusicianUser != null)
+                {
+                    await _emailService.SendAsync(
+                        otherMusicianUser.Email,
+                        "Teklifin Hakkında Bir Güncelleme Var",
+                        EmailTemplates.OfferRejected(otherMusicianUser.FirstName, advert.Title));
+                }
             }
         }
 

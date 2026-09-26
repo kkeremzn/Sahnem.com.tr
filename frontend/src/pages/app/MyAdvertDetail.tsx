@@ -90,7 +90,7 @@ export function MyAdvertDetail() {
             )}
           </div>
         </div>
-        {advert.status === 'Open' && (
+        {(advert.status === 'Open' || advert.status === 'Expired') && (
           <Button variant="secondary" icon={<Ban size={15} />} onClick={() => setCancelOpen(true)}>İlanı İptal Et</Button>
         )}
       </div>

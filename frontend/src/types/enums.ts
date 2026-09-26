@@ -100,10 +100,10 @@ export const OFFER_STATUS_LABELS: Record<OfferStatus, string> = {
   Pending: 'Bekliyor', Accepted: 'Kabul edildi', Rejected: 'Reddedildi',
 };
 
-export const ADVERT_STATUSES = ['Open', 'Closed', 'Cancelled', 'Completed'] as const;
+export const ADVERT_STATUSES = ['Open', 'Closed', 'Cancelled', 'Completed', 'Expired'] as const;
 export type AdvertStatus = (typeof ADVERT_STATUSES)[number];
 export const ADVERT_STATUS_LABELS: Record<AdvertStatus, string> = {
-  Open: 'Açık', Closed: 'Kapalı', Cancelled: 'İptal edildi', Completed: 'Tamamlandı',
+  Open: 'Açık', Closed: 'Kapalı', Cancelled: 'İptal edildi', Completed: 'Tamamlandı', Expired: 'Süresi Doldu',
 };
 
 // Sahnem.Core/Enums/EventDuration.cs

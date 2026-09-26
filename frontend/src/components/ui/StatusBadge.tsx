@@ -10,7 +10,7 @@ export function OfferStatusBadge({ status }: { status: OfferStatus }) {
 }
 
 export function AdvertStatusBadge({ status }: { status: AdvertStatus }) {
-  const variant = status === 'Open' ? 'success' : status === 'Completed' ? 'accent' : status === 'Cancelled' ? 'danger' : 'neutral';
+  const variant = status === 'Open' ? 'success' : status === 'Expired' ? 'warning' : status === 'Completed' ? 'accent' : status === 'Cancelled' ? 'danger' : 'neutral';
   return <Badge variant={variant}>{ADVERT_STATUS_LABELS[status]}</Badge>;
 }
 
