@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Briefcase, CalendarClock, CalendarDays, MapPin, PlusCircle } from 'lucide-react';
+import { Briefcase, CalendarClock, CalendarDays, Clock, MapPin, PlusCircle } from 'lucide-react';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -10,7 +10,7 @@ import { CardSkeleton } from '@/components/ui/Skeleton';
 import { AdvertStatusBadge } from '@/components/ui/StatusBadge';
 import { useAuth } from '@/context/AuthContext';
 import * as advertService from '@/services/advertService';
-import { CITY_LABELS, type Advert, type AdvertStatus } from '@/types';
+import { CITY_LABELS, EVENT_DURATION_LABELS, type Advert, type AdvertStatus } from '@/types';
 import { formatDateTimeLong, formatPrice } from '@/lib/format';
 
 const TABS: { key: 'all' | AdvertStatus; label: string }[] = [
@@ -67,6 +67,9 @@ export function MyAdverts() {
                   <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-xs text-text-faint">
                     <span className="inline-flex items-center gap-1"><MapPin size={12} /> {CITY_LABELS[a.city]}</span>
                     <span className="inline-flex items-center gap-1"><CalendarDays size={12} /> {formatDateTimeLong(a.eventTime)}</span>
+                    {EVENT_DURATION_LABELS[a.eventDuration] && (
+                      <span className="inline-flex items-center gap-1"><Clock size={12} /> {EVENT_DURATION_LABELS[a.eventDuration]}</span>
+                    )}
                     <span className="inline-flex items-center gap-1"><CalendarClock size={12} /> Son başvuru: {formatDateTimeLong(a.applicationDeadline)}</span>
                     <span>{a.offerCount} teklif</span>
                   </div>
