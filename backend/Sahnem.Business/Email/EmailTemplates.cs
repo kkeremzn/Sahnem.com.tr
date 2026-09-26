@@ -231,6 +231,14 @@ namespace Sahnem.Business.Email
                 Paragraph($"Merhaba {Encode(firstName)}, \"{Encode(advertTitle)}\" ilanının son başvuru tarihi geçti ve maalesef hiç teklif alamadın. İstersen yeni bir ilan açarak tekrar deneyebilirsin.")
                 + CtaButton("https://sahnem.com.tr/post-advert", "Yeni ilan aç"));
 
+        public static string OfferLapsed(string firstName, string advertTitle)
+            => Shell(
+                "İlan ve teklif",
+                "Etkinlik tarihi<br>geçti.",
+                "Teklif verdiğin ilanın etkinlik tarihi geçti, süreç kendiliğinden sona erdi.",
+                Paragraph($"Merhaba {Encode(firstName)}, teklif verdiğin \"{Encode(advertTitle)}\" ilanında ilan sahibi bir seçim yapmadan etkinlik tarihi geçti. Bu, teklifinin reddedildiği anlamına gelmiyor — süre yetişmedi. Sana uygun diğer ilanları keşfetmeye devam edebilirsin.")
+                + CtaButton("https://sahnem.com.tr/jobs", "İlanları keşfet"));
+
         public static string AdvertExpiredOfferPending(string firstName, string advertTitle)
             => Shell(
                 "İlan ve teklif",

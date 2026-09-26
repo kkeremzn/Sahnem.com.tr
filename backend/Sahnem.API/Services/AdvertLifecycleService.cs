@@ -8,11 +8,17 @@ namespace Sahnem.API.Services
 {
     // Hiçbir yer ilanın son başvuru tarihi geçince durumunu güncellemiyordu —
     // ilan veritabanında sonsuza dek "Open" kalıyor, kimseye haber gitmiyordu.
-    // Bu iş periyodik olarak iki şeyi yapar: (1) süresi dolmuş "Open" ilanları
+    // Bu iş periyodik olarak üç şeyi yapar: (1) süresi dolmuş "Open" ilanları
     // "Expired"a çevirip ilan sahibine ve bekleyen teklifi olan müzisyenlere
     // durumu mail ve bildirimle haber verir, (2) etkinlik tarihi geçmiş
     // "Closed" (teklifi kabul edilmiş) ilanları arşiv amaçlı "Completed"a
-    // taşır. RegistrationCleanupService ile aynı iskelet.
+    // taşır, (3) "Expired" durumdayken (ilan sahibi hiç seçim yapmadan)
+    // etkinlik tarihi de geçen ilanlardaki bekleyen teklifleri otomatik
+    // reddeder — etkinlik geçtikten sonra bir teklifi "kabul etmek" artık
+    // anlamsız. İlanın durumu bilinçli olarak "Expired" kalır, ayrı bir
+    // kategori eklenmez; kullanıcı zaten "Süresi Doldu" sekmesinde görür,
+    // teklifler de artık gerçek durumunu (Reddedildi) yansıtır.
+    // RegistrationCleanupService ile aynı iskelet.
     public class AdvertLifecycleService : BackgroundService
     {
         private static readonly TimeSpan RunInterval = TimeSpan.FromMinutes(30);
@@ -56,6 +62,15 @@ namespace Sahnem.API.Services
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Etkinliği geçmiş ilanları tamamlanmış olarak işaretlerken beklenmeyen hata.");
+                }
+
+                try
+                {
+                    await LapseUnresolvedExpiredOffers(stoppingToken);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Etkinliği geçmiş 'Expired' ilanlardaki bekleyen teklifleri kapatırken beklenmeyen hata.");
                 }
 
                 try
@@ -171,6 +186,74 @@ namespace Sahnem.API.Services
                 advert.Status = AdvertStatus.Completed;
             }
             await unitOfWork.SaveChanges();
+        }
+
+        private async Task LapseUnresolvedExpiredOffers(CancellationToken ct)
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var advertRepository = scope.ServiceProvider.GetRequiredService<IGenericRepository<Advert>>();
+            var offerRepository = scope.ServiceProvider.GetRequiredService<IGenericRepository<Offer>>();
+            var userRepository = scope.ServiceProvider.GetRequiredService<IGenericRepository<AppUser>>();
+            var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
+            var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
+
+            var now = DateTime.UtcNow;
+            var lapsedAdverts = await advertRepository.WhereAsync(a => a.Status == AdvertStatus.Expired && a.EventTime < now);
+            var lapsedAdvertsList = lapsedAdverts.ToList();
+            if (lapsedAdvertsList.Count == 0) return;
+
+            foreach (var advert in lapsedAdvertsList)
+            {
+                if (ct.IsCancellationRequested) break;
+                try
+                {
+                    var pendingOffers = (await offerRepository.WhereAsync(
+                        o => o.AdvertId == advert.Id && o.OfferStatus == OfferStatus.Pending)).ToList();
+                    if (pendingOffers.Count == 0) continue;
+
+                    _logger.LogInformation(
+                        "{Count} bekleyen teklif, ilanın etkinlik tarihi geçtiği için otomatik reddediliyor (AdvertId={AdvertId}).",
+                        pendingOffers.Count, advert.Id);
+
+                    foreach (var offer in pendingOffers)
+                    {
+                        offer.OfferStatus = OfferStatus.Rejected;
+                    }
+                    await unitOfWork.SaveChanges();
+
+                    foreach (var offer in pendingOffers)
+                    {
+                        var musician = await userRepository.GetByIdAsync(offer.MusicianId);
+                        if (musician == null) continue;
+                        await notificationService.CreateNotification(
+                            musician.Id,
+                            "offer",
+                            "Etkinlik tarihi geçti",
+                            $"\"{advert.Title}\" ilanında ilan sahibi bir seçim yapmadan etkinlik tarihi geçti, teklifin artık değerlendirilemiyor.",
+                            $"/offers/{offer.Id}");
+                        await emailService.SendAsync(
+                            musician.Email,
+                            "Teklifin Hakkında Bir Güncelleme Var",
+                            EmailTemplates.OfferLapsed(musician.FirstName, advert.Title));
+                    }
+
+                    var owner = await userRepository.GetByIdAsync(advert.CreatorId);
+                    if (owner != null)
+                    {
+                        await notificationService.CreateNotification(
+                            owner.Id,
+                            "advert",
+                            "İlanın süreci kapandı",
+                            $"\"{advert.Title}\" ilanının etkinlik tarihi geçti, bekleyen teklifler otomatik kapatıldı.",
+                            $"/my-adverts/{advert.Id}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Süresi geçmiş ilanın bekleyen teklifleri kapatılamadı (AdvertId={AdvertId}).", advert.Id);
+                }
+            }
         }
     }
 }
