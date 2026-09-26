@@ -159,7 +159,7 @@ export function JobDetail() {
                 </div>
               ) : user.role !== 'Musician' ? (
                 <p className="text-sm text-text-dim">Bu ilana yalnızca müzisyenler teklif gönderebilir.</p>
-              ) : advert.status !== 'Open' ? (
+              ) : advert.status !== 'Open' || new Date(advert.applicationDeadline) < new Date() ? (
                 <p className="text-sm text-text-dim">Bu ilan artık teklif kabul etmiyor.</p>
               ) : existingOffer === undefined ? (
                 <div className="space-y-3">

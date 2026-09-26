@@ -221,6 +221,20 @@ namespace Sahnem.Business.Services
                 ? adverts.AsEnumerable()
                 : adverts.Where(a => a.Status != AdvertStatus.Cancelled);
 
+            // Herkese açık listelemede (Jobs/Explore) hiçbir arka plan işi
+            // ilanın durumunu otomatik "Closed"a çevirmiyor — bu yüzden son
+            // başvuru tarihi geçmiş bir ilan, kimse teklif veremeyecek olsa
+            // bile "Open" olarak sonsuza dek listede kalıyordu. Başvuru
+            // tarihi her zaman etkinlik tarihinden önce olduğu için
+            // (AdvertCreateValidator), bu filtre etkinliği geçmiş ilanları da
+            // otomatik olarak kapsar. Admin panelinde (includeCancelled:true)
+            // moderasyon için tüm ilanlar hâlâ görünür kalmalı.
+            if (!includeCancelled)
+            {
+                var now = DateTime.UtcNow;
+                query = query.Where(a => a.Status != AdvertStatus.Open || a.ApplicationDeadline >= now);
+            }
+
             if (filter != null)
             {
                 if (!string.IsNullOrWhiteSpace(filter.Search))
