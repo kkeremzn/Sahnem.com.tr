@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Save } from 'lucide-react';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { FormSkeleton } from '@/components/ui/Skeleton';
@@ -12,8 +12,10 @@ import { Switch } from '@/components/ui/Switch';
 import { Button } from '@/components/ui/Button';
 import { FileDropzone } from '@/components/ui/FileDropzone';
 import { MultiSelectChips } from '@/components/ui/MultiSelectChips';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
+import { useUnsavedChangesGuard } from '@/hooks/useUnsavedChangesGuard';
 import * as authService from '@/services/authService';
 import * as profileService from '@/services/profileService';
 import { uploadAvatar } from '@/services/uploadService';
@@ -45,6 +47,12 @@ export function ProfileEdit() {
   const [musician, setMusician] = useState<MusicianProfile | null>(null);
   const [employer, setEmployer] = useState<EmployerProfile | null>(null);
 
+  // Kaydedilmemiş değişiklik uyarısı, formun ilk yüklendiği andaki hali ile
+  // şu anki halini karşılaştırarak çalışıyor — her tek tek onChange'e "dirty"
+  // bayrağı eklemek yerine (çok fazla, unutulmaya açık nokta), tek bir
+  // snapshot karşılaştırması tüm alanları otomatik kapsıyor.
+  const initialSnapshotRef = useRef<string | null>(null);
+
   useEffect(() => {
     if (!user) return;
     setFirstName(user.firstName);
@@ -54,33 +62,54 @@ export function ProfileEdit() {
     profileService
       .getMyProfile()
       .then((profile) => {
+        let musicianData: MusicianProfile | null = null;
+        let employerData: EmployerProfile | null = null;
         if (isMusician) {
-          setMusician(profile as MusicianProfile);
+          musicianData = profile as MusicianProfile;
+          setMusician(musicianData);
         } else if (user.role === 'Organizer') {
-          setEmployer({ kind: 'Organizer', ...(profile as OrganizerProfile) });
+          employerData = { kind: 'Organizer', ...(profile as OrganizerProfile) };
+          setEmployer(employerData);
         } else if (user.role === 'Venue') {
-          setEmployer({ kind: 'Venue', ...(profile as VenueProfile) });
+          employerData = { kind: 'Venue', ...(profile as VenueProfile) };
+          setEmployer(employerData);
         }
+        initialSnapshotRef.current = JSON.stringify({
+          firstName: user.firstName, lastName: user.lastName, phoneNumber: user.phoneNumber,
+          avatarUrl: user.avatarUrl, musician: musicianData, employer: employerData,
+        });
       })
       .finally(() => setLoading(false));
   }, [user, isMusician]);
+
+  const isDirty = useMemo(() => {
+    if (initialSnapshotRef.current === null) return false;
+    return JSON.stringify({ firstName, lastName, phoneNumber, avatarUrl, musician, employer }) !== initialSnapshotRef.current;
+  }, [firstName, lastName, phoneNumber, avatarUrl, musician, employer]);
+
+  const blocker = useUnsavedChangesGuard(isDirty);
 
   async function handleSave() {
     if (!user) return;
     setSaving(true);
     try {
       await authService.updateUser({ firstName, lastName, phoneNumber: normalizePhoneNumber(phoneNumber), avatarUrl });
+      let finalMusician = musician;
+      let finalEmployer = employer;
       if (isMusician && musician) {
-        const updated = await profileService.updateMusicianProfile(musician);
-        setMusician(updated);
+        finalMusician = await profileService.updateMusicianProfile(musician);
+        setMusician(finalMusician);
       } else if (employer?.kind === 'Organizer') {
         const updated = await profileService.updateOrganizerProfile(employer);
-        setEmployer({ kind: 'Organizer', ...updated });
+        finalEmployer = { kind: 'Organizer', ...updated };
+        setEmployer(finalEmployer);
       } else if (employer?.kind === 'Venue') {
         const updated = await profileService.updateVenueProfile(employer);
-        setEmployer({ kind: 'Venue', ...updated });
+        finalEmployer = { kind: 'Venue', ...updated };
+        setEmployer(finalEmployer);
       }
       await refreshUser();
+      initialSnapshotRef.current = JSON.stringify({ firstName, lastName, phoneNumber, avatarUrl, musician: finalMusician, employer: finalEmployer });
       toast('Profilin güncellendi.', 'success');
     } catch (e) {
       toast(formatApiError(e), 'error');
@@ -303,6 +332,16 @@ export function ProfileEdit() {
         </div>
       </div>
       </FadeIn>
+
+      <ConfirmDialog
+        open={blocker.state === 'blocked'}
+        title="Kaydedilmemiş değişiklikler var"
+        description="Bu sayfadan ayrılırsan yaptığın değişiklikler kaybolur. Yine de ayrılmak istiyor musun?"
+        confirmLabel="Ayrıl"
+        danger
+        onConfirm={() => blocker.state === 'blocked' && blocker.proceed()}
+        onClose={() => blocker.state === 'blocked' && blocker.reset()}
+      />
     </div>
   );
 }
