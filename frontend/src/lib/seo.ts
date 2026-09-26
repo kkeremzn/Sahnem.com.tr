@@ -3,6 +3,10 @@ import { useEffect } from 'react';
 const SITE_ORIGIN = 'https://sahnem.com.tr';
 const DEFAULT_TITLE = 'Sahnem — Müzik Profesyonelleri Ağı';
 const DEFAULT_DESCRIPTION = 'Sahnem — müzisyenleri organizatör ve mekanlarla buluşturan müzik profesyonelleri ağı.';
+// Şu an 1200x630 ölçüsünde özel bir paylaşım görseli yok — kare logo,
+// hiç görsel olmamasından iyi. İleride gerçek bir OG görseli eklenirse
+// burası tek nokta.
+const DEFAULT_OG_IMAGE = `${SITE_ORIGIN}/favicon-512x512.png`;
 
 function upsertMeta(attr: 'name' | 'property', key: string, content: string) {
   let el = document.querySelector<HTMLMetaElement>(`meta[${attr}="${key}"]`);
@@ -43,16 +47,40 @@ interface PageSeoOptions {
 // document.head'i günceller.
 export function usePageSeo({ title, description, canonicalPath, noindex = false }: PageSeoOptions) {
   useEffect(() => {
-    document.title = title ? title : DEFAULT_TITLE;
-    upsertMeta('name', 'description', description ?? DEFAULT_DESCRIPTION);
+    const resolvedTitle = title ? title : DEFAULT_TITLE;
+    const resolvedDescription = description ?? DEFAULT_DESCRIPTION;
+
+    document.title = resolvedTitle;
+    upsertMeta('name', 'description', resolvedDescription);
     upsertMeta('name', 'robots', noindex ? 'noindex, nofollow' : 'index, follow');
 
     if (!noindex) {
       const path = canonicalPath ?? window.location.pathname;
-      upsertCanonical(`${SITE_ORIGIN}${path}`);
+      const url = `${SITE_ORIGIN}${path}`;
+      upsertCanonical(url);
+
+      // Open Graph/Twitter Card — arama sıralamasını etkilemez, sadece
+      // WhatsApp/Twitter/LinkedIn gibi yerlerde link paylaşılınca düzgün bir
+      // önizleme (başlık/açıklama/görsel) çıkmasını sağlar.
+      upsertMeta('property', 'og:type', 'website');
+      upsertMeta('property', 'og:site_name', 'Sahnem');
+      upsertMeta('property', 'og:title', resolvedTitle);
+      upsertMeta('property', 'og:description', resolvedDescription);
+      upsertMeta('property', 'og:url', url);
+      upsertMeta('property', 'og:image', DEFAULT_OG_IMAGE);
+      upsertMeta('name', 'twitter:card', 'summary_large_image');
+      upsertMeta('name', 'twitter:title', resolvedTitle);
+      upsertMeta('name', 'twitter:description', resolvedDescription);
+      upsertMeta('name', 'twitter:image', DEFAULT_OG_IMAGE);
     } else {
-      // noindex sayfalarda canonical bırakmıyoruz — çelişkili sinyal olmasın.
+      // noindex sayfalarda canonical ve OG/Twitter etiketleri bırakmıyoruz —
+      // hem çelişkili sinyal olmasın hem de kullanıcıya özel sayfalar için
+      // paylaşım önizlemesi üretilmesin.
       document.querySelector('link[rel="canonical"]')?.remove();
+      ['og:type', 'og:site_name', 'og:title', 'og:description', 'og:url', 'og:image'].forEach((key) =>
+        document.querySelector(`meta[property="${key}"]`)?.remove());
+      ['twitter:card', 'twitter:title', 'twitter:description', 'twitter:image'].forEach((key) =>
+        document.querySelector(`meta[name="${key}"]`)?.remove());
     }
 
     // Sayfa değişince başlık/description bir önceki sayfada "takılı" kalmasın
