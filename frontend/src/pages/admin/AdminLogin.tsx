@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { useAdminAuth } from '@/context/AdminAuthContext';
 import { useToast } from '@/context/ToastContext';
 import { formatApiError } from '@/lib/apiClient';
+import { usePageSeo } from '@/lib/seo';
 import * as adminAuthService from '@/services/adminAuthService';
 
 const RESEND_COOLDOWN_SECONDS = 60;
@@ -16,6 +17,7 @@ export function AdminLogin() {
   const { login } = useAdminAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  usePageSeo({ noindex: true });
 
   const [mode, setMode] = useState<Mode>('login');
 

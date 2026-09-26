@@ -19,6 +19,7 @@ import { useToast } from '@/context/ToastContext';
 import * as profileService from '@/services/profileService';
 import * as favoriteService from '@/services/favoriteService';
 import { CITIES, CITY_LABELS, MUSIC_BRANCHES, MUSIC_BRANCH_LABELS, optionsFrom, type City, type EmployerSummary, type MusicBranch, type MusicianProfile } from '@/types';
+import { usePageSeo } from '@/lib/seo';
 
 const PAGE_SIZE = 8;
 
@@ -64,6 +65,11 @@ export function Explore() {
   // dolmasına (yanlış durumun bir an gösterilmesine) yol açıyordu.
   const [favorites, setFavorites] = useState<number[] | null>(null);
   const [page, setPage] = useState(1);
+  usePageSeo({
+    title: 'Müzisyen, Mekan ve Organizatör Keşfet | Sahnem',
+    description: 'Branşa ve şehre göre müzisyenleri, mekanları ve organizatörleri keşfet, doğrudan iletişime geç.',
+    canonicalPath: '/explore',
+  });
 
   useEffect(() => {
     setPage(1);

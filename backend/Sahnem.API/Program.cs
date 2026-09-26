@@ -347,6 +347,16 @@ app.MapGet("/health", async (SahnemDbContext db) =>
     }
 });
 
+// Frontend (Vercel) bu adrese gelen /sitemap.xml isteğini buraya proxy'liyor
+// (bkz. frontend/vercel.json) — daha önce hiçbir gerçek sitemap yoktu (bkz.
+// SEO denetimi Bulgu 1). Sadece herkese açık, gerçek içeriği olan sayfaları
+// listeler (bkz. SitemapService).
+app.MapGet("/sitemap.xml", async (SahnemDbContext db) =>
+{
+    var xml = await Sahnem.API.Services.SitemapService.GenerateAsync(db);
+    return Results.Text(xml, "application/xml");
+});
+
 app.Run();
 
 

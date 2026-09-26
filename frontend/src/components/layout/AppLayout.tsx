@@ -8,10 +8,15 @@ import { PageTransition } from './PageTransition';
 import { AppBootLoader } from './AppBootLoader';
 import { Container } from '@/components/ui/Container';
 import { useAuth } from '@/context/AuthContext';
+import { usePageSeo } from '@/lib/seo';
 
 export function AppLayout() {
   const { user, loading } = useAuth();
   const location = useLocation();
+  // Bu layout'un altındaki her ekran (Panel, Mesajlar, İlanlarım, Ayarlar vb.)
+  // kullanıcıya özel veri gösteriyor — tek bir yerden noindex uygulanıyor,
+  // tek tek her sayfaya eklemeye gerek yok.
+  usePageSeo({ noindex: true });
 
   if (loading) {
     return <AppBootLoader />;

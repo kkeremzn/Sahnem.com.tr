@@ -4,9 +4,11 @@ import { AppBootLoader } from './AppBootLoader';
 import { Container } from '@/components/ui/Container';
 import { useAuth } from '@/context/AuthContext';
 import { getHomeRoute } from '@/lib/homeRoute';
+import { usePageSeo } from '@/lib/seo';
 
 export function ProfileSetupLayout() {
   const { user, loading } = useAuth();
+  usePageSeo({ noindex: true });
 
   if (loading) {
     return <AppBootLoader />;

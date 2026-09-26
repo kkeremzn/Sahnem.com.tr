@@ -16,6 +16,7 @@ import * as profileService from '@/services/profileService';
 import * as advertService from '@/services/advertService';
 import { CITY_LABELS, ORGANIZER_TYPE_LABELS, VENUE_TYPE_LABELS, type Advert, type EmployerProfile as EmployerProfileType } from '@/types';
 import { resolveAssetUrl } from '@/lib/apiClient';
+import { usePageSeo } from '@/lib/seo';
 
 export function EmployerProfile() {
   const { id } = useParams();
@@ -23,6 +24,17 @@ export function EmployerProfile() {
   const { user } = useAuth();
   const [employer, setEmployer] = useState<EmployerProfileType | null | undefined>(null);
   const [adverts, setAdverts] = useState<Advert[]>([]);
+
+  // Bu profile /organizers/:id, /venues/:id ve (eski bağlantılar için)
+  // /employers/:id üzerinden birebir aynı içerikle ulaşılabiliyor (bkz. SEO
+  // denetimi Bulgu 5) — canonical her zaman role göre "asıl" adresi
+  // gösteriyor, hangi URL'den girilirse girilsin sinyaller tek adreste toplanır.
+  usePageSeo({
+    title: employer ? `${employer.kind === 'Organizer' ? employer.organizerName : employer.venueName} | Sahnem` : 'Mekan / Organizatör Profili | Sahnem',
+    description: employer?.bio ? employer.bio.slice(0, 155) : undefined,
+    canonicalPath: employer ? `/${employer.kind === 'Organizer' ? 'organizers' : 'venues'}/${employer.appUserId}` : undefined,
+    noindex: employer === undefined,
+  });
 
   useEffect(() => {
     profileService.getEmployerByUserId(Number(id)).then((e) => setEmployer(e ?? undefined));

@@ -22,6 +22,7 @@ import * as offerService from '@/services/offerService';
 import { CITY_LABELS, EVENT_DURATION_LABELS, MUSIC_BRANCH_LABELS, type Advert, type Offer } from '@/types';
 import { formatDateTimeLong, formatPrice } from '@/lib/format';
 import { formatApiError } from '@/lib/apiClient';
+import { usePageSeo } from '@/lib/seo';
 
 const offerSchema = z.object({
   message: z.string().min(10, 'Mesajın en az 10 karakter olmalı.').max(500, 'Mesajın en fazla 500 karakter olabilir.'),
@@ -45,6 +46,17 @@ export function JobDetail() {
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<OfferFormInput, unknown, OfferFormData>({
     resolver: zodResolver(offerSchema),
+  });
+
+  // advert === undefined: iptal edilmiş ya da hiç var olmamış bir ilan
+  // (backend zaten böyle bir isteği reddediyor, bkz. AdvertService.GetAdvertById) —
+  // bu durumda Google'a "bunu indeksleme" diyoruz, aksi halde her ilan
+  // kaldırıldığında/iptal edildiğinde arkasında ölü, boş bir sayfa kalırdı.
+  usePageSeo({
+    title: advert ? `${advert.title} | Sahnem İlanları` : 'İlan | Sahnem',
+    description: advert ? advert.description.slice(0, 155) : undefined,
+    canonicalPath: id ? `/jobs/${id}` : undefined,
+    noindex: advert === undefined,
   });
 
   useEffect(() => {

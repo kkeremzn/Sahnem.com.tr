@@ -3,8 +3,15 @@ import { Home } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
 import { Button } from '@/components/ui/Button';
 import { LogoMark } from '@/components/brand/LogoMark';
+import { usePageSeo } from '@/lib/seo';
 
 export function NotFound() {
+  // Bu bileşen hem gerçek yanlış URL'lerde hem de var olmayan bir kayda
+  // (silinmiş ilan/profil id'si) gidildiğinde render ediliyor — ikisinde de
+  // Google'a "bunu indeksleme" demek gerekiyor. Sunucu hâlâ HTTP 200
+  // döndürüyor (SPA mimarisinin kendi sınırı, bkz. SEO denetimi Bulgu 3);
+  // bu en azından içerik seviyesinde net bir sinyal veriyor.
+  usePageSeo({ noindex: true });
   return (
     <Container className="flex min-h-[80vh] flex-col items-center justify-center py-20 text-center">
       <div className="text-gold opacity-70">

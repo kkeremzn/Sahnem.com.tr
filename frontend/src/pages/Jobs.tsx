@@ -14,6 +14,7 @@ import { Pagination } from '@/components/ui/Pagination';
 import { AdvertCard } from '@/components/advert/AdvertCard';
 import * as advertService from '@/services/advertService';
 import { CITIES, CITY_LABELS, MUSIC_BRANCHES, MUSIC_BRANCH_LABELS, optionsFrom, type Advert, type City, type MusicBranch } from '@/types';
+import { usePageSeo } from '@/lib/seo';
 
 const PAGE_SIZE = 8;
 
@@ -26,6 +27,14 @@ export function Jobs() {
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [page, setPage] = useState(1);
+  // Branş/şehir/sayfa filtreleri aynı temel listeyi farklı query string'lerle
+  // sunuyor — hepsi Google'a "asıl sayfa /jobs'tır" demesi için sabit bir
+  // canonical'a bağlanıyor (filtre kombinasyonu başına ayrı URL indekslenmesin).
+  usePageSeo({
+    title: 'Müzisyen Arayan İlanlar | Sahnem',
+    description: 'Organizatör ve mekanların yayınladığı açık ilanları incele, müzisyen olarak teklifini gönder.',
+    canonicalPath: '/jobs',
+  });
 
   useEffect(() => {
     setPage(1);

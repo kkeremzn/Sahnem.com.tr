@@ -1,8 +1,14 @@
 import { Container } from '@/components/ui/Container';
 import { LegalHero } from '@/components/legal/LegalHero';
 import { LegalProse, LegalTable } from '@/components/legal/LegalProse';
+import { usePageSeo } from '@/lib/seo';
 
 export function Kvkk() {
+  usePageSeo({
+    title: 'KVKK Aydınlatma Metni | Sahnem',
+    description: '6698 sayılı KVKK kapsamında Sahnem tarafından kişisel verilerin işlenmesine ilişkin aydınlatma metni.',
+    canonicalPath: '/kvkk-aydinlatma-metni',
+  });
   return (
     <div>
       <LegalHero title="KVKK Aydınlatma Metni" effectiveDate="16.09.2026" version="1.0" current="KVKK Aydınlatma Metni" />

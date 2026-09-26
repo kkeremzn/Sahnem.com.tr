@@ -4,6 +4,7 @@ import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/context/AuthContext';
+import { usePageSeo } from '@/lib/seo';
 
 const VALUES = [
   { icon: Sparkles, title: 'Profesyonellik', desc: 'Her müzisyen ve organizasyon, hak ettiği ciddiyetle karşılanır.' },
@@ -15,6 +16,11 @@ const VALUES = [
 export function About() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  usePageSeo({
+    title: 'Hakkımızda | Sahnem',
+    description: 'Sahnem, müzisyenleri organizatör ve mekanlarla doğrudan buluşturan bir platform. Misyonumuzu ve değerlerimizi öğren.',
+    canonicalPath: '/about',
+  });
   return (
     <div>
       <section className="border-b border-border bg-noise py-20">

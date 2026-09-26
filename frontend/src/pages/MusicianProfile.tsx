@@ -21,6 +21,7 @@ import {
 } from '@/types';
 import { formatPrice } from '@/lib/format';
 import { resolveAssetUrl } from '@/lib/apiClient';
+import { usePageSeo } from '@/lib/seo';
 
 export function MusicianProfile() {
   const { id } = useParams();
@@ -32,6 +33,13 @@ export function MusicianProfile() {
   // değer üzerinden taşımak, favorilenmiş bir profilde bile butonun bir an
   // "Favorile" gösterip hemen "Favoride"ye dönmesine yol açıyordu.
   const [favorite, setFavorite] = useState<boolean | undefined>();
+
+  usePageSeo({
+    title: musician ? `${musician.firstName} ${musician.lastName} — ${musician.branch.map((b) => MUSIC_BRANCH_LABELS[b]).join(', ')} | Sahnem` : 'Müzisyen Profili | Sahnem',
+    description: musician?.bio ? musician.bio.slice(0, 155) : undefined,
+    canonicalPath: id ? `/musicians/${id}` : undefined,
+    noindex: musician === undefined,
+  });
 
   useEffect(() => {
     profileService.getMusicianByUserId(Number(id)).then((m) => setMusician(m ?? undefined));

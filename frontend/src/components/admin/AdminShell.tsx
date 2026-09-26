@@ -11,6 +11,7 @@ import { useAdminAuth } from '@/context/AdminAuthContext';
 import { useToast } from '@/context/ToastContext';
 import * as adminAuthService from '@/services/adminAuthService';
 import { formatApiError } from '@/lib/apiClient';
+import { usePageSeo } from '@/lib/seo';
 import { cn } from '@/lib/cn';
 
 const NAV_ITEMS = [
@@ -31,6 +32,7 @@ export function AdminShell() {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [changing, setChanging] = useState(false);
+  usePageSeo({ noindex: true });
 
   if (loading) {
     return <AppBootLoader />;

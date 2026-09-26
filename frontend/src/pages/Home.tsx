@@ -10,6 +10,7 @@ import { MusicianCard } from '@/components/musician/MusicianCard';
 import { MultiSelectChips } from '@/components/ui/MultiSelectChips';
 import { useAuth } from '@/context/AuthContext';
 import { getHomeRoute } from '@/lib/homeRoute';
+import { usePageSeo } from '@/lib/seo';
 import * as profileService from '@/services/profileService';
 import { CITIES, CITY_LABELS, MUSIC_BRANCHES, MUSIC_BRANCH_LABELS, optionsFrom, type City, type MusicBranch, type MusicianProfile } from '@/types';
 
@@ -35,6 +36,11 @@ export function Home() {
   const [musicians, setMusicians] = useState<MusicianProfile[] | null>(null);
   const [searchBranches, setSearchBranches] = useState<MusicBranch[]>([]);
   const [searchCities, setSearchCities] = useState<City[]>([]);
+  usePageSeo({
+    title: 'Sahnem — Müzisyen, Mekan ve Organizatörleri Buluşturan Platform',
+    description: 'Müzisyenleri organizatör ve mekanlarla buluşturan müzik profesyonelleri ağı. İlan aç, teklif ver, doğru ismi bul.',
+    canonicalPath: '/',
+  });
 
   useEffect(() => {
     profileService.listMusicians({ pageSize: 4 }).then((res) => {

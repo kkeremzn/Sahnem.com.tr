@@ -1,8 +1,14 @@
 import { Container } from '@/components/ui/Container';
 import { LegalHero } from '@/components/legal/LegalHero';
 import { LegalProse } from '@/components/legal/LegalProse';
+import { usePageSeo } from '@/lib/seo';
 
 export function Privacy() {
+  usePageSeo({
+    title: 'Gizlilik Politikası | Sahnem',
+    description: 'Sahnem kişisel verilerinizi nasıl kullanır, saklar ve korur — gizlilik politikamız.',
+    canonicalPath: '/gizlilik-politikasi',
+  });
   return (
     <div>
       <LegalHero title="Gizlilik Politikası" effectiveDate="16.09.2026" version="1.0" current="Gizlilik Politikası" />

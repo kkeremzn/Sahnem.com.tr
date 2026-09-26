@@ -1,8 +1,14 @@
 import { Container } from '@/components/ui/Container';
 import { LegalHero } from '@/components/legal/LegalHero';
 import { LegalProse } from '@/components/legal/LegalProse';
+import { usePageSeo } from '@/lib/seo';
 
 export function Terms() {
+  usePageSeo({
+    title: 'Kullanım Koşulları | Sahnem',
+    description: 'Sahnem platformunu kullanırken geçerli olan kullanım koşulları.',
+    canonicalPath: '/kullanim-kosullari',
+  });
   return (
     <div>
       <LegalHero title="Kullanım Koşulları" effectiveDate="16.09.2026" version="1.0" current="Kullanım Koşulları" />

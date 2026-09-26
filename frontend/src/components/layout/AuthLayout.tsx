@@ -2,11 +2,15 @@ import { Navigate, Link } from 'react-router-dom';
 import { LogoMark } from '@/components/brand/LogoMark';
 import { useAuth } from '@/context/AuthContext';
 import { getHomeRoute } from '@/lib/homeRoute';
+import { usePageSeo } from '@/lib/seo';
 import { ScrollToTop } from './ScrollToTop';
 import { PageTransition } from './PageTransition';
 
 export function AuthLayout() {
   const { user, loading } = useAuth();
+  // Giriş, kayıt ve şifre sıfırlama formları arama sonuçlarında tekil bir
+  // değer taşımıyor; ana sayfa zaten "Kayıt Ol" çağrısını karşılıyor.
+  usePageSeo({ noindex: true });
 
   if (!loading && user) {
     return <Navigate to={getHomeRoute(user)} replace />;

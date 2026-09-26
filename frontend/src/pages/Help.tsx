@@ -4,6 +4,7 @@ import { ChevronDown, FileText, Lock, Mail, ShieldCheck } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
 import { cn } from '@/lib/cn';
+import { usePageSeo } from '@/lib/seo';
 
 const FAQS = [
   { q: 'Sahnem\'e nasıl kayıt olabilirim?', a: 'Kayıt Ol sayfasından e-posta adresin ile hızlıca hesap oluşturabilir, ardından müzisyen ya da organizatör/mekan profilini tamamlayabilirsin.' },
@@ -22,6 +23,11 @@ const LEGAL = [
 
 export function Help() {
   const [open, setOpen] = useState<number | null>(0);
+  usePageSeo({
+    title: 'Yardım Merkezi | Sahnem',
+    description: 'Sahnem hakkında sık sorulan sorular, kayıt, ilan verme, teklif gönderme ve hesap yönetimi ile ilgili yanıtlar.',
+    canonicalPath: '/help',
+  });
 
   return (
     <Container className="max-w-3xl py-14">
