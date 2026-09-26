@@ -266,6 +266,7 @@ namespace Sahnem.Business.Services
         {
             var dto = _mapper.Map<OfferResponseDto>(offer);
             dto.AdvertTitle = advert?.Title;
+            dto.AdvertStatus = advert?.Status;
 
             var musician = await _musicianProfileRepository.FirstOrDefaultAsync(m => m.AppUserId == offer.MusicianId);
             var musicianUser = await _userRepository.GetByIdAsync(offer.MusicianId);
@@ -294,7 +295,9 @@ namespace Sahnem.Business.Services
             var dtos = _mapper.Map<List<OfferResponseDto>>(offerList);
             foreach (var dto in dtos)
             {
-                dto.AdvertTitle = adverts.FirstOrDefault(a => a.Id == dto.AdvertId)?.Title;
+                var matchingAdvert = adverts.FirstOrDefault(a => a.Id == dto.AdvertId);
+                dto.AdvertTitle = matchingAdvert?.Title;
+                dto.AdvertStatus = matchingAdvert?.Status;
                 var musician = musicians.FirstOrDefault(m => m.AppUserId == dto.MusicianId);
                 dto.MusicianBranch = musician == null ? null : MultiEnumField.ParseFirst<MusicBranch>(musician.Branch);
                 var musicianUser = musicianUsers.FirstOrDefault(u => u.Id == dto.MusicianId);

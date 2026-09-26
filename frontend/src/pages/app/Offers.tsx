@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/Card';
 import { Tabs } from '@/components/ui/Tabs';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { CardSkeleton } from '@/components/ui/Skeleton';
-import { OfferStatusBadge } from '@/components/ui/StatusBadge';
+import { AdvertStatusBadge, OfferStatusBadge } from '@/components/ui/StatusBadge';
 import { useAuth } from '@/context/AuthContext';
 import * as offerService from '@/services/offerService';
 import type { Offer, OfferStatus } from '@/types';
@@ -60,10 +60,19 @@ export function Offers() {
                   <p className="mt-1 flex items-center gap-1.5 text-xs text-text-faint">
                     <CalendarDays size={12} /> {formatDate(o.createdDate)} tarihinde gönderildi
                   </p>
+                  {/* Teklif hâlâ "Bekliyor" görünse bile ilanın son başvuru
+                      tarihi geçmiş olabilir — ilan sahibi hâlâ karar
+                      verebilir ama bunu görmezden gelmek yanıltıcı olur. */}
+                  {o.offerStatus === 'Pending' && o.advertStatus === 'Expired' && (
+                    <p className="mt-1 text-xs text-warning">İlanın başvuru süresi doldu, sonuç bekleniyor</p>
+                  )}
                 </div>
                 <div className="flex items-center gap-4">
                   <span className="font-display text-base font-bold text-gold-soft">{formatPrice(o.proposedPrice)}</span>
                   <OfferStatusBadge status={o.offerStatus} />
+                  {o.offerStatus === 'Pending' && o.advertStatus === 'Expired' && (
+                    <AdvertStatusBadge status={o.advertStatus} />
+                  )}
                 </div>
               </Card>
             </Link>

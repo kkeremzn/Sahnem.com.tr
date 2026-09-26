@@ -11,6 +11,7 @@ namespace Sahnem.Business.DTOs.Offer
         public MusicBranch? MusicianBranch {get; set;}
         public int AdvertId {get; set;}
         public string? AdvertTitle {get; set;}
+        public AdvertStatus? AdvertStatus {get; set;}
         public string Message {get; set;}
         public decimal ProposedPrice {get; set;}
         public OfferStatus OfferStatus {get; set;}

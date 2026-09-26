@@ -16,6 +16,7 @@ import { formatDate, formatPrice } from '@/lib/format';
 const TABS: { key: 'all' | AdvertStatus; label: string }[] = [
   { key: 'all', label: 'Tümü' },
   { key: 'Open', label: 'Açık' },
+  { key: 'Expired', label: 'Süresi Doldu' },
   { key: 'Closed', label: 'Kapalı' },
   { key: 'Completed', label: 'Tamamlandı' },
   { key: 'Cancelled', label: 'İptal' },
@@ -37,7 +38,7 @@ export function MyAdverts() {
 
   const counts = useMemo(() => {
     const c: Record<string, number> = { all: adverts?.length ?? 0 };
-    (['Open', 'Closed', 'Completed', 'Cancelled'] as AdvertStatus[]).forEach((s) => {
+    (['Open', 'Expired', 'Closed', 'Completed', 'Cancelled'] as AdvertStatus[]).forEach((s) => {
       c[s] = adverts?.filter((a) => a.status === s).length ?? 0;
     });
     return c;

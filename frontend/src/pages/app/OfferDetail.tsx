@@ -4,7 +4,7 @@ import { CalendarDays, MapPin, MessageCircle } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { OfferStatusBadge } from '@/components/ui/StatusBadge';
+import { AdvertStatusBadge, OfferStatusBadge } from '@/components/ui/StatusBadge';
 import { DetailPageSkeleton } from '@/components/ui/Skeleton';
 import { FadeIn } from '@/components/ui/FadeIn';
 import * as offerService from '@/services/offerService';
@@ -45,7 +45,12 @@ export function OfferDetail() {
           <h1 className="font-display text-2xl font-bold">{offer.advertTitle}</h1>
           <p className="mt-1 text-sm text-text-dim">{formatDate(offer.createdDate)} tarihinde gönderildi</p>
         </div>
-        <OfferStatusBadge status={offer.offerStatus} />
+        <div className="flex items-center gap-2">
+          <OfferStatusBadge status={offer.offerStatus} />
+          {offer.offerStatus === 'Pending' && offer.advertStatus === 'Expired' && (
+            <AdvertStatusBadge status={offer.advertStatus} />
+          )}
+        </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
@@ -74,7 +79,12 @@ export function OfferDetail() {
             <p className="text-xs text-text-faint">Teklif ettiğin fiyat</p>
             <p className="mt-1 font-display text-2xl font-bold text-gold-soft">{formatPrice(offer.proposedPrice)}</p>
             <div className="mt-5 border-t border-border pt-5">
-              {offer.offerStatus === 'Pending' && <p className="text-sm text-text-dim">İşverenin yanıtı bekleniyor.</p>}
+              {offer.offerStatus === 'Pending' && offer.advertStatus === 'Expired' && (
+                <p className="text-sm text-text-dim">İlanın başvuru süresi doldu; ilan sahibi teklifleri hâlâ değerlendirebiliyor, sonucu sana haber vereceğiz.</p>
+              )}
+              {offer.offerStatus === 'Pending' && offer.advertStatus !== 'Expired' && (
+                <p className="text-sm text-text-dim">İşverenin yanıtı bekleniyor.</p>
+              )}
               {offer.offerStatus === 'Accepted' && (
                 <>
                   <p className="mb-3 text-sm text-success">Teklifin kabul edildi!</p>
