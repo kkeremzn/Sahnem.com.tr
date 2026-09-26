@@ -95,13 +95,13 @@ namespace Sahnem.API.Controllers
             // sızdırılmasının önüne geçmek için kapsam sıkı tutuluyor.
             if (string.IsNullOrWhiteSpace(key) || key.Contains("..") || !key.StartsWith("avatars/"))
             {
-                return NotFound(new { debug = "guard-rejected", receivedKey = key });
+                return NotFound();
             }
 
             var result = await _fileStorageService.GetFileAsync(key);
             if (result == null)
             {
-                return NotFound(new { debug = "storage-miss", receivedKey = key });
+                return NotFound();
             }
 
             var (content, contentType) = result.Value;
